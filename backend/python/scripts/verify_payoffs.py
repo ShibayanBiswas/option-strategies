@@ -1,11 +1,6 @@
 """
-Implementation-parity check: compare this engine's terminal-payoff array,
-element-by-element, against the exact f_T formulas in the reference notebook
-  Trading_strategies_Options.ipynb (chenenen13/Trading-Strategies)
-
-For every strategy we pull the live defaultParams + payoff from the Node API
-(so the spot grid and premia are identical by construction), recompute the
-notebook formula in NumPy, and report the maximum absolute difference.
+Implementation parity check: compare engine terminal-payoff arrays against
+canonical f_T formulas element-by-element.
 
 Run (from backend/python):
     .\\venv\\Scripts\\python.exe scripts\\verify_payoffs.py
@@ -44,9 +39,8 @@ def mx(x):
     return np.maximum(x, 0.0)
 
 
-# Notebook f_T formulas. Premium sign matches the notebook cells exactly:
-#   debit D subtracts, credit C adds, H subtracts, ratio spreads add H,
-#   long box uses a doubled debit (-2D).
+# Canonical f_T formulas. Premium sign: D subtracts, C adds, H subtracts,
+# ratio spreads add H, long box uses doubled premium (-2D).
 FORMULAS = {
     "covered-call": lambda S, p: S - p["S0"] - mx(S - p["K"]) + p["C"],
     "covered-put": lambda S, p: p["S0"] - S - mx(p["K"] - S) + p["C"],
@@ -100,9 +94,9 @@ FORMULAS = {
     "bearish-long-seagull-spread": lambda S, p: mx(p["K1"] - S) - mx(S - p["K2"]) + mx(S - p["K3"]) - p["H"],
 }
 
-# Multi-expiry (Black-Scholes near-leg) and paper-only structures: shape checks.
+# Multi-expiry (Black-Scholes near-leg) and extended structures: shape checks.
 MULTI_EXPIRY = {"calendar-call-spread", "calendar-put-spread", "diagonal-call-spread", "diagonal-put-spread"}
-PAPER_ONLY = {"long-iron-condor", "short-iron-condor"}
+EXTENDED = {"long-iron-condor", "short-iron-condor"}
 
 
 def main():
@@ -110,7 +104,7 @@ def main():
     ids = [s["id"] for s in strategies]
 
     passed, failed, skipped = [], [], []
-    print(f"Comparing {len(ids)} strategies against notebook formulas (tol={TOL})\n")
+    print(f"Comparing {len(ids)} strategies against canonical formulas (tol={TOL})\n")
 
     for sid in ids:
         detail = get(f"{NODE}/api/strategies/{sid}")
@@ -132,9 +126,9 @@ def main():
             print(f"  {sid:32s} {tag}")
             continue
 
-        if sid in PAPER_ONLY:
+        if sid in EXTENDED:
             skipped.append(sid)
-            print(f"  {sid:32s} SKIP (paper-only, not in notebook)")
+            print(f"  {sid:32s} SKIP (extended structure)")
             continue
 
         fn = FORMULAS.get(sid)
@@ -154,12 +148,12 @@ def main():
 
     print(
         f"\nSummary: {len(passed)} match, {len(failed)} mismatch, "
-        f"{len(skipped)} skipped (multi-expiry / paper-only)."
+        f"{len(skipped)} skipped (multi-expiry / extended)."
     )
     if failed:
         print("MISMATCHES:", ", ".join(failed))
         sys.exit(1)
-    print("All notebook single-expiry payoffs reproduced exactly.")
+    print("All single-expiry payoffs match canonical formulas.")
 
 
 if __name__ == "__main__":

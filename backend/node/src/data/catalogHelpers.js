@@ -283,7 +283,7 @@ function payoffParagraphs(raw) {
   const isMultiExpiry = raw.id?.includes("calendar") || raw.id?.includes("diagonal");
   if (isMultiExpiry) {
     return [
-      "This structure uses two expiries. The live chart follows the reference notebook: profit or loss at the near expiry T' when the short leg settles to intrinsic value and the long leg is re-priced with Black–Scholes at remaining time T − T'.",
+      "This structure uses two expiries. The live chart plots profit or loss at the near expiry T' when the short leg settles to intrinsic value and the long leg is re-priced with Black–Scholes at remaining time T − T'.",
       "Near T', the best outcome often pins spot near the body strike while time-decay differentials work in your favour—the curve is humped, not a flat vertical spread at long expiry.",
       "Greeks combine live Black–Scholes sensitivities on the long leg with intrinsic delta on the expired short leg at each spot on the grid; adjust T, T', σ, and premium in the sidebar to reshape both curves.",
     ];
@@ -375,7 +375,7 @@ function buildGreekIntuition(raw, outlook, category) {
     p1 = `${name} shapes a tent or plateau on the payoff chart—profit near chosen strikes, capped loss on the wings. Think of it as betting the stock finishes in a zone while paying for insurance on extreme moves.`;
     p2 = `Delta stays modest near the centre; gamma can spike near body strikes where the tent bends. Vega is usually smaller than a naked straddle because long and short wings partially offset vol exposure. Theta tells you whether you are earning or paying carry at S₀.`;
   } else if (category === "complex") {
-    p1 = `${name} stacks ${legs.length} legs—sometimes different expiries or size ratios—so no single Greek tells the whole story. Ladder payoffs use terminal intrinsic at expiry; calendar and diagonal charts use the near-expiry Black–Scholes plus intrinsic formula from the reference notebook.`;
+    p1 = `${name} stacks ${legs.length} legs—sometimes different expiries or size ratios—so no single Greek tells the whole story. Ladder payoffs use terminal intrinsic at expiry; calendar and diagonal charts use near-expiry Black–Scholes plus intrinsic valuation.`;
     p2 = `Each leg adds signed delta, gamma, vega, and theta. Ratio legs amplify one side of the book. Read aggregate numbers first, then click legs in the structure panel to see who drives each sensitivity on the chart.`;
   } else {
     p1 = `${name} nets ${longOpts} long and ${shortOpts} short option legs${hasStock ? " plus stock" : ""}. Long legs add rights and usually pay theta; short legs collect premium and add obligation. The payoff chart sums every leg after premium.`;
@@ -441,7 +441,7 @@ export function buildStrategyParagraphs(raw, greeksProfile, category, directiona
     .join("; ");
   const isMultiExpiry = raw.id?.includes("calendar") || raw.id?.includes("diagonal");
   const payoffNote = isMultiExpiry
-    ? "This structure uses two expiries; the live chart plots P/L at the near expiry T'—long leg valued with Black–Scholes at T − T' minus short-leg intrinsic minus premium—matching the reference notebook rather than a single long-dated terminal payoff."
+    ? "This structure uses two expiries; the live chart plots P/L at the near expiry T'—long leg valued with Black–Scholes at T − T' minus short-leg intrinsic minus premium—rather than a single long-dated terminal payoff."
     : "At expiration, profit or loss is fixed by intrinsic value of every leg minus net premium paid or plus net premium received; the breakeven is wherever the solid net curve crosses zero, and the green shaded region on the chart marks spots where you finish above that line.";
 
   const legCount = (raw.legs || []).length;
@@ -460,7 +460,7 @@ export function buildStrategyParagraphs(raw, greeksProfile, category, directiona
         : "Risk depends on net premium, strike placement, and whether you are net long or short options. Spreads usually cap both profit and loss; naked short options can carry substantial tail risk that does not show up in a calm week but appears quickly on a gap. Use the metrics row under the payoff chart for numeric max profit, max loss, breakevens, and P/L at current spot."
     ),
     cleanProse(
-      `${payoffNote} Hover the payoff chart for dollar values at any spot; the legend identifies every series. Default parameters and spot-axis limits match the reference Python notebook (strikes, premiums, and np.linspace ranges). ${raw.breakevenLatex ? "Formal breakeven identities appear in section §5 with notation grids." : "Scan zero crossings on the chart if no single breakeven formula is listed."}`
+      `${payoffNote} Hover the payoff chart for dollar values at any spot; the legend identifies every series. Default parameters and spot-axis limits are tuned for each strategy. ${raw.breakevenLatex ? "Formal breakeven identities appear in section §5 with notation grids." : "Scan zero crossings on the chart if no single breakeven formula is listed."}`
     ),
     cleanProse(
       "Use the parameter panel as a laboratory: move spot, strikes, volatility, and time while watching breakevens, max profit and loss, Greeks, and highlighted legs update instantly. Section §3 explains sensitivities with live tiles and curves; section §4 covers net directional movement with typeset identities. Each section is capped at five paragraphs; every equation includes symbol definitions."

@@ -1,6 +1,5 @@
 /**
- * Default parameters and spot-axis limits from the reference notebook:
- * https://github.com/chenenen13/Trading-Strategies/.../Trading_strategies_Options.ipynb
+ * Default parameters and spot-axis limits per strategy.
  */
 
 export const SPOT_RANGES = {

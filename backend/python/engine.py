@@ -25,7 +25,7 @@ from multi_expiry import MULTI_EXPIRY_IDS, compute_multi_expiry
 
 
 def _spot_grid(params: dict, s0: float, points: int = 500) -> np.ndarray:
-    """Spot axis — fixed notebook limits when spotMin/spotMax are supplied."""
+    """Spot axis — fixed limits when spotMin/spotMax are supplied."""
     if "spotMin" in params and "spotMax" in params:
         lo = float(params["spotMin"])
         hi = float(params["spotMax"])
@@ -36,7 +36,7 @@ def _spot_grid(params: dict, s0: float, points: int = 500) -> np.ndarray:
     return np.linspace(lo, hi, points)
 
 
-# Ratio spreads treat H as a net premium received in the reference notebook (+H), not paid.
+# Ratio spreads treat H as net premium received (+H), not paid.
 _CREDIT_H_IDS = frozenset({"ratio-call-spread", "ratio-put-spread"})
 _DOUBLE_DEBIT_D_IDS = frozenset({"long-box"})
 

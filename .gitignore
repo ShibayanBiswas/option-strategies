@@ -40,3 +40,6 @@ Thumbs.db
 # Misc
 *.tmp
 coverage/
+
+# Local reference documents (not part of the published app)
+Research Paper.pdf

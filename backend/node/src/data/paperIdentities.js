@@ -1,8 +1,6 @@
 /**
- * Breakeven, maximum-profit and maximum-loss identities transcribed verbatim
- * from the reference monograph:
- *   Z. Kakushadze & J. A. Serur, "151 Trading Strategies" (2018), §2.
- * Notation matches the paper: S^* (break-even), P_max, L_max, D/C net premium,
+ * Breakeven, maximum-profit and maximum-loss LaTeX identities for all strategies.
+ * Notation: S^* (break-even), P_max, L_max, D/C net premium,
  * H = D (premium paid) or H = -C (premium received), kappa = equidistant strike spacing.
  */
 

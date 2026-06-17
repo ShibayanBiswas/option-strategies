@@ -1,4 +1,4 @@
-"""Calendar and diagonal spread PnL/Greeks — matches reference notebook at near expiry."""
+"""Calendar and diagonal spread PnL/Greeks at near expiry."""
 from __future__ import annotations
 
 from typing import Any
@@ -68,7 +68,7 @@ def compute_multi_expiry(
     r: float,
     sigma: float,
 ) -> dict[str, Any]:
-    """Notebook PnL at short-leg expiry: long BS value minus short intrinsic minus premium."""
+    """P/L at short-leg expiry: long BS value minus short intrinsic minus premium."""
     _, _, t_rem = _time_params(params)
     qty_long = 1.0
     qty_short = -1.0

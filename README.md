@@ -1,12 +1,10 @@
 # Option Strategies Dashboard
 
+**Author:** Shibayan Biswas
+
 An interactive research monograph for **56 equity option strategies** — live payoff
 diagrams, Black–Scholes Greeks, directional analytics, and typeset payoff/breakeven
-identities. Every default payoff reproduces the reference notebook exactly, and every
-breakeven / max-profit / max-loss identity is transcribed from the reference paper.
-
-- **Payoff parity:** [`chenenen13/Trading-Strategies` → `Trading_strategies_Options.ipynb`](https://github.com/chenenen13/Trading-Strategies/blob/main/Trading%20strategies%20implemented%20on%20Python/options/Trading_strategies_Options.ipynb)
-- **Identity source:** Z. Kakushadze & J. A. Serur, *151 Trading Strategies* (2018), §2 (`Research Paper.pdf`)
+identities.
 
 ---
 
@@ -45,8 +43,7 @@ tools/node/      Bundled Node runtime (no global install required)
 ```
 
 The frontend calls the Node gateway, which proxies analytics requests to the Python
-engine. Strategy defaults, spot-axis limits, and leg definitions mirror the reference
-notebook; the payoff/breakeven/max-profit/max-loss identities mirror the reference paper.
+engine.
 
 ---
 
@@ -96,21 +93,71 @@ foreach ($p in 8000,4000,5173) {
 
 ## Verification
 
-Payoff parity and notebook alignment are checked by scripts under `backend/python/scripts`
-(the Node + Python services must be running for the live checks):
+Analytics checks live under `backend/python/scripts` (Node + Python services must be running):
 
 ```powershell
 cd backend\python
-# Element-wise payoff comparison vs the notebook f_T formulas (all 56 strategies)
 .\venv\Scripts\python.exe scripts\verify_payoffs.py
-# Spot-grid / default-parameter alignment checks
-.\venv\Scripts\python.exe scripts\verify_notebook.py
+.\venv\Scripts\python.exe scripts\verify_greeks.py
 ```
 
-`verify_payoffs.py` rebuilds the exact spot grid and confirms each engine payoff matches
-the notebook formula to within transport rounding (≈5e-5). Calendar/diagonal spreads use
-Black–Scholes near-leg valuation (same as the notebook); iron condors are paper-defined
-and not present in the notebook.
+---
+
+## Deploy on Vercel (frontend)
+
+This app has **three services**. Vercel hosts the **React frontend** only; the Node
+gateway and Python engine must run elsewhere (e.g. [Render](https://render.com) or
+[Railway](https://railway.app)).
+
+### Step 1 — Deploy backends
+
+**Python engine** (Render Web Service example):
+
+- Root directory: `backend/python`
+- Build: `pip install -r requirements.txt`
+- Start: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Note the public URL, e.g. `https://your-python.onrender.com`
+
+**Node gateway** (Render Web Service example):
+
+- Root directory: `backend/node`
+- Build: `npm install`
+- Start: `node src/index.js`
+- Environment variable: `PYTHON_URL=https://your-python.onrender.com`
+- Note the public URL, e.g. `https://your-node.onrender.com`
+
+### Step 2 — Deploy frontend to Vercel
+
+1. Import the GitHub repo at [vercel.com/new](https://vercel.com/new).
+2. Set **Root Directory** to `frontend`.
+3. Framework preset: **Vite** (auto-detected).
+4. Build command: `npm run build`
+5. Output directory: `dist`
+6. Add environment variable:
+
+   | Name            | Value                              |
+   | --------------- | ---------------------------------- |
+   | `VITE_API_URL`  | `https://your-node.onrender.com`   |
+
+7. Deploy.
+
+The frontend reads `VITE_API_URL` at build time and sends all `/api` calls to your Node
+gateway. Ensure the Node service allows CORS from your Vercel domain (already enabled
+in the Python service; add your Vercel origin to Node if needed).
+
+### Step 3 — SPA routing
+
+`frontend/vercel.json` rewrites all routes to `index.html` so React Router works on
+refresh (e.g. `/strategies/covered-call`).
+
+### Local production preview
+
+```powershell
+cd frontend
+$env:VITE_API_URL="http://localhost:4000"
+npm run build
+npm run preview
+```
 
 ---
 

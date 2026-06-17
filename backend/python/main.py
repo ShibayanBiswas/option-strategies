@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 app = FastAPI(
     title="Option Strategies Analytics Engine",
-    description="Payoff diagrams and Greeks — Kakushadze & Serur (2018) Chapter 2",
+    description="Payoff diagrams and Black–Scholes Greeks for option strategies",
     version="2.0.0",
 )
 

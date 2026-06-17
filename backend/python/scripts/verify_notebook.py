@@ -1,4 +1,4 @@
-"""Verify engine payoffs against reference notebook formulas."""
+"""Verify engine payoffs and default parameters against canonical formulas."""
 from __future__ import annotations
 
 import sys
@@ -94,7 +94,7 @@ def main():
     assert abs(r["spotPrices"][-1] - 70) < 0.01
     assert max(r["payoffs"]) > 0
 
-    print("All notebook alignment checks passed.")
+    print("All alignment checks passed.")
 
 
 if __name__ == "__main__":
