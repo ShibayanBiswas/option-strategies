@@ -108,11 +108,11 @@ export const STRATEGY_CONDITIONS = {
   // --- straddles / strangles / guts ---
   "long-straddle": [
     { latex: "K = S_0", note: "Long call and long put at the same at-the-money strike." },
-    { latex: "D > 0", note: "Net premium D; breakevens at K \\pm D." },
+    { latex: "D > 0", note: "Net premium D; breakevens at K ± D." },
   ],
   "short-straddle": [
     { latex: "K = S_0", note: "Short call and short put at the same at-the-money strike." },
-    { latex: "C > 0", note: "Net premium C; loss grows outside K \\pm C." },
+    { latex: "C > 0", note: "Net premium C; loss grows outside K ± C." },
   ],
   "long-strangle": [
     { latex: "K_1 < K_2", note: "Long call K_1 and long put K_2 with split strikes." },

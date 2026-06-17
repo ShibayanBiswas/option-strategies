@@ -350,12 +350,6 @@ function buildGreekIntuition(raw, outlook, category) {
 
   let p1 = "";
   let p2 = "";
-  let p3 =
-    "Click any coloured Greek tile above the table to highlight that column in the leg breakdown. The profile chart below plots how each sensitivity changes across spot—dashed lines are individual legs, the solid line is your whole book. Reading the chart from left to right shows how your risk morphs if the stock drifts toward lower or higher prices before expiry.";
-  let p4 =
-    "Use the layman guide panel to read plain-English definitions of delta, gamma, theta, vega, and rho tailored to this strategy. Each tab explains the idea without requiring calculus, then adds a sentence about how that Greek shows up in this specific structure at your current parameters.";
-  let p5 =
-    "Work through the five tiles in order when you are learning: delta for direction, theta for daily carry, vega before vol events, gamma before big moves, rho last. Compare the live numbers with the prose until the symbols feel like labels for ideas you already understand intuitively.";
 
   if (id === "long-call" || id === "long-put") {
     const opt = id === "long-call" ? "call" : "put";
@@ -388,7 +382,7 @@ function buildGreekIntuition(raw, outlook, category) {
     p2 = `Aggregate Greeks are the signed sum: delta for direction, gamma for how delta shifts, vega for vol, theta for daily decay, rho for rates. Start with Δ_net and Θ_net—they explain most day-to-day P/L for beginners.`;
   }
 
-  return [cleanProse(p1), cleanProse(p2), cleanProse(p3), cleanProse(p4), cleanProse(p5)];
+  return [cleanProse(p1), cleanProse(p2)];
 }
 
 export function buildGreeksProfile(raw, outlook, category) {

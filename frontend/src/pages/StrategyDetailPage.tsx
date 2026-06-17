@@ -215,7 +215,9 @@ export function StrategyDetailPage() {
                     <span className="shrink-0 rounded-md bg-accent-cyan/10 px-2 py-1">
                       <Latex math={c.latex} />
                     </span>
-                    <span className="text-sm text-slate-300 font-serif">{c.note}</span>
+                    <span className="text-sm text-slate-300 font-serif">
+                      <ProseMath text={c.note} stripParens={false} />
+                    </span>
                   </motion.li>
                 ))}
               </ul>
