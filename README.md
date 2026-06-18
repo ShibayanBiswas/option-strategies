@@ -125,27 +125,44 @@ This app has **three services**. Vercel hosts the **React frontend** only; the N
 gateway and Python engine must run elsewhere (e.g. [Render](https://render.com) or
 [Railway](https://railway.app)).
 
-### Step 1 — Deploy backends
+### Step 1 — Deploy backends (Render)
 
-**Python engine** (Render Web Service):
+Render defaults to **Python 3.14**, which breaks this project (packages compile from source).
+You **must** pin **3.12.8**.
+
+#### Option A — Python runtime (recommended)
+
+In the Render dashboard for your **Python** Web Service:
 
 | Setting | Value |
 | -------- | ------ |
 | Root directory | `backend/python` |
-| Runtime | **Python 3.12** (set via `runtime.txt` in that folder, or env `PYTHON_VERSION=3.12.8`) |
-| Build | `pip install -r requirements.txt` |
-| Start | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
+| **Environment → `PYTHON_VERSION`** | **`3.12.8`** ← required |
+| Build command | `chmod +x build.sh && ./build.sh` |
+| Start command | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
 
-> **Do not use Python 3.14** on Render — NumPy/SciPy may compile from source and fail.
-> This project pins **3.12** and uses NumPy only (no SciPy).
+Or import the repo Blueprint: root `render.yaml` (sets `PYTHON_VERSION` automatically).
 
-**Node gateway** (Render Web Service example):
+`runtime.txt` and `.python-version` in `backend/python` also request 3.12.8, but the
+**dashboard env var is the most reliable** if builds still show `python3.14` in logs.
 
-- Root directory: `backend/node`
-- Build: `npm install`
-- Start: `node src/index.js`
-- Environment variable: `PYTHON_SERVICE_URL=https://your-python.onrender.com`
-- Note the public URL, e.g. `https://your-node.onrender.com`
+#### Option B — Docker (if Option A still picks 3.14)
+
+| Setting | Value |
+| -------- | ------ |
+| Root directory | `backend/python` |
+| Runtime | **Docker** |
+| Dockerfile | `Dockerfile` (in that folder) |
+| Start command | *(leave default — set in Dockerfile)* |
+
+#### Node gateway
+
+| Setting | Value |
+| -------- | ------ |
+| Root directory | `backend/node` |
+| Build | `npm install` |
+| Start | `node src/index.js` |
+| **`PYTHON_SERVICE_URL`** | `https://your-python-service.onrender.com` |
 
 ### Step 2 — Deploy frontend to Vercel
 
