@@ -1629,8 +1629,8 @@ export const rawStrategies = [
   {
     id: "long-box",
     section: "2.52",
-    name: "Long Box",
-    description: "Four-leg box (also called the long box condor): a bull call spread plus a bear put spread—long put K_1, short put K_2, long call K_2, short call K_1, paid for with a net premium of 2D. The terminal payoff is locked at the constant K_1 - K_2 - 2D for every spot, a synthetic risk-free loan / interest-rate arbitrage structure.",
+    name: "Long Box Condor",
+    description: "Long box condor: a bull call spread plus a bear put spread—long put K_1, short put K_2, long call K_2, short call K_1, paid for with total premium 2D. The terminal payoff is locked at the constant K_1 - K_2 - 2D for every spot, a synthetic risk-free loan / interest-rate arbitrage structure.",
     outlook: "neutral",
     risk: "Arbitrage/interest-rate play; limited by premium",
     riskType: "capital-gain",

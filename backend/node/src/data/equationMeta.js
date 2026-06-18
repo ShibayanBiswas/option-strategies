@@ -178,14 +178,20 @@ export function buildPayoffEquationBlock(raw) {
   if (raw.paramKeys?.includes("D")) notation.push({ symbol: "D", meaning: "Net option premium paid at entry" });
   if (raw.paramKeys?.includes("C")) notation.push({ symbol: "C", meaning: "Net option premium received at entry" });
   if (raw.paramKeys?.includes("H")) notation.push({ symbol: "H", meaning: "Net premium" });
-  if (raw.paramKeys?.some((k) => k.startsWith("K"))) {
-    notation.push({ symbol: "K_i", meaning: "Strike price of leg i" });
+  const strikeKeys = ["K", "K1", "K2", "K3", "K4"].filter((k) => raw.paramKeys?.includes(k));
+  if (strikeKeys.length === 1 && strikeKeys[0] === "K") {
+    notation.push({ symbol: "K", meaning: "Strike price" });
+  } else {
+    for (const k of strikeKeys) {
+      if (k === "K") notation.push({ symbol: "K", meaning: "Strike price" });
+      else notation.push({ symbol: `K_${k.slice(1)}`, meaning: `Strike K_${k.slice(1)}` });
+    }
   }
 
   return {
     title: "Primary Terminal Payoff",
     context: "Identity for the solid net curve on the live payoff chart at expiration.",
-    notation: CORE_NOTATION,
+    notation,
     equations: [
       {
         latex: raw.payoffLatex,

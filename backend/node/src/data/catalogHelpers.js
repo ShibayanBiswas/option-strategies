@@ -351,7 +351,10 @@ function buildGreekIntuition(raw, outlook, category) {
   let p1 = "";
   let p2 = "";
 
-  if (id === "long-call" || id === "long-put") {
+  if (id === "long-box") {
+    p1 = `${name} pairs a bull call spread with a bear put spread. At expiry the net payoff is the constant K_1 - K_2 - 2D regardless of spot—delta-neutral by construction.`;
+    p2 = `Before expiry, mark-to-market still moves with volatility and time even though terminal payoff is fixed; net delta, gamma, and vega should stay near zero when the structure is built correctly.`;
+  } else if (id === "long-call" || id === "long-put") {
     const opt = id === "long-call" ? "call" : "put";
     p1 = `${name} is the simplest options trade: you pay premium upfront for the right to buy or sell at the strike. You are not obligated to exercise—you can let it expire if the move never comes. That limited downside is why the chart shows a flat loss equal to premium on the wrong side of the strike.`;
     p2 = `Delta on ${name} tells you how many dollars you roughly gain or lose per one-dollar stock move today. Long ${opt}s have positive gamma and vega—you benefit from sharp favourable moves and rising volatility—but negative theta, meaning quiet days slowly erode the option unless price helps you.`;
@@ -434,7 +437,10 @@ export function buildGreeksProfile(raw, outlook, category) {
 
 /** At most five paragraphs per strategy overview section */
 export function buildStrategyParagraphs(raw, greeksProfile, category, directionalProfile) {
-  const outlookText = OUTLOOK_PLAIN[raw.outlook] || OUTLOOK_PLAIN.neutral;
+  const outlookText =
+    raw.id === "long-box"
+      ? "Terminal profit is locked at K_1 - K_2 - 2D for every spot at expiry—a synthetic loan / arbitrage structure, not a directional range bet."
+      : OUTLOOK_PLAIN[raw.outlook] || OUTLOOK_PLAIN.neutral;
   const categoryText = CATEGORY_PLAIN[category] || CATEGORY_PLAIN.complex;
   const legNames = buildDisplayLegs(raw.legs)
     .map((l) => (l.subtitle ? `${l.title} — ${l.subtitle}` : l.title))
@@ -442,18 +448,22 @@ export function buildStrategyParagraphs(raw, greeksProfile, category, directiona
   const isMultiExpiry = raw.id?.includes("calendar") || raw.id?.includes("diagonal");
   const payoffNote = isMultiExpiry
     ? "This structure uses two expiries; the live chart plots P/L at the near expiry T'—long leg valued with Black–Scholes at T − T' minus short-leg intrinsic minus premium—rather than a single long-dated terminal payoff."
-    : "At expiration, profit or loss is fixed by intrinsic value of every leg minus net premium paid or plus net premium received; the breakeven is wherever the solid net curve crosses zero, and the green shaded region on the chart marks spots where you finish above that line.";
+    : raw.id === "long-box"
+      ? "At expiration the solid cyan line is flat at K_1 - K_2 - 2D; dashed curves show the bull call spread and bear put spread (each paying premium D) that compose the box."
+      : "At expiration, profit or loss is fixed by intrinsic value of every leg minus net premium paid or plus net premium received; the breakeven is wherever the solid net curve crosses zero, and the green shaded region on the chart marks spots where you finish above that line.";
 
   const legCount = (raw.legs || []).length;
   const legWord = legCount === 1 ? "1 leg" : `${legCount} legs`;
+  const structureNote =
+    raw.id === "long-box"
+      ? `How the position fits together: you combine ${legWord}—${legNames || "see the structure panel"}. On the payoff chart, dashed curves are the bull call spread and bear put spread (premium D each); the solid cyan line is the locked long box condor payoff at K_1 - K_2 - 2D. Click any leg card to highlight its contribution on both payoff and Greek charts.`
+      : `How the position fits together: you combine ${legWord}—${legNames || "see the structure panel"}. Long legs pay premium or cash to acquire rights; short legs collect premium and accept obligations if the market moves against you. Each leg appears as a dashed coloured curve on the payoff chart, while the solid cyan line sums them after entry premium. Click any leg card to highlight its contribution on both payoff and Greek charts.`;
 
   return capParagraphs([
     cleanProse(
       `${raw.description} In plain terms: ${outlookText} This trade sits in the ${category.replace("-", " ")} family as a ${(raw.riskType || "multi-leg").replace("-", " ")} structure. ${categoryText} The sections below follow the same monograph layout as the introduction—interactive charts you can stress-test from the sidebar.`
     ),
-    cleanProse(
-      `How the position fits together: you combine ${legWord}—${legNames || "see the structure panel"}. Long legs pay premium or cash to acquire rights; short legs collect premium and accept obligations if the market moves against you. Each leg appears as a dashed coloured curve on the payoff chart, while the solid cyan line sums them after entry premium. Click any leg card to highlight its contribution on both payoff and Greek charts.`
-    ),
+    cleanProse(structureNote),
     cleanProse(
       raw.risk
         ? `Risk in plain language: ${raw.risk}. Before expiry, gaps and volatility spikes can hurt even when your directional view eventually proves correct, because mark-to-market P/L moves with delta, gamma, and vega along the way. Always locate short strikes on the chart, identify tail exposure, and compare max loss under the chart with the worst region on the payoff curve.`

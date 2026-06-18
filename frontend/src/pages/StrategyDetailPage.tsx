@@ -45,6 +45,7 @@ import { PayoffChart } from "../components/PayoffChart";
 
 import { ResearchSection } from "../components/ResearchLayout";
 import { capParagraphs } from "../utils/capParagraphs";
+import { payoffChartHighlightIndex, structurePayoffLabels } from "../utils/payoffChartLegs";
 
 
 
@@ -132,7 +133,10 @@ export function StrategyDetailPage() {
 
   const metrics = payoff?.metrics;
 
-  const chartLabels = payoff?.legPayoffs?.labels ?? strategy.legs?.map((l) => l.title) ?? [];
+  const payoffLabels = payoff?.legPayoffs?.labels ?? [];
+  const chartLabels = payoffLabels.length ? payoffLabels : (strategy.legs?.map((l) => l.title) ?? []);
+  const structureLabels = structurePayoffLabels(id, payoffLabels, strategy.legs?.length ?? 0);
+  const payoffHighlight = payoffChartHighlightIndex(id, highlightLeg);
 
   const overviewParagraphs = capParagraphs(strategy.paragraphs || [strategy.description]);
 
@@ -272,7 +276,7 @@ export function StrategyDetailPage() {
               legs={strategy.legs as DisplayLeg[]}
               activeIndex={highlightLeg}
               onSelect={setHighlightLeg}
-              chartLabels={chartLabels}
+              chartLabels={structureLabels ?? chartLabels}
             />
           </ResearchSection>
         </GlassCard>
@@ -312,7 +316,7 @@ export function StrategyDetailPage() {
               params={params}
               loading={loading}
               legLabels={chartLabels}
-              highlightLegIndex={highlightLeg}
+              highlightLegIndex={payoffHighlight}
             />
 
             {metrics && (

@@ -91,6 +91,19 @@ def _apply_premium(payoff: np.ndarray, params: dict, strategy_id: str | None = N
     return out
 
 
+def _long_box_condor_chart(st: np.ndarray, params: dict) -> tuple[np.ndarray, np.ndarray, list[str]]:
+    """Notebook-style chart legs: bull call spread + bear put spread, each with premium D."""
+    k1 = float(params["K1"])
+    k2 = float(params["K2"])
+    d = float(params["D"])
+    bull_call = np.maximum(0.0, st - k2) - np.maximum(0.0, st - k1) - d
+    bear_put = np.maximum(0.0, k1 - st) - np.maximum(0.0, k2 - st) - d
+    payoff = bull_call + bear_put
+    matrix = np.vstack([bull_call, bear_put])
+    labels = ["Bull Call Spread", "Bear Put Spread"]
+    return matrix, payoff, labels
+
+
 def _vectorized_leg_payoffs(st: np.ndarray, s0: float, legs: list[dict], params: dict) -> np.ndarray:
     """Stack leg payoffs — shape (n_legs, n_spots), fully vectorised along spot axis."""
     n_legs = len(legs)
@@ -251,9 +264,13 @@ def compute_from_legs(strategy_id: str, legs: list[dict], params: dict) -> dict:
         aggregate = mx["aggregate"]
         leg_labels = list(mx["labels"])
     else:
-        leg_payoff_matrix = _vectorized_leg_payoffs(st, s0, legs, params)
-        payoff = leg_payoff_matrix.sum(axis=0)
-        payoff = _apply_premium(payoff, params, strategy_id)
+        if strategy_id == "long-box":
+            leg_payoff_matrix, payoff, leg_labels = _long_box_condor_chart(st, params)
+        else:
+            leg_payoff_matrix = _vectorized_leg_payoffs(st, s0, legs, params)
+            payoff = leg_payoff_matrix.sum(axis=0)
+            payoff = _apply_premium(payoff, params, strategy_id)
+            leg_labels = [_leg_label(leg, params) for leg in legs]
 
         greek_legs = []
         array_profiles = []
@@ -264,7 +281,6 @@ def compute_from_legs(strategy_id: str, legs: list[dict], params: dict) -> dict:
 
         aggregate_arrays = combine_profiles_arrays(*array_profiles) if array_profiles else stock_greeks_array(st, 0)
         aggregate = value_at_spot(aggregate_arrays, s0, st)
-        leg_labels = [_leg_label(leg, params) for leg in legs]
 
     directional = _directional_block(aggregate, greek_legs, st, payoff, s0)
 

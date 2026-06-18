@@ -152,6 +152,18 @@ export function PayoffChart({
   const spotMin = data.spotPrices[0];
   const spotMax = data.spotPrices[data.spotPrices.length - 1];
 
+  const yValues = rows.flatMap((row) => {
+    const vals = [row.payoff];
+    series.forEach((s) => {
+      if (typeof row[s.key] === "number") vals.push(row[s.key] as number);
+    });
+    return vals;
+  });
+  const yLo = Math.min(...yValues);
+  const yHi = Math.max(...yValues);
+  const yPad = Math.max((yHi - yLo) * 0.12, 2);
+  const yDomain: [number, number] = [yLo - yPad, yHi + yPad];
+
   const legendItems = [
     { key: "profit", label: "Profit Zone", color: "#10b981", dashed: false, active: false, dimmed: false },
     { key: "loss", label: "Loss Zone", color: "#f43f5e", dashed: false, active: false, dimmed: false },
@@ -258,6 +270,7 @@ export function PayoffChart({
             tick={{ fill: "#64748b", fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
             tickFormatter={formatPnLTick}
             tickCount={5}
+            domain={yDomain}
           />
           <Tooltip content={<PayoffTooltip />} cursor={{ stroke: "#475569", strokeWidth: 1 }} />
           {/* Profit / loss shading vs zero line */}

@@ -245,7 +245,7 @@ export const STRATEGY_CONDITIONS = {
 
   // --- box ---
   "long-box": [
-    { latex: "K_1 > K_2", note: "Long put K_1 + short put K_2 + long call K_2 + short call K_1." },
+    { latex: "K_1 > K_2", note: "Long box condor: long put K_1 + short put K_2 + long call K_2 + short call K_1." },
     { latex: "f_T = K_1 - K_2 - 2D", note: "Payoff is locked at a constant for every spot — a synthetic loan." },
     { latex: "K_1 - K_2 > 2D", note: "Arbitrage only when the strike gap exceeds the total premium 2D." },
   ],
