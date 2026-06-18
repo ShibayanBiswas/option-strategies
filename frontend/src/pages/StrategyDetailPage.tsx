@@ -387,7 +387,7 @@ export function StrategyDetailPage() {
                     <div className="greek-leg-ref-grid">
                       {strategy.greeksProfile.legBreakdown.map((lb) => (
                         <motion.div key={lb.id} whileHover={{ y: -2 }} className="greek-leg-ref-card">
-                          <p className="greek-leg-ref-label">{lb.label}</p>
+                          <p className="greek-leg-ref-label"><ProseMath text={lb.label} stripParens={false} /></p>
                           <p className="greek-leg-ref-text"><ProseMath text={lb.text} /></p>
                         </motion.div>
                       ))}
