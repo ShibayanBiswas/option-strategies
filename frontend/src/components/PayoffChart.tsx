@@ -14,7 +14,7 @@ import {
 import type { PayoffResponse } from "../api/client";
 import { ChartFrame, ChartLegendPills } from "./ChartFrame";
 import { ProseMath } from "./ProseMath";
-import { formatCurrencyFull, formatPnLTick, formatSpotTick, shortenLabel } from "../utils/chartFormat";
+import { chartSeriesLabel, formatCurrencyFull, formatPnLTick, formatSpotTick } from "../utils/chartFormat";
 
 export const LEG_PAYOFF_COLORS = ["#8b5cf6", "#f59e0b", "#10b981", "#ec4899", "#eab308", "#38bdf8"];
 export const NET_PAYOFF_COLOR = "#06b6d4";
@@ -45,7 +45,7 @@ function buildChartData(data: PayoffResponse, legLabels: string[]) {
 
   const series = legSeries.map((_, i) => ({
     key: `leg${i}`,
-    label: shortenLabel(labels[i] ?? `Leg ${i + 1}`, 22),
+    label: chartSeriesLabel(labels[i] ?? `Leg ${i + 1}`, 24),
     color: LEG_PAYOFF_COLORS[i % LEG_PAYOFF_COLORS.length],
   }));
 
@@ -104,7 +104,9 @@ function PayoffTooltip({
           <div key={p.name} className="flex justify-between gap-6 text-[11px] font-mono tabular-nums">
             <span className="flex items-center gap-1.5 truncate max-w-[120px]">
               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.color }} />
-              <span className="text-slate-400 truncate">{p.name}</span>
+              <span className="text-slate-400 truncate">
+              <ProseMath text={String(p.name)} stripParens={false} />
+            </span>
             </span>
             <span style={{ color: p.color }}>{formatCurrencyFull(Number(p.value))}</span>
           </div>

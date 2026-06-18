@@ -28,6 +28,7 @@ export function formatCurrencyFull(v: number): string {
   return `${sign}$${Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+/** Strip qty markers; keep K_1-style tokens for ProseMath rendering. */
 export function formatLegLabel(label: string): string {
   return label
     .replace(/×\d+(\.\d+)?/g, "")
@@ -36,10 +37,21 @@ export function formatLegLabel(label: string): string {
     .trim();
 }
 
-export function shortenLabel(label: string, max = 28): string {
+/** Full label for charts — never truncate math tokens mid-subscript. */
+export function chartSeriesLabel(label: string, max = 28): string {
   const clean = formatLegLabel(label.replace(/^Component:\s*/i, "").trim());
   if (clean.length <= max) return clean;
+  const strike = clean.match(/(K_[1-4]|K)\s*$/);
+  if (strike) {
+    const head = clean.slice(0, max - strike[0].length - 1).trimEnd();
+    return `${head}… ${strike[0]}`;
+  }
   return `${clean.slice(0, max - 1)}…`;
+}
+
+/** @deprecated Use chartSeriesLabel — kept for callers that need plain truncation. */
+export function shortenLabel(label: string, max = 28): string {
+  return chartSeriesLabel(label, max);
 }
 
 export function computeNiceTicks(min: number, max: number, count: number): number[] {

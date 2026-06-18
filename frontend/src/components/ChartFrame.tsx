@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ProseMath } from "./ProseMath";
 
 interface ChartFrameProps {
   yLabel: string;
@@ -68,8 +69,8 @@ export function ChartLegendPills({ items }: { items: LegendItem[] }) {
                 : undefined,
             }}
           />
-          <span className="truncate max-w-[140px]" title={item.label}>
-            {item.label}
+          <span className="truncate max-w-[160px]" title={item.label}>
+            <ProseMath text={item.label} stripParens={false} className="text-[11px]" />
           </span>
         </div>
       ))}

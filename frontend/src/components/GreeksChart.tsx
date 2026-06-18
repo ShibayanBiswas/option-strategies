@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { formatGreekTick, formatSpotTick, shortenLabel } from "../utils/chartFormat";
+import { chartSeriesLabel, formatGreekTick, formatSpotTick } from "../utils/chartFormat";
 import { ChartFrame, ChartLegendPills } from "./ChartFrame";
 import { ProseMath } from "./ProseMath";
 import { LEG_PAYOFF_COLORS, NET_PAYOFF_COLOR } from "./PayoffChart";
@@ -39,7 +39,9 @@ function GreekTooltip({
       <p className="fin-tooltip-head">S = {Number(label).toFixed(2)}</p>
       {payload.map((p) => (
         <div key={p.name} className="flex justify-between gap-4 text-[11px] font-mono tabular-nums">
-          <span className="text-slate-400 truncate max-w-[100px]">{p.name}</span>
+          <span className="text-slate-400 truncate max-w-[120px]">
+            <ProseMath text={String(p.name)} stripParens={false} />
+          </span>
           <span style={{ color: p.color }}>
             {symbol} {Number(p.value).toFixed(4)}
           </span>
@@ -84,7 +86,7 @@ export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlig
   const legendItems = [
     ...(legs?.map((leg, j) => ({
       key: `leg-${j}`,
-      label: shortenLabel(String(leg.label ?? `Leg ${j + 1}`), 18),
+      label: chartSeriesLabel(String(leg.label ?? `Leg ${j + 1}`), 22),
       color: LEG_PAYOFF_COLORS[j % LEG_PAYOFF_COLORS.length],
       dashed: true,
       active: highlightLegIndex === j,
@@ -165,7 +167,7 @@ export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlig
                   key={`leg-${j}`}
                   type="monotone"
                   dataKey={`leg${j}`}
-                  name={shortenLabel(String(leg.label ?? `L${j + 1}`), 16)}
+                  name={chartSeriesLabel(String(leg.label ?? `L${j + 1}`), 20)}
                   stroke={LEG_PAYOFF_COLORS[j % LEG_PAYOFF_COLORS.length]}
                   strokeWidth={highlighted ? 2 : 1}
                   strokeDasharray={highlighted ? "0" : "4 3"}
