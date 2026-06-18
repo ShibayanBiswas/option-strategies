@@ -10,15 +10,15 @@ identities.
 
 ## Quick start (Windows / PowerShell)
 
-From the project root, one command installs dependencies and launches all three services:
+From the project root:
 
 ```powershell
-.\run.ps1
+cd "C:\Users\shibayanbiswas\Desktop\Option Strategies"   # your clone path
+.\setup.ps1    # first time only — installs Python + Node deps
+.\run.ps1      # starts Python :8000, Node :4000, Vite :5173
 ```
 
-This opens `http://localhost:5173` automatically. The launcher provisions the Python
-virtual environment, installs Node dependencies (Python `:8000`, Node `:4000`,
-frontend `:5173`), and starts each service in its own window.
+This opens `http://localhost:5173` automatically.
 
 ### URLs
 
@@ -49,33 +49,40 @@ engine.
 
 ## Manual run (each service in its own terminal)
 
-Use this if you prefer to run services individually or `run.ps1` is unavailable. Run
-each block from the **project root** in a separate PowerShell window.
+Use this if you prefer to run services individually. **Always use absolute paths for Node**
+— `.\tools\node` only works from the project root; after `cd backend\node` it breaks and
+`npm` is not found.
+
+```powershell
+$root = "C:\Users\shibayanbiswas\Desktop\Option Strategies"   # change if needed
+$env:Path = "$root\tools\node;$env:Path"
+```
 
 **1. Python analytics (`:8000`)**
 
 ```powershell
-cd backend\python
+cd "$root\backend\python"
 .\venv\Scripts\python.exe -m pip install -r requirements.txt
 .\venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-> First time only: create the venv with `python -m venv venv` before installing.
+> First time only: from `backend\python`, run `..\..\setup.ps1` or `python -m venv venv` once.
+> Do **not** re-run `python -m venv venv` if `venv` already exists (Windows Store Python often errors).
 
 **2. Node API gateway (`:4000`)**
 
 ```powershell
-cd backend\node
-..\..\tools\node\npm.cmd install
-..\..\tools\node\node.exe src\index.js
+cd "$root\backend\node"
+& "$root\tools\node\npm.cmd" install
+& "$root\tools\node\node.exe" src\index.js
 ```
 
 **3. React frontend (`:5173`)**
 
 ```powershell
-cd frontend
-..\tools\node\npm.cmd install
-..\tools\node\npm.cmd run dev
+cd "$root\frontend"
+& "$root\tools\node\npm.cmd" install
+& "$root\tools\node\npm.cmd" run dev
 ```
 
 ### Stopping / restarting from scratch
@@ -88,6 +95,15 @@ foreach ($p in 8000,4000,5173) {
 }
 .\run.ps1
 ```
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+| -------- | ------ | ----- |
+| `npm is not recognized` | `$env:Path = ".\tools\node"` then `cd` into a subfolder — relative path is wrong | Use `.\setup.ps1` or set `$root\tools\node` with full path (see Manual run) |
+| `Unable to copy venvlauncher.exe` | Re-running `python -m venv venv` when `venv` already exists | Skip venv creation; use existing `backend\python\venv\Scripts\python.exe` |
+| Charts say “Analytics engine unavailable” | Python not on port 8000 | Start Python service first, then refresh |
+| Port already in use | Old process still listening | Run the stop-ports loop below, then `.\run.ps1` |
 
 ---
 
@@ -111,19 +127,24 @@ gateway and Python engine must run elsewhere (e.g. [Render](https://render.com) 
 
 ### Step 1 — Deploy backends
 
-**Python engine** (Render Web Service example):
+**Python engine** (Render Web Service):
 
-- Root directory: `backend/python`
-- Build: `pip install -r requirements.txt`
-- Start: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-- Note the public URL, e.g. `https://your-python.onrender.com`
+| Setting | Value |
+| -------- | ------ |
+| Root directory | `backend/python` |
+| Runtime | **Python 3.12** (set via `runtime.txt` in that folder, or env `PYTHON_VERSION=3.12.8`) |
+| Build | `pip install -r requirements.txt` |
+| Start | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
+
+> **Do not use Python 3.14** on Render — NumPy/SciPy may compile from source and fail.
+> This project pins **3.12** and uses NumPy only (no SciPy).
 
 **Node gateway** (Render Web Service example):
 
 - Root directory: `backend/node`
 - Build: `npm install`
 - Start: `node src/index.js`
-- Environment variable: `PYTHON_URL=https://your-python.onrender.com`
+- Environment variable: `PYTHON_SERVICE_URL=https://your-python.onrender.com`
 - Note the public URL, e.g. `https://your-node.onrender.com`
 
 ### Step 2 — Deploy frontend to Vercel

@@ -47,8 +47,11 @@ Write-Host "[OK] Node: $Node" -ForegroundColor Green
 Write-Host ""
 Write-Host "[1/4] Python analytics (56 strategies)..." -ForegroundColor Yellow
 $Venv = Join-Path $PythonDir "venv"
-if (-not (Test-Path $Venv)) { & $Python -m venv $Venv }
 $VenvPython = Join-Path $Venv "Scripts\python.exe"
+if (-not (Test-Path $VenvPython)) {
+  Write-Host "      No venv found — run .\setup.ps1 first (or: python -m venv venv in backend\python)." -ForegroundColor Red
+  exit 1
+}
 & $VenvPython -m pip install -r (Join-Path $PythonDir "requirements.txt") -q
 Write-Host "      Done." -ForegroundColor Green
 

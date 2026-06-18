@@ -22,9 +22,12 @@ Run (from backend/python):
 import json
 import sys
 import urllib.request
+from pathlib import Path
 
 import numpy as np
-from scipy.stats import norm
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from greeks import norm_cdf
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -70,8 +73,8 @@ def bs_price(kind, S, K, T, r, sigma):
     d1 = (np.log(np.maximum(S, 1e-12) / K) + (r + 0.5 * sigma**2) * T) / sq
     d2 = d1 - sq
     if kind == "call":
-        return S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
-    return K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+        return S * norm_cdf(d1) - K * np.exp(-r * T) * norm_cdf(d2)
+    return K * np.exp(-r * T) * norm_cdf(-d2) - S * norm_cdf(-d1)
 
 
 def portfolio_value(S, T, r, sigma, legs):

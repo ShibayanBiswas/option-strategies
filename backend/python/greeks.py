@@ -2,9 +2,25 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import erf, sqrt
 
 import numpy as np
-from scipy.stats import norm
+
+_INV_SQRT_2PI = 1.0 / np.sqrt(2.0 * np.pi)
+_INV_SQRT_2 = 1.0 / sqrt(2.0)
+_ERF = np.frompyfunc(erf, 1, 1)
+
+
+def norm_pdf(x: np.ndarray) -> np.ndarray:
+    """Standard normal PDF, vectorised."""
+    x = np.asarray(x, dtype=np.float64)
+    return np.exp(-0.5 * x * x) * _INV_SQRT_2PI
+
+
+def norm_cdf(x: np.ndarray) -> np.ndarray:
+    """Standard normal CDF, vectorised (stdlib erf — no SciPy)."""
+    x = np.asarray(x, dtype=np.float64)
+    return 0.5 * (1.0 + _ERF(x * _INV_SQRT_2).astype(np.float64))
 
 
 @dataclass
@@ -49,14 +65,14 @@ def call_greeks_array(S: np.ndarray, K: float, T: float, r: float, sigma: float)
         return GreekProfileArrays(delta, z, z, z, z)
 
     sqrt_t = np.sqrt(T)
-    pdf_d1 = norm.pdf(d1)
-    delta = norm.cdf(d1)
+    pdf_d1 = norm_pdf(d1)
+    delta = norm_cdf(d1)
     gamma = pdf_d1 / (np.maximum(S, 1e-12) * sigma * sqrt_t)
     theta = (
-        -(S * pdf_d1 * sigma) / (2 * sqrt_t) - r * K * np.exp(-r * T) * norm.cdf(d2)
+        -(S * pdf_d1 * sigma) / (2 * sqrt_t) - r * K * np.exp(-r * T) * norm_cdf(d2)
     ) / 365.0
     vega = S * pdf_d1 * sqrt_t / 100.0
-    rho = K * T * np.exp(-r * T) * norm.cdf(d2) / 100.0
+    rho = K * T * np.exp(-r * T) * norm_cdf(d2) / 100.0
     return GreekProfileArrays(delta, gamma, theta, vega, rho)
 
 
@@ -70,14 +86,14 @@ def put_greeks_array(S: np.ndarray, K: float, T: float, r: float, sigma: float) 
         return GreekProfileArrays(delta, z, z, z, z)
 
     sqrt_t = np.sqrt(T)
-    pdf_d1 = norm.pdf(d1)
-    delta = norm.cdf(d1) - 1.0
+    pdf_d1 = norm_pdf(d1)
+    delta = norm_cdf(d1) - 1.0
     gamma = pdf_d1 / (np.maximum(S, 1e-12) * sigma * sqrt_t)
     theta = (
-        -(S * pdf_d1 * sigma) / (2 * sqrt_t) + r * K * np.exp(-r * T) * norm.cdf(-d2)
+        -(S * pdf_d1 * sigma) / (2 * sqrt_t) + r * K * np.exp(-r * T) * norm_cdf(-d2)
     ) / 365.0
     vega = S * pdf_d1 * sqrt_t / 100.0
-    rho = -K * T * np.exp(-r * T) * norm.cdf(-d2) / 100.0
+    rho = -K * T * np.exp(-r * T) * norm_cdf(-d2) / 100.0
     return GreekProfileArrays(delta, gamma, theta, vega, rho)
 
 
@@ -94,7 +110,7 @@ def call_price_array(S: np.ndarray, K: float, T: float, r: float, sigma: float) 
     if T <= 0 or sigma <= 0:
         return np.maximum(S - K, 0.0)
     d1, d2 = _d1_d2(S, K, T, r, sigma)
-    return S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+    return S * norm_cdf(d1) - K * np.exp(-r * T) * norm_cdf(d2)
 
 
 def put_price_array(S: np.ndarray, K: float, T: float, r: float, sigma: float) -> np.ndarray:
@@ -103,7 +119,7 @@ def put_price_array(S: np.ndarray, K: float, T: float, r: float, sigma: float) -
     if T <= 0 or sigma <= 0:
         return np.maximum(K - S, 0.0)
     d1, d2 = _d1_d2(S, K, T, r, sigma)
-    return K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+    return K * np.exp(-r * T) * norm_cdf(-d2) - S * norm_cdf(-d1)
 
 
 def expired_call_greeks_array(S: np.ndarray, K: float, signed_qty: float) -> GreekProfileArrays:
