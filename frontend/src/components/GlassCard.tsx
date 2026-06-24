@@ -12,8 +12,9 @@ export function GlassCard({ children, className = "", delay = 0 }: GlassCardProp
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -3, boxShadow: "0 24px 48px rgba(8, 47, 73, 0.22)" }}
       transition={{ duration: 0.45, delay }}
-      className={`glass rounded-2xl p-6 shadow-xl shadow-black/20 ${className}`}
+      className={`glass interactive-card rounded-2xl p-6 shadow-xl shadow-black/20 ${className}`}
     >
       {children}
     </motion.div>
@@ -35,10 +36,14 @@ const toneMap = {
 
 export function Stat({ label, value, tone = "cyan" }: StatProps) {
   return (
-    <div className="rounded-xl bg-surface/60 border border-surface-border px-4 py-3">
+    <motion.div
+      whileHover={{ y: -3, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 400, damping: 24 }}
+      className="stat-tile rounded-xl bg-surface/60 border border-surface-border px-4 py-3"
+    >
       <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">{label}</p>
       <p className={`text-lg font-semibold font-mono ${toneMap[tone]}`}>{value}</p>
-    </div>
+    </motion.div>
   );
 }
 

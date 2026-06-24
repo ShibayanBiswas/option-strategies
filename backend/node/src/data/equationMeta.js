@@ -29,8 +29,9 @@ export const GREEK_NOTATION = [
   { symbol: "Θ", meaning: "∂V/∂t — time decay" },
   { symbol: "ν", meaning: "∂V/∂σ — volatility sensitivity" },
   { symbol: "ρ", meaning: "∂V/∂r — rate sensitivity" },
-  { symbol: "N(·)", meaning: "Standard normal cumulative distribution" },
-  { symbol: "d_1, d_2", meaning: "Black–Scholes auxiliary variables" },
+  { symbol: "N(\\cdot)", meaning: "Standard normal cumulative distribution" },
+  { symbol: "d_1", meaning: "First Black–Scholes auxiliary variable" },
+  { symbol: "d_2", meaning: "Second auxiliary variable (d_2 = d_1 - σ√T)" },
 ];
 
 export const INTRO_MATH_EQUATIONS = [
@@ -75,10 +76,12 @@ export const INTRO_BS_EQUATIONS = [
     ],
   },
   {
-    latex: "d_1 = \\frac{\\ln(S/K) + (r + \\tfrac{1}{2}\\sigma^2)T}{\\sigma\\sqrt{T}}, \\quad d_2 = d_1 - \\sigma\\sqrt{T}",
-    context: "Auxiliary variables d_1 and d_2 map spot, strike, time, rate, and volatility into the normal CDF inputs.",
+    latex: "d_1 = \\dfrac{\\ln(S/K) + \\left(r + \\tfrac{1}{2}\\sigma^2\\right) T}{\\sigma\\sqrt{T}}, \\quad d_2 = d_1 - \\sigma\\sqrt{T}",
+    context: "Auxiliary variables d_1 and d_2 map spot S, strike K, time T, rate r, and volatility σ into the normal-CDF inputs N(d_1) and N(d_2).",
     notation: [
-      { symbol: "\\ln(S/K)", meaning: "Log-moneyness of the option" },
+      { symbol: "d_1", meaning: "Primary auxiliary index into N(·) for calls and puts" },
+      { symbol: "d_2", meaning: "Secondary index; always d_2 = d_1 - σ√T" },
+      { symbol: "\\ln(S/K)", meaning: "Log-moneyness — natural log of spot over strike" },
       { symbol: "\\sigma\\sqrt{T}", meaning: "Total volatility scaled by square root of time" },
     ],
   },

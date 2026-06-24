@@ -110,6 +110,8 @@ const RULES: Array<{ src: string; latex: (m: RegExpExecArray) => string }> = [
   { src: "f_T", latex: () => "f_T" },
   { src: "d_1", latex: () => "d_1" },
   { src: "d_2", latex: () => "d_2" },
+  { src: "ln\\(S/K\\)", latex: () => "\\ln(S/K)" },
+  { src: "ln\\(S / K\\)", latex: () => "\\ln(S/K)" },
   { src: "N_L", latex: () => "N_L" },
   { src: "N_S", latex: () => "N_S" },
   { src: "K_([1-4])", latex: (m) => `K_${m[1]}` },

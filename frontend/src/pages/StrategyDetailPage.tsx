@@ -45,6 +45,7 @@ import { PayoffChart } from "../components/PayoffChart";
 
 import { ResearchSection } from "../components/ResearchLayout";
 import { capParagraphs } from "../utils/capParagraphs";
+import { constrainParams, hasStrikeRules } from "../utils/paramConstraints";
 import { payoffChartHighlightIndex, structurePayoffLabels } from "../utils/payoffChartLegs";
 
 
@@ -288,7 +289,11 @@ export function StrategyDetailPage() {
             <ParamControls
               schema={strategy.paramSchema}
               values={params}
-              onChange={(key, val) => setParams((p) => ({ ...p, [key]: val }))}
+              onChange={(key, val) =>
+                setParams((p) => constrainParams(id, { ...p, [key]: val }))
+              }
+              onReset={() => strategy.defaultParams && setParams({ ...strategy.defaultParams })}
+              showStrikeHint={hasStrikeRules(id)}
               horizontal
             />
           </ResearchSection>

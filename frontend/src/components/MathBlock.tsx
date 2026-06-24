@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { BlockMath } from "react-katex";
 import { NotationGrid } from "./NotationGrid";
 import { ProseMath } from "./ProseMath";
@@ -64,7 +65,12 @@ export function MathBlock({
 
       <div className="math-equations-stack">
         {eqs.map((eq, idx) => (
-          <div key={`${eq.latex}-${idx}`} className="math-equation-block">
+          <motion.div
+            key={`${eq.latex}-${idx}`}
+            className="math-equation-block"
+            whileHover={{ y: -2 }}
+            transition={{ type: "spring", stiffness: 380, damping: 26 }}
+          >
             {eq.context && (
               <p className="math-equation-context">
                 <ProseMath text={eq.context} stripParens={false} />
@@ -74,7 +80,7 @@ export function MathBlock({
             <div className="math-equation-full math-compact">
               <BlockMath math={eq.latex.replace(/\\\\/g, "\\")} />
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

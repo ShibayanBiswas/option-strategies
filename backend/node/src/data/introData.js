@@ -16,6 +16,7 @@ import {
   INTRO_MATH_EQUATIONS,
   INTRO_MONEYNESS_EQUATIONS,
 } from "./equationMeta.js";
+import { NOTEBOOK_BY_ID } from "./notebookDefaults.js";
 
 export const INTRO_NOTATION = [
   { symbol: "S_0", meaning: "Spot price at entry" },
@@ -91,8 +92,9 @@ export const optionsIntro = {
     "Interactive laboratory below: dashed curves show leg payoffs; solid curves show net profit or loss including premium. Adjust parameters to traverse ITM, ATM, and OTM regions.",
 };
 
-function basicOptionEntry(id, direction, greeksText, paramOverrides = {}) {
+function basicOptionEntry(id, direction, greeksText) {
   const raw = rawStrategies.find((s) => s.id === id);
+  const nb = NOTEBOOK_BY_ID[id] || {};
   return {
     id: raw.id,
     name: raw.name,
@@ -102,14 +104,10 @@ function basicOptionEntry(id, direction, greeksText, paramOverrides = {}) {
     breakevenLatex: raw.breakevenLatex,
     greeksText,
     defaultParams: {
-      S0: 100,
-      K: 100,
       sigma: 0.25,
       T: 0.25,
       r: 0.05,
-      range: 0.68,
-      ...(id.includes("short") ? { C: 3 } : { D: 2.5 }),
-      ...paramOverrides,
+      ...nb,
     },
     paramSchema: [
       { key: "S0", label: "Spot S_0", min: 50, max: 200, step: 1 },
@@ -128,10 +126,10 @@ function basicOptionEntry(id, direction, greeksText, paramOverrides = {}) {
 }
 
 export const basicOptions = [
-  basicOptionEntry("long-call", "Long", "Long call: you pay premium for the right to buy at the strike. Profit grows when the stock rises above the strike plus what you paid; worst case is losing the premium if the stock stays below.", { K: 98, D: 2, S0: 103 }),
-  basicOptionEntry("short-call", "Short", "Short call: you collect premium and accept obligation if the stock rallies above the strike. You keep the premium if the stock stays below; losses grow if the rally continues.", { K: 108, C: 3.5, S0: 100 }),
-  basicOptionEntry("long-put", "Long", "Long put: you pay premium for the right to sell at the strike—insurance against a drop. Profit rises as the stock falls below the strike minus premium.", { K: 102, D: 2, S0: 97 }),
-  basicOptionEntry("short-put", "Short", "Short put: you collect premium and may have to buy stock if price falls below the strike. You earn theta when the stock holds above the strike.", { K: 92, C: 3.5, S0: 100 }),
+  basicOptionEntry("long-call", "Long", "Long call: you pay premium for the right to buy at the strike. Profit grows when the stock rises above the strike plus what you paid; worst case is losing the premium if the stock stays below."),
+  basicOptionEntry("short-call", "Short", "Short call: you collect premium and accept obligation if the stock rallies above the strike. You keep the premium if the stock stays below; losses grow if the rally continues."),
+  basicOptionEntry("long-put", "Long", "Long put: you pay premium for the right to sell at the strike—insurance against a drop. Profit rises as the stock falls below the strike minus premium."),
+  basicOptionEntry("short-put", "Short", "Short put: you collect premium and may have to buy stock if price falls below the strike. You earn theta when the stock holds above the strike."),
 ];
 
 export const greeksIntro = {
