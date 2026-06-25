@@ -110,8 +110,9 @@ export function StrategiesPage() {
                   <div className="text-sm">
                     <span className="text-slate-500 text-xs block mb-0.5">Risk</span>
                     <span className="text-slate-300 leading-snug">
-                      <ProseMath text={titleCase(s.risk)} />
-                    </span>                  </div>
+                      <ProseMath text={s.risk} />
+                    </span>
+                  </div>
                 </div>
               </Link>
             </motion.div>

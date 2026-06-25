@@ -250,7 +250,7 @@ export function StrategyDetailPage() {
 
               <span className="text-slate-500 block mb-1 research-doc-type !text-[0.65rem]">Primary risk</span>
 
-              <span className="text-white"><ProseMath text={titleCase(strategy.risk ?? "")} /></span>
+              <span className="text-white"><ProseMath text={strategy.risk ?? ""} /></span>
 
             </div>
 
