@@ -63,6 +63,14 @@ function mathify(s: string): string {
 /** Normalize Unicode subscripts and ASCII shorthands to LaTeX-style tokens. */
 export function normalizeMathUnicode(text: string): string {
   return text
+    .replace(/\\kappa\b/g, "κ")
+    .replace(/\\infty\b/g, "∞")
+    .replace(/\\Delta\b/g, "Δ")
+    .replace(/\\Gamma\b/g, "Γ")
+    .replace(/\\Theta\b/g, "Θ")
+    .replace(/\\nu\b/g, "ν")
+    .replace(/\\rho\b/g, "ρ")
+    .replace(/\\sigma\b/g, "σ")
     .replace(/([A-Za-zΔΓΘνρσκ])([₀₁₂₃₄ᵢ])/g, (_, base, subc) => `${base}_${UNICODE_SUB[subc] ?? subc}`)
     .replace(/\bS0\b/g, "S_0")
     .replace(/\bST\b/g, "S_T")
