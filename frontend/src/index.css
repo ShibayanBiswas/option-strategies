@@ -2402,6 +2402,23 @@ html.dark .layman-tab-rho.layman-greek-tab-active {
   font-family: var(--prose-font);
 }
 
+.layman-tab-live {
+  font-size: 0.65rem;
+  opacity: 0.85;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  max-width: 4.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.layman-greek-live {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: #d4b24c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.01em;
+}
+
 .layman-greek-card {
   border-radius: 0.65rem;
   border: 1px solid var(--ar-border);

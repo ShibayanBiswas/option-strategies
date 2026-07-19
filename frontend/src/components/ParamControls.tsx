@@ -7,6 +7,7 @@ interface ParamControlsProps {
   values: Record<string, number>;
   onChange: (key: string, value: number) => void;
   onReset?: () => void;
+  resetBusy?: boolean;
   horizontal?: boolean;
   showStrikeHint?: boolean;
 }
@@ -28,6 +29,7 @@ export function ParamControls({
   values,
   onChange,
   onReset,
+  resetBusy = false,
   horizontal = false,
   showStrikeHint = false,
 }: ParamControlsProps) {
@@ -46,8 +48,13 @@ export function ParamControls({
             </p>
           )}
           {onReset && (
-            <button type="button" onClick={onReset} className="param-reset-btn">
-              Reset to live Nifty defaults
+            <button
+              type="button"
+              onClick={onReset}
+              disabled={resetBusy}
+              className="param-reset-btn"
+            >
+              {resetBusy ? "Refreshing Nifty…" : "Reset to live Nifty defaults"}
             </button>
           )}
         </div>

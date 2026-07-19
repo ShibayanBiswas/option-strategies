@@ -138,6 +138,16 @@ export const fetchStrategies = (scope?: "chapter" | "all") =>
 const strategyDetailCache = new Map<string, { at: number; data: StrategyDetail }>();
 const STRATEGY_CACHE_MS = 60_000;
 
+export function invalidateStrategyCache(id?: string) {
+  if (!id) {
+    strategyDetailCache.clear();
+    return;
+  }
+  for (const key of [...strategyDetailCache.keys()]) {
+    if (key.startsWith(`${id}:`)) strategyDetailCache.delete(key);
+  }
+}
+
 async function getStrategyOnce(id: string, withPayoff: boolean) {
   const res = await api.get<StrategyDetail>(`/strategies/${id}`, {
     params: withPayoff ? { payoff: 1 } : undefined,
@@ -151,11 +161,16 @@ async function getStrategyOnce(id: string, withPayoff: boolean) {
 }
 
 /** Strategy monograph; prefers bundled payoff, falls back to monograph-only if seed fails. */
-export const fetchStrategy = async (id: string, opts?: { payoff?: boolean }) => {
+export const fetchStrategy = async (
+  id: string,
+  opts?: { payoff?: boolean; fresh?: boolean },
+) => {
   const withPayoff = opts?.payoff !== false;
+  if (opts?.fresh) invalidateStrategyCache(id);
+
   const cacheKey = `${id}:${withPayoff ? "p1" : "p0"}`;
   const hit = strategyDetailCache.get(cacheKey);
-  if (hit && Date.now() - hit.at < STRATEGY_CACHE_MS) {
+  if (!opts?.fresh && hit && Date.now() - hit.at < STRATEGY_CACHE_MS) {
     return { data: hit.data };
   }
 
@@ -175,6 +190,15 @@ export const fetchStrategy = async (id: string, opts?: { payoff?: boolean }) => 
 
 export const fetchPayoff = (strategyId: string, params: Record<string, number>) =>
   api.post<PayoffResponse>("/payoff", { strategyId, params }, { timeout: 20000 });
+
+export const fetchNiftyMarket = () =>
+  api.get<{
+    symbol: string;
+    spot: number;
+    atm: number;
+    asOf?: string;
+    source?: string;
+  }>("/market/nifty");
 
 /** Warm the strategy monograph cache on hover / focus. */
 export function prefetchStrategy(id: string) {

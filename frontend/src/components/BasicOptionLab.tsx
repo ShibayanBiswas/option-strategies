@@ -8,6 +8,9 @@ import { GreeksPanel } from "./GreeksPanel";
 import { MathBlock } from "./MathBlock";
 import { ParamControls } from "./ParamControls";
 import { PayoffChart } from "./PayoffChart";
+import { Stat } from "./GlassCard";
+import { formatINR, formatINRLevel } from "../utils/money";
+import { syncSpotWindow } from "../utils/syncSpotWindow";
 import type { GreekKey } from "./greekTheme";
 
 interface BasicOption {
@@ -42,12 +45,13 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
 
   const load = useCallback(async () => {
     if (!current) return;
+    if (!Object.keys(params).length) return;
     setLoading(true);
     try {
       const { data } = await fetchPayoff(current.id, params);
       setPayoff(data);
     } catch {
-      setPayoff(null);
+      // Keep last good payoff so the desk stays interactive on a blip
     } finally {
       setLoading(false);
     }
@@ -58,7 +62,17 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
     return () => clearTimeout(t);
   }, [load]);
 
+  const handleParamChange = useCallback((key: string, val: number) => {
+    setParams((p) => {
+      const drafted = { ...p, [key]: val };
+      return key === "S0" ? syncSpotWindow(p, drafted) : drafted;
+    });
+  }, []);
+
   if (!current) return null;
+
+  const metrics = payoff?.metrics;
+  const spot = Number.isFinite(params.S0) ? Number(params.S0) : 100;
 
   const payoffEquations = [
     {
@@ -121,18 +135,35 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
             <ParamControls
               schema={current.paramSchema}
               values={params}
-              onChange={(key, val) => setParams((p) => ({ ...p, [key]: val }))}
+              onChange={handleParamChange}
+              onReset={() => setParams({ ...current.defaultParams })}
               horizontal
             />
           </div>
 
           <PayoffChart
             data={payoff}
-            spot={params.S0 ?? 100}
+            spot={spot}
             params={params}
             loading={loading}
             legLabels={[current.name]}
           />
+
+          {metrics && (
+            <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 transition-opacity ${loading ? "opacity-60" : "opacity-100"}`}>
+              <Stat label="Max Profit" value={formatINR(Number(metrics.maxProfit))} tone="emerald" />
+              <Stat label="Max Loss" value={formatINR(Number(metrics.maxLoss))} tone="amber" />
+              <Stat
+                label="Breakeven(s)"
+                value={
+                  Array.isArray(metrics.breakevens) && metrics.breakevens.length
+                    ? (metrics.breakevens as number[]).map((b) => formatINRLevel(Number(b))).join(", ")
+                    : "—"
+                }
+              />
+              <Stat label="P/L @ Spot" value={formatINR(Number(metrics.payoffAtSpot))} />
+            </div>
+          )}
 
           {payoff?.greeks && (
             <GreekSectionShell
@@ -151,7 +182,7 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
                 spotPrices={payoff.spotPrices}
                 aggregateProfiles={payoff.greeks.aggregateProfiles}
                 legs={payoff.greeks.legs}
-                spot={params.S0 ?? 100}
+                spot={spot}
                 chartHeight={320}
                 activeGreek={activeGreek}
                 onActiveGreekChange={setActiveGreek}

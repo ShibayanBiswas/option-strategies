@@ -1,55 +1,35 @@
 import { ArrowLeft, Activity, Sigma } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-
 import { Link, useParams } from "react-router-dom";
-
 import {
-
+  fetchNiftyMarket,
   fetchPayoff,
-
   fetchStrategy,
-
   type PayoffResponse,
-
   type StrategyDetail,
-
 } from "../api/client";
-
 import { Badge, GlassCard, Stat } from "../components/GlassCard";
-
 import { NotationGrid } from "../components/NotationGrid";
 import { Latex } from "../components/Latex";
 import { ProseMath } from "../components/ProseMath";
 import { titleCase } from "../utils/formatText";
 import { formatINR, formatINRLevel } from "../utils/money";
-
 import { DirectionalPanel } from "../components/DirectionalPanel";
-
 import { FormulaDeck } from "../components/FormulaDeck";
-
 import { GreeksChart } from "../components/GreeksChart";
-
 import { GreekSectionShell } from "../components/GreekSectionShell";
-
 import { GreeksPanel } from "../components/GreeksPanel";
-
 import { LaymanGreekCards, type LaymanGreekBlock } from "../components/LaymanGreekCards";
-
 import { MathBlock } from "../components/MathBlock";
-
 import { DisplayLeg, LegStructurePanel } from "../components/LegStructurePanel";
-
 import { ParamControls } from "../components/ParamControls";
-
 import { PayoffChart } from "../components/PayoffChart";
-
 import { ResearchSection } from "../components/ResearchLayout";
 import { capParagraphs } from "../utils/capParagraphs";
 import { constrainParams, hasStrikeRules } from "../utils/paramConstraints";
 import { payoffChartHighlightIndex, structurePayoffLabels } from "../utils/payoffChartLegs";
+import { paramsFingerprint, syncSpotWindow } from "../utils/syncSpotWindow";
 import type { GreekKey } from "../components/greekTheme";
-
-
 
 export function StrategyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -57,11 +37,12 @@ export function StrategyDetailPage() {
   const [params, setParams] = useState<Record<string, number>>({});
   const [payoff, setPayoff] = useState<PayoffResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [highlightLeg, setHighlightLeg] = useState<number | null>(null);
   const [activeGreek, setActiveGreek] = useState<GreekKey>("delta");
-  /** True when GET already seeded charts — skip the immediate duplicate POST. */
-  const seededPayoffRef = useRef(false);
+  /** Fingerprint of seeded default params — skip only the matching duplicate POST. */
+  const seededParamsKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -72,17 +53,19 @@ export function StrategyDetailPage() {
     setHighlightLeg(null);
     setActiveGreek("delta");
     setParams({});
-    seededPayoffRef.current = false;
+    seededParamsKeyRef.current = null;
 
     fetchStrategy(id, { payoff: true })
       .then((r) => {
         if (cancelled) return;
         const data = r.data;
         setStrategy(data);
-        if (data.defaultParams) setParams({ ...data.defaultParams });
-        if (data.initialPayoff) {
-          setPayoff(data.initialPayoff);
-          seededPayoffRef.current = true;
+        if (data.defaultParams) {
+          setParams({ ...data.defaultParams });
+          if (data.initialPayoff) {
+            setPayoff(data.initialPayoff);
+            seededParamsKeyRef.current = paramsFingerprint(data.defaultParams);
+          }
         }
       })
       .catch((err) => {
@@ -102,12 +85,35 @@ export function StrategyDetailPage() {
     };
   }, [id]);
 
+  // Keep Nifty ATM badge fresh without resetting the user's slider work
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    const refreshMarket = () => {
+      fetchNiftyMarket()
+        .then((r) => {
+          if (cancelled) return;
+          setStrategy((s) => (s ? { ...s, market: r.data } : s));
+        })
+        .catch(() => undefined);
+    };
+    const t = setInterval(refreshMarket, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, [id]);
+
   const loadPayoff = useCallback(async () => {
     if (!id || !strategy?.hasPayoff) return;
     if (!Object.keys(params).length) return;
-    if (seededPayoffRef.current) {
-      seededPayoffRef.current = false;
-      return;
+
+    const key = paramsFingerprint(params);
+    if (seededParamsKeyRef.current != null) {
+      const seededKey = seededParamsKeyRef.current;
+      seededParamsKeyRef.current = null;
+      // Only skip when params still match the seeded defaults (avoids stale charts on early slider moves)
+      if (key === seededKey) return;
     }
 
     setLoading(true);
@@ -128,6 +134,40 @@ export function StrategyDetailPage() {
     return () => clearTimeout(t);
   }, [loadPayoff]);
 
+  const handleParamChange = useCallback(
+    (key: string, val: number) => {
+      setParams((p) => {
+        const drafted = { ...p, [key]: val };
+        const windowed = key === "S0" ? syncSpotWindow(p, drafted) : drafted;
+        return constrainParams(id, windowed);
+      });
+    },
+    [id],
+  );
+
+  const handleResetToNifty = useCallback(async () => {
+    if (!id) return;
+    setResetting(true);
+    setError(null);
+    try {
+      const { data } = await fetchStrategy(id, { payoff: true, fresh: true });
+      setStrategy(data);
+      if (data.defaultParams) {
+        setParams({ ...data.defaultParams });
+        if (data.initialPayoff) {
+          setPayoff(data.initialPayoff);
+          seededParamsKeyRef.current = paramsFingerprint(data.defaultParams);
+        } else {
+          seededParamsKeyRef.current = null;
+        }
+      }
+    } catch {
+      setError("Could not refresh live Nifty defaults. Try again in a moment.");
+    } finally {
+      setResetting(false);
+    }
+  }, [id]);
+
   if (!strategy && !error) {
     return <div className="text-ar-subtle animate-pulse font-serif">Loading strategy monograph…</div>;
   }
@@ -138,9 +178,8 @@ export function StrategyDetailPage() {
 
   if (!strategy) return null;
 
-
-
   const metrics = payoff?.metrics;
+  const spot = Number.isFinite(params.S0) ? Number(params.S0) : strategy.market?.atm ?? strategy.market?.spot ?? 100;
 
   const payoffLabels = payoff?.legPayoffs?.labels ?? [];
   const chartLabels = payoffLabels.length ? payoffLabels : (strategy.legs?.map((l) => l.title) ?? []);
@@ -148,8 +187,6 @@ export function StrategyDetailPage() {
   const payoffHighlight = payoffChartHighlightIndex(id, highlightLeg);
 
   const overviewParagraphs = capParagraphs(strategy.paragraphs || [strategy.description]);
-
-
 
   return (
 
@@ -190,6 +227,9 @@ export function StrategyDetailPage() {
           {strategy.market?.atm != null && (
             <Badge variant="default">
               Nifty ATM {Math.round(strategy.market.atm).toLocaleString("en-IN")}
+              {strategy.market.asOf
+                ? ` · ${new Date(strategy.market.asOf).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`
+                : ""}
             </Badge>
           )}
 
@@ -293,10 +333,9 @@ export function StrategyDetailPage() {
             <ParamControls
               schema={strategy.paramSchema}
               values={params}
-              onChange={(key, val) =>
-                setParams((p) => constrainParams(id, { ...p, [key]: val }))
-              }
-              onReset={() => strategy.defaultParams && setParams({ ...strategy.defaultParams })}
+              onChange={handleParamChange}
+              onReset={handleResetToNifty}
+              resetBusy={resetting}
               showStrikeHint={hasStrikeRules(id)}
               horizontal
             />
@@ -321,7 +360,7 @@ export function StrategyDetailPage() {
 
             <PayoffChart
               data={payoff}
-              spot={params.S0 ?? 100}
+              spot={spot}
               params={params}
               loading={loading}
               legLabels={chartLabels}
@@ -329,7 +368,7 @@ export function StrategyDetailPage() {
             />
 
             {metrics && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+              <div className={`grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 transition-opacity ${loading ? "opacity-60" : "opacity-100"}`}>
                 <Stat label="Max Profit" value={formatINR(Number(metrics.maxProfit))} tone="emerald" />
                 <Stat label="Max Loss" value={formatINR(Number(metrics.maxLoss))} tone="amber" />
                 <Stat
@@ -375,7 +414,10 @@ export function StrategyDetailPage() {
 
             {strategy.greeksProfile?.laymanGreeks && strategy.greeksProfile.laymanGreeks.length > 0 && (
               <div className="mt-6 mb-6">
-                <LaymanGreekCards blocks={strategy.greeksProfile.laymanGreeks as LaymanGreekBlock[]} />
+                <LaymanGreekCards
+                  blocks={strategy.greeksProfile.laymanGreeks as LaymanGreekBlock[]}
+                  liveValues={payoff?.greeks?.aggregate}
+                />
               </div>
             )}
 
@@ -402,7 +444,7 @@ export function StrategyDetailPage() {
                   spotPrices={payoff.spotPrices}
                   aggregateProfiles={payoff.greeks.aggregateProfiles}
                   legs={payoff.greeks.legs}
-                  spot={params.S0 ?? 100}
+                  spot={spot}
                   highlightLegIndex={highlightLeg}
                   chartHeight={380}
                   activeGreek={activeGreek}
