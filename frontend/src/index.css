@@ -1613,13 +1613,23 @@ html.dark .greek-col-rho.greek-col-active {
   color: #f87171;
 }
 
-/* Formula deck */
+/* Formula deck — all identities open by default */
 .formula-deck {
   margin-top: 1.25rem;
   border-radius: 0.75rem;
   border: 1px solid var(--ar-border);
   background: var(--ar-panel);
-  overflow: hidden;
+  padding: 1rem 1.15rem 0.85rem;
+  overflow: visible;
+}
+
+.formula-deck-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .formula-deck-toggle {
@@ -1641,6 +1651,9 @@ html.dark .greek-col-rho.greek-col-active {
   font-weight: 600;
   font-style: italic;
   flex: 1;
+  margin: 0;
+  font-family: var(--prose-font);
+  color: var(--ar-ink);
 }
 
 .formula-deck-count {
@@ -1719,10 +1732,11 @@ html.dark .formula-chip-active {
 
 .formula-reveal-sub {
   font-family: var(--prose-font);
-  font-size: 0.85rem;
+  font-size: 0.84rem;
+  font-weight: 700;
   font-style: italic;
-  color: var(--ar-subtle);
-  margin: 0 0 0.75rem;
+  color: var(--ar-ink);
+  margin: 0 0 0.35rem;
   text-align: left;
 }
 
@@ -2418,23 +2432,6 @@ html.dark .layman-tab-rho.layman-greek-tab-active {
   font-weight: 700;
   font-style: italic;
   font-family: var(--prose-font);
-}
-
-.layman-tab-live {
-  font-size: 0.65rem;
-  opacity: 0.85;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  max-width: 4.5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.layman-greek-live {
-  margin-top: 0.2rem;
-  font-size: 0.8rem;
-  color: #d4b24c;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  letter-spacing: 0.01em;
 }
 
 .layman-greek-card {

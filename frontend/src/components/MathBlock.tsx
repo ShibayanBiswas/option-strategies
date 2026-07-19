@@ -11,6 +11,8 @@ export interface EquationSpec {
   latex: string;
   context?: string;
   notation?: NotationItem[];
+  /** Optional short heading above this equation (e.g. Breakeven). */
+  label?: string;
 }
 
 interface MathBlockProps {
@@ -109,6 +111,7 @@ export function MathBlock({
 
           return (
             <div key={`${eq.latex}-${idx}`} className="math-equation-block">
+              {eq.label && <p className="formula-reveal-sub">{eq.label}</p>}
               {showContext && (
                 <p className="math-equation-context">
                   <ProseMath text={eqContext} stripParens={false} />

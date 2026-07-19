@@ -175,55 +175,81 @@ export function greekFormulaMeta(name) {
 export function buildPayoffEquationBlock(raw) {
   if (!raw.payoffLatex) return null;
 
+  const strikeOrdinal = { K1: "first", K2: "second", K3: "third", K4: "fourth" };
+
   const notation = [
-    { symbol: "f_T", meaning: `Terminal P/L for ${raw.name}` },
-    { symbol: "S_T", meaning: "Spot at expiration" },
+    { symbol: "f_T", meaning: "Terminal profit or loss of the strategy at expiry" },
+    { symbol: "S_T", meaning: "Underlying spot at expiration" },
   ];
-  if (raw.paramKeys?.includes("D")) notation.push({ symbol: "D", meaning: "Net option premium paid at entry" });
-  if (raw.paramKeys?.includes("C")) notation.push({ symbol: "C", meaning: "Net option premium received at entry" });
-  if (raw.paramKeys?.includes("H")) notation.push({ symbol: "H", meaning: "Net premium" });
+  if (raw.paramKeys?.includes("D")) {
+    notation.push({ symbol: "D", meaning: "Net debit — premium paid to enter the structure" });
+  }
+  if (raw.paramKeys?.includes("C")) {
+    notation.push({ symbol: "C", meaning: "Net credit — premium received to enter the structure" });
+  }
+  if (raw.paramKeys?.includes("H")) {
+    notation.push({ symbol: "H", meaning: "Net premium for the multi-leg structure (debit or credit)" });
+  }
   const strikeKeys = ["K", "K1", "K2", "K3", "K4"].filter((k) => raw.paramKeys?.includes(k));
   if (strikeKeys.length === 1 && strikeKeys[0] === "K") {
-    notation.push({ symbol: "K", meaning: "Strike price" });
+    notation.push({ symbol: "K", meaning: "Option strike price" });
   } else {
     for (const k of strikeKeys) {
-      if (k === "K") notation.push({ symbol: "K", meaning: "Strike price" });
-      else notation.push({ symbol: `K_${k.slice(1)}`, meaning: `Strike K_${k.slice(1)}` });
+      if (k === "K") notation.push({ symbol: "K", meaning: "Option strike price" });
+      else {
+        const n = k.slice(1);
+        notation.push({
+          symbol: `K_${n}`,
+          meaning: `The ${strikeOrdinal[k] ?? n} strike in the structure`,
+        });
+      }
     }
   }
 
+  const equations = [
+    {
+      latex: raw.payoffLatex,
+      label: "Net terminal payoff",
+      context:
+        "Solid gold curve on the live chart. Green marks f_T > 0; red marks f_T < 0.",
+    },
+  ];
+
+  if (raw.breakevenLatex) {
+    equations.push({
+      latex: raw.breakevenLatex,
+      label: "Breakeven",
+      context: FORMULA_EQUATION_META.breakeven.context,
+      notation: FORMULA_EQUATION_META.breakeven.notation,
+    });
+  }
+  if (raw.maxProfitLatex) {
+    equations.push({
+      latex: raw.maxProfitLatex,
+      label: "Maximum profit",
+      context: FORMULA_EQUATION_META.maxProfit.context,
+      notation: FORMULA_EQUATION_META.maxProfit.notation,
+    });
+  }
+  if (raw.maxLossLatex) {
+    equations.push({
+      latex: raw.maxLossLatex,
+      label: "Maximum loss",
+      context: FORMULA_EQUATION_META.maxLoss.context,
+      notation: FORMULA_EQUATION_META.maxLoss.notation,
+    });
+  }
+
   return {
-    title: "Primary Terminal Payoff",
+    title: "Terminal Payoff Identities",
     context:
-      "Identity for the solid net curve on the live payoff chart at expiration. Evaluate at each spot on the horizontal axis; green shading marks f_T > 0.",
+      "Closed-form identities for this strategy: net payoff at expiry, breakeven spots, and profit/loss bounds. All expressions use the same symbols defined below.",
     notation,
-    equations: [
-      {
-        latex: raw.payoffLatex,
-      },
-    ],
+    equations,
   };
 }
 
-export function buildAdditionalEquations(raw) {
-  const out = {};
-  if (raw.breakevenLatex) {
-    out.breakeven = {
-      latex: raw.breakevenLatex,
-      ...FORMULA_EQUATION_META.breakeven,
-    };
-  }
-  if (raw.maxProfitLatex) {
-    out.maxProfit = {
-      latex: raw.maxProfitLatex,
-      ...FORMULA_EQUATION_META.maxProfit,
-    };
-  }
-  if (raw.maxLossLatex) {
-    out.maxLoss = {
-      latex: raw.maxLossLatex,
-      ...FORMULA_EQUATION_META.maxLoss,
-    };
-  }
-  return out;
+/** @deprecated Identities are now folded into payoffEquationBlock — kept empty for API shape. */
+export function buildAdditionalEquations(_raw) {
+  return {};
 }

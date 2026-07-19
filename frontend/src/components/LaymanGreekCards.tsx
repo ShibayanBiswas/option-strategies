@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { fmtGreekValue, GREEK_META, GREEK_ORDER, type GreekKey } from "./greekTheme";
+import { GREEK_META, GREEK_ORDER, type GreekKey } from "./greekTheme";
 import { ProseMath } from "./ProseMath";
 import { Latex } from "./Latex";
 
@@ -11,31 +11,23 @@ export interface LaymanGreekBlock {
   formula?: string;
 }
 
-interface LaymanGreekCardsProps {
-  blocks: LaymanGreekBlock[];
-  /** Live aggregate Greeks from the current slider params. */
-  liveValues?: Record<string, number> | null;
-}
-
-export function LaymanGreekCards({ blocks, liveValues }: LaymanGreekCardsProps) {
+export function LaymanGreekCards({ blocks }: { blocks: LaymanGreekBlock[] }) {
   const [active, setActive] = useState<GreekKey>(blocks[0]?.key ?? "delta");
   const block = blocks.find((b) => b.key === active) ?? blocks[0];
   if (!block) return null;
 
   const meta = GREEK_META[block.key];
   const Icon = meta.icon;
-  const live = liveValues?.[block.key];
 
   return (
     <div className="layman-greek-panel">
       <p className="layman-greek-intro">
-        Tap each sensitivity for a plain-English read. The live value tracks your current spot, strikes, and volatility.
+        Tap each sensitivity for a plain-English explanation—no prior options math required. Live numeric Greeks appear in the tiles and charts below.
       </p>
       <div className="layman-greek-tabs">
         {blocks.map((b) => {
           const m = GREEK_META[b.key];
           const TabIcon = m.icon;
-          const tabLive = liveValues?.[b.key];
           return (
             <button
               key={b.key}
@@ -45,9 +37,6 @@ export function LaymanGreekCards({ blocks, liveValues }: LaymanGreekCardsProps) 
             >
               <TabIcon className="w-4 h-4" strokeWidth={1.75} />
               <span className="layman-tab-symbol">{m.symbol}</span>
-              {tabLive != null && Number.isFinite(tabLive) && (
-                <span className="layman-tab-live tabular-nums">{fmtGreekValue(b.key, tabLive)}</span>
-              )}
             </button>
           );
         })}
@@ -58,14 +47,7 @@ export function LaymanGreekCards({ blocks, liveValues }: LaymanGreekCardsProps) 
             <Icon className="w-5 h-5" strokeWidth={1.5} />
             <span className="layman-greek-symbol">{meta.symbol}</span>
           </div>
-          <div className="min-w-0">
-            <h4 className="layman-greek-title">{block.title}</h4>
-            {live != null && Number.isFinite(live) && (
-              <p className="layman-greek-live tabular-nums">
-                Live {meta.symbol} = {fmtGreekValue(block.key, live)}
-              </p>
-            )}
-          </div>
+          <h4 className="layman-greek-title">{block.title}</h4>
         </div>
         <p className="layman-greek-plain">
           <ProseMath text={block.plain} />

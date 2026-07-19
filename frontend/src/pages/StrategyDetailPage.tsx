@@ -15,7 +15,6 @@ import { ProseMath } from "../components/ProseMath";
 import { titleCase } from "../utils/formatText";
 import { formatINR, formatINRLevel } from "../utils/money";
 import { DirectionalPanel } from "../components/DirectionalPanel";
-import { FormulaDeck } from "../components/FormulaDeck";
 import { GreeksChart } from "../components/GreeksChart";
 import { GreekSectionShell } from "../components/GreekSectionShell";
 import { GreeksPanel } from "../components/GreeksPanel";
@@ -416,7 +415,6 @@ export function StrategyDetailPage() {
               <div className="mt-6 mb-6">
                 <LaymanGreekCards
                   blocks={strategy.greeksProfile.laymanGreeks as LaymanGreekBlock[]}
-                  liveValues={payoff?.greeks?.aggregate}
                 />
               </div>
             )}
@@ -510,13 +508,9 @@ export function StrategyDetailPage() {
               context={strategy.payoffEquationBlock.context}
               notation={strategy.payoffEquationBlock.notation}
               equations={strategy.payoffEquationBlock.equations}
-              maxEquations={2}
+              maxEquations={6}
               compact
             />
-
-            {strategy.additionalEquations && Object.keys(strategy.additionalEquations).length > 0 && (
-              <FormulaDeck formulas={strategy.additionalEquations} title="Additional Identities" compact />
-            )}
           </ResearchSection>
         </GlassCard>
       )}
