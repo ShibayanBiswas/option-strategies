@@ -43,6 +43,10 @@ export function normalizeLatex(raw: string): string {
   // Keep single-char / digit scripts (S_0, d_1, K_2, \\phi_i) untouched.
   s = s.replace(/((?:\\[a-zA-Z]+|[A-Za-z]))_([A-Za-z]{2,})\b/g, "$1_{$2}");
 
+  // Always show log-moneyness with a stacked S/K fraction
+  s = s.replace(/\\ln\s*\(\s*S\s*\/\s*K\s*\)/g, "\\ln\\!\\left(\\dfrac{S}{K}\\right)");
+  s = s.replace(/\\ln\s*\{\s*S\s*\/\s*K\s*\}/g, "\\ln\\!\\left(\\dfrac{S}{K}\\right)");
+
   return s;
 }
 

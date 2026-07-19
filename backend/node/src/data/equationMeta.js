@@ -77,12 +77,12 @@ export const INTRO_BS_EQUATIONS = [
   },
   {
     latex:
-      "\\begin{aligned} d_1 &= \\dfrac{\\ln(S/K)+\\bigl(r+\\tfrac{1}{2}\\sigma^{2}\\bigr)T}{\\sigma\\sqrt{T}} \\\\[0.85em] d_2 &= d_1-\\sigma\\sqrt{T} \\end{aligned}",
+      "\\begin{aligned} d_1 &= \\dfrac{\\ln\\!\\left(\\dfrac{S}{K}\\right)+\\bigl(r+\\tfrac{1}{2}\\sigma^{2}\\bigr)T}{\\sigma\\sqrt{T}} \\\\[0.85em] d_2 &= d_1-\\sigma\\sqrt{T} \\end{aligned}",
     context: "Auxiliary variables d_1 and d_2 map spot S, strike K, time T, rate r, and volatility σ into the normal-CDF inputs N(d_1) and N(d_2).",
     notation: [
       { symbol: "d_1", meaning: "Primary auxiliary index into N(·) for calls and puts" },
       { symbol: "d_2", meaning: "Secondary index; always d_2 = d_1 - σ√T" },
-      { symbol: "\\ln(S/K)", meaning: "Log-moneyness — natural log of spot over strike" },
+      { symbol: "\\ln\\!\\left(\\dfrac{S}{K}\\right)", meaning: "Log-moneyness — natural log of spot over strike" },
       { symbol: "\\sigma\\sqrt{T}", meaning: "Total volatility scaled by square root of time" },
     ],
   },
