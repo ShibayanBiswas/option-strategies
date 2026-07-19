@@ -349,6 +349,205 @@ body {
 }
 
 .formula-reveal .math-notation-rail {
+  position: relative;
+  margin: 0.25rem 0 1.15rem;
+  overflow: visible;
+}
+
+.math-notation-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0.35rem 0.15rem 0.5rem;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 0.25rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ar-gold) 40%, transparent) transparent;
+}
+
+.math-notation-grid::-webkit-scrollbar {
+  height: 4px;
+}
+
+.math-notation-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.math-notation-grid::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ar-gold) 40%, transparent);
+  border-radius: 999px;
+}
+
+.math-notation-item {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.7rem;
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: min(20rem, 88vw);
+  font-family: var(--prose-font);
+  font-size: 0.88rem;
+  padding: 0.7rem 0.95rem 0.7rem 1rem;
+  border-radius: 0.65rem;
+  background: var(--ar-surface);
+  border: 1px solid color-mix(in srgb, var(--ar-gold) 28%, var(--ar-border));
+  box-shadow: none;
+  position: relative;
+  overflow: visible;
+  min-height: 0;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+  cursor: default;
+}
+
+.math-notation-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  bottom: 0.55rem;
+  width: 2.5px;
+  border-radius: 999px;
+  background: var(--ar-gold);
+  opacity: 0.85;
+  z-index: 1;
+}
+
+.math-notation-item:hover {
+  border-color: color-mix(in srgb, var(--ar-gold) 50%, var(--ar-border));
+  background: color-mix(in srgb, var(--ar-gold) 6%, var(--ar-surface));
+}
+
+.math-notation-item dt,
+.math-notation-item dd {
+  position: relative;
+  z-index: 1;
+}
+
+.math-notation-item dt {
+  color: var(--ar-gold-dark);
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.math-notation-item dt .katex {
+  font-size: 1.12em !important;
+  line-height: 1.35 !important;
+}
+
+.math-notation-item dd {
+  margin: 0;
+  color: var(--ar-muted);
+  line-height: 1.4;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.math-notation-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.math-notation-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 2.4rem;
+  min-height: 2.2rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--ar-gold) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ar-gold) 35%, transparent);
+  box-shadow: none;
+  white-space: nowrap;
+  overflow: visible;
+  line-height: 1.35;
+}
+
+.math-notation-glyph .katex,
+.math-notation-glyph .katex-html {
+  overflow: visible !important;
+}
+
+.math-notation-glyph .katex .vlist-t,
+.math-notation-glyph .katex .vlist-t2,
+.math-inline .katex .vlist-t,
+.math-inline .katex .vlist-t2 {
+  display: inline-table !important;
+}
+
+.math-notation-meaning {
+  display: block;
+  font-size: 0.86rem;
+  white-space: normal;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  max-width: 13.5rem;
+}
+
+.math-equation-block {
+  text-align: left;
+}
+
+.math-equation-block .math-equation-full {
+  text-align: center;
+}
+
+.greek-formula-panel,
+.greek-identity-panel,
+.layman-greek-formula,
+.formula-reveal {
+  width: 100%;
+}
+
+.greek-formula-panel,
+.layman-greek-formula {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.greek-formula-panel .math-equation-context,
+.formula-reveal .math-equation-context,
+.formula-reveal .formula-reveal-sub {
+  text-align: left;
+  width: 100%;
+  align-self: stretch;
+}
+
+.greek-formula-panel .math-equation-full,
+.greek-identity-panel .math-equation-full,
+.layman-greek-formula .math-equation-full,
+.formula-reveal .math-equation-full,
+.directional-live-math-stack .math-equation-full {
+  align-self: center;
+  width: 100%;
+}
+
+/* Nested panel already provides chrome — avoid double boxes */
+.greek-formula-panel > .math-equation-full,
+.greek-identity-panel > .math-equation-full {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.formula-reveal {
+  display: block;
+  text-align: left;
+}
+
+.formula-reveal .math-notation-rail {
   width: 100%;
 }
 
