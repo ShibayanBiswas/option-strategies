@@ -296,11 +296,17 @@ body {
 }
 
 .math-equation-block {
+  border-radius: 0.65rem;
+  padding: 0.35rem 0.25rem;
   text-align: left;
 }
 
 .math-equation-block .math-equation-full {
   text-align: center;
+}
+
+.math-equation-block:hover .math-equation-full {
+  border-color: color-mix(in srgb, var(--ar-gold) 40%, transparent);
 }
 
 .greek-formula-panel,
@@ -348,7 +354,7 @@ body {
   text-align: left;
 }
 
-.formula-reveal .math-notation-rail {
+.math-notation-rail {
   position: relative;
   margin: 0.25rem 0 1.15rem;
   overflow: visible;
@@ -624,251 +630,6 @@ html.dark .katex-error {
 
 .math-inline .katex {
   font-size: 1em !important;
-}
-
-.math-notation-rail {
-  position: relative;
-  margin: 0.35rem 0 1.35rem;
-  overflow: visible;
-  /* Soft edge fades hint horizontal scroll without clipping the cards */
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-
-.math-notation-grid {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  gap: 0.85rem;
-  margin: 0;
-  padding: 0.85rem 1.15rem 1.05rem;
-  overflow-x: auto;
-  overflow-y: visible;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: 1.15rem;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--ar-gold) 55%, transparent) transparent;
-}
-
-.math-notation-grid::-webkit-scrollbar {
-  height: 5px;
-}
-
-.math-notation-grid::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.math-notation-grid::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--ar-gold) 45%, transparent);
-  border-radius: 999px;
-}
-
-.math-notation-item {
-  display: inline-flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 0.85rem 1rem;
-  flex: 0 0 auto;
-  width: max-content;
-  max-width: min(22rem, 88vw);
-  font-family: var(--prose-font);
-  font-size: 0.88rem;
-  padding: 1.05rem 1.25rem 1.1rem 1.3rem;
-  border-radius: 1.15rem;
-  background:
-    linear-gradient(
-      155deg,
-      color-mix(in srgb, var(--ar-gold) 18%, var(--ar-surface)) 0%,
-      var(--ar-surface) 42%,
-      color-mix(in srgb, var(--ar-gold) 9%, var(--ar-panel)) 100%
-    );
-  border: 1px solid color-mix(in srgb, var(--ar-gold) 48%, var(--ar-border));
-  box-shadow:
-    0 14px 34px -16px color-mix(in srgb, var(--ar-gold) 55%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ar-gold) 18%, transparent),
-    inset 0 1px 0 color-mix(in srgb, #ffffff 70%, transparent);
-  position: relative;
-  /* visible so KaTeX subscripts / superscripts are never clipped */
-  overflow: visible;
-  min-height: 0;
-  box-sizing: border-box;
-  scroll-snap-align: start;
-  cursor: default;
-  isolation: isolate;
-  will-change: transform;
-}
-
-.math-notation-item::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.4rem;
-  bottom: 0.4rem;
-  width: 3.5px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, var(--ar-gold-dark), var(--ar-gold), var(--ar-gold-light));
-  box-shadow: 0 0 12px color-mix(in srgb, var(--ar-gold) 55%, transparent);
-  opacity: 0.95;
-  z-index: 1;
-}
-
-/* Gold shimmer — notation cards only (clip-path keeps overflow:visible for scripts) */
-.math-notation-item::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  clip-path: inset(0 round 1.15rem);
-  background: linear-gradient(
-    115deg,
-    transparent 32%,
-    color-mix(in srgb, var(--ar-gold) 32%, transparent) 50%,
-    transparent 68%
-  );
-  transform: translateX(-130%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.math-notation-item:hover {
-  border-color: color-mix(in srgb, var(--ar-gold) 78%, transparent);
-  box-shadow:
-    0 20px 42px -14px color-mix(in srgb, var(--ar-gold) 58%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ar-gold) 35%, transparent),
-    inset 0 1px 0 color-mix(in srgb, #ffffff 75%, transparent);
-  background:
-    linear-gradient(
-      155deg,
-      color-mix(in srgb, var(--ar-gold) 24%, var(--ar-surface)) 0%,
-      var(--ar-surface) 45%,
-      color-mix(in srgb, var(--ar-gold) 14%, var(--ar-panel)) 100%
-    );
-}
-
-.math-notation-item:hover::after {
-  animation: notation-shine 0.85s ease forwards;
-}
-
-@keyframes notation-shine {
-  to {
-    transform: translateX(130%);
-  }
-}
-
-.math-notation-item dt,
-.math-notation-item dd {
-  position: relative;
-  z-index: 1;
-}
-
-.math-notation-item dt {
-  color: var(--ar-gold-dark);
-  margin: 0;
-  flex: 0 0 auto;
-}
-
-.math-notation-item dt .katex {
-  font-size: 1.18em !important;
-  line-height: 1.35 !important;
-}
-
-.math-notation-item dd {
-  margin: 0;
-  color: var(--ar-muted);
-  line-height: 1.45;
-  flex: 0 1 auto;
-  min-width: 0;
-}
-
-.math-notation-symbol {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.math-notation-glyph {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: max-content;
-  min-width: 2.85rem;
-  min-height: 2.65rem;
-  padding: 0.55rem 0.85rem 0.6rem;
-  border-radius: 0.85rem;
-  background: linear-gradient(
-    160deg,
-    color-mix(in srgb, var(--ar-gold) 38%, transparent),
-    color-mix(in srgb, var(--ar-gold) 12%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--ar-gold) 62%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--ar-gold) 50%, transparent),
-    0 6px 16px -6px color-mix(in srgb, var(--ar-gold) 55%, transparent);
-  white-space: nowrap;
-  overflow: visible;
-  line-height: 1.35;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
-  animation: notation-glyph-breathe 3.2s ease-in-out infinite;
-}
-
-.math-notation-glyph .katex,
-.math-notation-glyph .katex-html {
-  overflow: visible !important;
-}
-
-/* Keep script metrics intact inside notation chips */
-.math-notation-glyph .katex .vlist-t,
-.math-notation-glyph .katex .vlist-t2,
-.math-inline .katex .vlist-t,
-.math-inline .katex .vlist-t2 {
-  display: inline-table !important;
-}
-
-.math-notation-item:hover .math-notation-glyph {
-  transform: scale(1.08);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--ar-gold) 55%, transparent),
-    0 10px 22px -8px color-mix(in srgb, var(--ar-gold) 65%, transparent);
-  animation: none;
-}
-
-@keyframes notation-glyph-breathe {
-  0%,
-  100% {
-    box-shadow:
-      inset 0 1px 0 color-mix(in srgb, var(--ar-gold) 50%, transparent),
-      0 6px 16px -6px color-mix(in srgb, var(--ar-gold) 45%, transparent);
-  }
-  50% {
-    box-shadow:
-      inset 0 1px 0 color-mix(in srgb, var(--ar-gold) 55%, transparent),
-      0 8px 20px -6px color-mix(in srgb, var(--ar-gold) 70%, transparent);
-  }
-}
-
-.math-notation-meaning {
-  display: block;
-  font-size: 0.88rem;
-  white-space: normal;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  max-width: 14rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .math-notation-item:hover::after {
-    animation: none;
-  }
-
-  .math-notation-item:hover .math-notation-glyph {
-    transform: none;
-  }
-
-  .math-notation-glyph {
-    animation: none;
-  }
 }
 
 .math-equation-block {
