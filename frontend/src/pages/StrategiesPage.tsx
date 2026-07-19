@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Search, TrendingUp } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { fetchCategories, fetchStrategies, type StrategySummary } from "../api/client";
+import { fetchCategories, fetchStrategies, prefetchStrategy, type StrategySummary } from "../api/client";
 import { Badge } from "../components/GlassCard";
 import { ProseMath } from "../components/ProseMath";
 import { titleCase } from "../utils/formatText";
@@ -109,6 +109,8 @@ export function StrategiesPage() {
             >
               <Link
                 to={`/strategies/${s.id}`}
+                onMouseEnter={() => prefetchStrategy(s.id)}
+                onFocus={() => prefetchStrategy(s.id)}
                 className="group strategy-card card-shine block h-full rounded-2xl border border-ar-border bg-gradient-to-br from-ar-surface via-surface-card to-surface-raised p-5 hover:border-ar-gold/50 transition-colors duration-300"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">

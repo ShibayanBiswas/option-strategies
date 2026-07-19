@@ -4,7 +4,7 @@ const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 
 const api = axios.create({
   baseURL: apiBase ? `${apiBase}/api` : "/api",
-  timeout: 15000,
+  timeout: 12000,
 });
 
 export interface StrategySummary {
@@ -23,6 +23,32 @@ export interface ParamField {
   min: number;
   max: number;
   step: number;
+}
+
+export interface PayoffResponse {
+  spotPrices: number[];
+  payoffs: number[];
+  legPayoffs?: {
+    labels?: string[];
+    legs: number[][];
+  };
+  metrics: Record<string, number | number[] | string>;
+  greeks: {
+    legs: Record<string, unknown>[];
+    aggregate: Record<string, number>;
+    aggregateProfiles?: Record<string, number[]>;
+  };
+  directional?: {
+    label: string;
+    netDelta: number;
+    netGamma: number;
+    netVega: number;
+    netTheta: number;
+    payoffSlopeAtSpot: number;
+    liveEquations?: string[];
+    latex: Record<string, string>;
+    legContributions?: { leg: string; delta: number; contributionLatex?: string }[];
+  };
 }
 
 export interface StrategyDetail extends StrategySummary {
@@ -88,32 +114,8 @@ export interface StrategyDetail extends StrategySummary {
     asOf?: string;
     source?: string;
   };
-}
-
-export interface PayoffResponse {
-  spotPrices: number[];
-  payoffs: number[];
-  legPayoffs?: {
-    labels?: string[];
-    legs: number[][];
-  };
-  metrics: Record<string, number | number[] | string>;
-  greeks: {
-    legs: Record<string, unknown>[];
-    aggregate: Record<string, number>;
-    aggregateProfiles?: Record<string, number[]>;
-  };
-  directional?: {
-    label: string;
-    netDelta: number;
-    netGamma: number;
-    netVega: number;
-    netTheta: number;
-    payoffSlopeAtSpot: number;
-    liveEquations?: string[];
-    latex: Record<string, string>;
-    legContributions?: { leg: string; delta: number; contributionLatex?: string }[];
-  };
+  /** Present when fetched with ?payoff=1 — first-paint charts without a second round-trip */
+  initialPayoff?: PayoffResponse;
 }
 
 export const fetchHealth = () => api.get("/health");
@@ -121,8 +123,32 @@ export const fetchIntro = () => api.get("/intro");
 export const fetchCategories = () => api.get("/categories");
 export const fetchStrategies = (scope?: "chapter" | "all") =>
   api.get<StrategySummary[]>("/strategies", { params: scope ? { scope } : {} });
-export const fetchStrategy = (id: string) => api.get<StrategyDetail>(`/strategies/${id}`);
+/** Strategy monograph + optional first-paint payoff in one round-trip (?payoff=1). */
+const strategyDetailCache = new Map<string, { at: number; data: StrategyDetail }>();
+const STRATEGY_CACHE_MS = 60_000;
+
+export const fetchStrategy = async (id: string, opts?: { payoff?: boolean }) => {
+  const withPayoff = opts?.payoff !== false;
+  const cacheKey = `${id}:${withPayoff ? "p1" : "p0"}`;
+  const hit = strategyDetailCache.get(cacheKey);
+  if (hit && Date.now() - hit.at < STRATEGY_CACHE_MS) {
+    return { data: hit.data };
+  }
+  const res = await api.get<StrategyDetail>(`/strategies/${id}`, {
+    params: withPayoff ? { payoff: 1 } : undefined,
+    timeout: 12000,
+  });
+  strategyDetailCache.set(cacheKey, { at: Date.now(), data: res.data });
+  return res;
+};
+
 export const fetchPayoff = (strategyId: string, params: Record<string, number>) =>
-  api.post<PayoffResponse>("/payoff", { strategyId, params });
+  api.post<PayoffResponse>("/payoff", { strategyId, params }, { timeout: 12000 });
+
+/** Warm the strategy monograph cache on hover / focus (cuts click → paint latency). */
+export function prefetchStrategy(id: string) {
+  if (!id) return;
+  void fetchStrategy(id, { payoff: true }).catch(() => undefined);
+}
 
 export default api;

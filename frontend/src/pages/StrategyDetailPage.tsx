@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Activity, Sigma } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Link, useParams } from "react-router-dom";
 
@@ -52,84 +52,81 @@ import { payoffChartHighlightIndex, structurePayoffLabels } from "../utils/payof
 
 
 export function StrategyDetailPage() {
-
   const { id } = useParams<{ id: string }>();
-
   const [strategy, setStrategy] = useState<StrategyDetail | null>(null);
-
   const [params, setParams] = useState<Record<string, number>>({});
-
   const [payoff, setPayoff] = useState<PayoffResponse | null>(null);
-
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState<string | null>(null);
-
   const [highlightLeg, setHighlightLeg] = useState<number | null>(null);
-
-
+  /** True when GET already seeded charts — skip the immediate duplicate POST. */
+  const seededPayoffRef = useRef(false);
 
   useEffect(() => {
-
     if (!id) return;
+    let cancelled = false;
+    setStrategy(null);
+    setPayoff(null);
+    setError(null);
+    setHighlightLeg(null);
+    setParams({});
+    seededPayoffRef.current = false;
 
-    fetchStrategy(id).then((r) => {
+    fetchStrategy(id, { payoff: true })
+      .then((r) => {
+        if (cancelled) return;
+        const data = r.data;
+        setStrategy(data);
+        if (data.defaultParams) setParams({ ...data.defaultParams });
+        if (data.initialPayoff) {
+          setPayoff(data.initialPayoff);
+          seededPayoffRef.current = true;
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setError("Could not load this strategy. Check the connection and try again.");
+      });
 
-      setStrategy(r.data);
-
-      if (r.data.defaultParams) setParams({ ...r.data.defaultParams });
-
-    });
-
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
-
-
   const loadPayoff = useCallback(async () => {
-
     if (!id || !strategy?.hasPayoff) return;
-
-    setLoading(true);
-
-    setError(null);
-
-    try {
-
-      const { data } = await fetchPayoff(id, params);
-
-      setPayoff(data);
-
-    } catch {
-
-      setError("Analytics engine unavailable — ensure the API is running, then refresh.");
-
-      setPayoff(null);
-
-    } finally {
-
-      setLoading(false);
-
+    if (!Object.keys(params).length) return;
+    if (seededPayoffRef.current) {
+      seededPayoffRef.current = false;
+      return;
     }
 
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await fetchPayoff(id, params);
+      setPayoff(data);
+    } catch {
+      setError("Analytics engine unavailable — ensure the API is running, then refresh.");
+      setPayoff(null);
+    } finally {
+      setLoading(false);
+    }
   }, [id, strategy?.hasPayoff, params]);
 
-
-
   useEffect(() => {
-
-    const t = setTimeout(loadPayoff, 300);
-
+    const t = setTimeout(loadPayoff, 220);
     return () => clearTimeout(t);
-
   }, [loadPayoff]);
 
-
-
-  if (!strategy) {
-
+  if (!strategy && !error) {
     return <div className="text-ar-subtle animate-pulse font-serif">Loading strategy monograph…</div>;
-
   }
+
+  if (!strategy && error) {
+    return <div className="text-rose-400 font-serif">{error}</div>;
+  }
+
+  if (!strategy) return null;
 
 
 

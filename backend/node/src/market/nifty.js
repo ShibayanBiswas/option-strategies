@@ -1,14 +1,17 @@
 /**
  * Live Nifty spot + scale helpers for defaults/sliders.
  * Does NOT change payoff formulas — only parameter levels and ranges.
+ *
+ * Designed for Vercel cold starts: never block the request on Yahoo.
+ * Uses stale-while-revalidate + a short fetch timeout + static fallback.
  */
 
 const FALLBACK_NIFTY = 24350;
 const CACHE_MS = 5 * 60 * 1000;
+/** Max wait for Yahoo on a cold path — after this, serve fallback/stale. */
+const FETCH_TIMEOUT_MS = 700;
 
 const PRICE_KEYS = new Set(["S0", "K", "K1", "K2", "K3", "K4", "C", "D", "H", "spotMin", "spotMax"]);
-
-let cache = { spot: FALLBACK_NIFTY, asOf: null, source: "fallback", expires: 0 };
 
 function roundTo(n, step) {
   if (!Number.isFinite(n) || step <= 0) return n;
@@ -20,7 +23,28 @@ export function roundNiftyAtm(spot) {
   return roundTo(spot, 50);
 }
 
-async function fetchYahooNifty() {
+let cache = {
+  spot: FALLBACK_NIFTY,
+  atm: roundNiftyAtm(FALLBACK_NIFTY),
+  asOf: null,
+  source: "fallback",
+  expires: 0,
+};
+
+/** In-flight Yahoo refresh — shared so concurrent requests don't stampede. */
+let refreshPromise = null;
+
+function snapshot(extra = {}) {
+  return {
+    spot: cache.spot,
+    atm: cache.atm ?? roundNiftyAtm(cache.spot),
+    asOf: cache.asOf,
+    source: cache.source,
+    ...extra,
+  };
+}
+
+async function fetchYahooNifty(signal) {
   const url =
     "https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d&range=5d";
   const res = await fetch(url, {
@@ -28,6 +52,7 @@ async function fetchYahooNifty() {
       "User-Agent": "Mozilla/5.0 (compatible; OptionLab/1.0)",
       Accept: "application/json",
     },
+    signal,
   });
   if (!res.ok) throw new Error(`Yahoo Nifty HTTP ${res.status}`);
   const json = await res.json();
@@ -43,39 +68,90 @@ async function fetchYahooNifty() {
   };
 }
 
-/** Cached live Nifty quote (5 min). Falls back to last good / static level. */
+function applyQuote(q, now = Date.now()) {
+  cache = {
+    spot: q.spot,
+    atm: roundNiftyAtm(q.spot),
+    asOf: q.asOf,
+    source: q.source,
+    expires: now + CACHE_MS,
+  };
+  return snapshot({ cached: false });
+}
+
+/** Kick off (or join) a background Yahoo refresh. Never throws to callers. */
+function refreshInBackground() {
+  if (refreshPromise) return refreshPromise;
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS * 2);
+  refreshPromise = fetchYahooNifty(ac.signal)
+    .then((q) => applyQuote(q))
+    .catch(() => {
+      // Soft-fail: keep last good / fallback, retry after a short cool-down
+      cache = {
+        ...cache,
+        spot: cache.spot || FALLBACK_NIFTY,
+        atm: roundNiftyAtm(cache.spot || FALLBACK_NIFTY),
+        asOf: cache.asOf || new Date().toISOString(),
+        source: cache.source === "yahoo:^NSEI" || cache.source === "cache" ? "cache" : "fallback",
+        expires: Date.now() + 60_000,
+      };
+      return snapshot({ cached: true });
+    })
+    .finally(() => {
+      clearTimeout(timer);
+      refreshPromise = null;
+    });
+  return refreshPromise;
+}
+
+/**
+ * Fast Nifty quote for API handlers.
+ * - Fresh cache hit → instant
+ * - Stale/warm cache → return immediately, refresh in background
+ * - Cold start → wait at most FETCH_TIMEOUT_MS, else FALLBACK (refresh continues)
+ */
 export async function getNiftyQuote() {
   const now = Date.now();
-  if (cache.expires > now && cache.spot) return { ...cache, cached: true };
-
-  try {
-    const q = await fetchYahooNifty();
-    cache = {
-      spot: q.spot,
-      atm: roundNiftyAtm(q.spot),
-      asOf: q.asOf,
-      source: q.source,
-      expires: now + CACHE_MS,
-    };
-    return { ...cache, cached: false };
-  } catch (err) {
-    cache = {
-      ...cache,
-      spot: cache.spot || FALLBACK_NIFTY,
-      atm: roundNiftyAtm(cache.spot || FALLBACK_NIFTY),
-      asOf: cache.asOf || new Date().toISOString(),
-      source: cache.source === "yahoo:^NSEI" ? "cache" : "fallback",
-      expires: now + 60_000,
-      error: String(err.message || err),
-    };
-    return { ...cache, cached: true };
+  if (cache.expires > now && cache.spot) {
+    return snapshot({ cached: true });
   }
+
+  // Have any prior live/cache value → stale-while-revalidate (instant response)
+  if (cache.source !== "fallback" && cache.spot) {
+    void refreshInBackground();
+    return snapshot({ cached: true, stale: true });
+  }
+
+  // Cold: race a short Yahoo attempt vs timeout, then serve something immediately
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const q = await fetchYahooNifty(ac.signal);
+    clearTimeout(timer);
+    return applyQuote(q, now);
+  } catch {
+    clearTimeout(timer);
+    void refreshInBackground();
+    cache = {
+      spot: FALLBACK_NIFTY,
+      atm: roundNiftyAtm(FALLBACK_NIFTY),
+      asOf: new Date().toISOString(),
+      source: "fallback",
+      expires: now + 30_000,
+    };
+    return snapshot({ cached: true, cold: true });
+  }
+}
+
+/** Sync peek for rare cases — never network. */
+export function peekNiftyQuote() {
+  return snapshot({ cached: true });
 }
 
 function priceStepForKey(key) {
   if (key === "C" || key === "D" || key === "H") return 1;
   if (key === "spotMin" || key === "spotMax") return 5;
-  // S0 and strikes — fine slider precision on Nifty scale
   return 5;
 }
 
@@ -99,7 +175,6 @@ export function scaleParamsToSpot(params, niftySpot) {
     out[key] = roundTo(v * scale, priceStepForKey(key));
   }
 
-  // Keep spot window ordered
   if (out.spotMin != null && out.spotMax != null && out.spotMin > out.spotMax) {
     const t = out.spotMin;
     out.spotMin = out.spotMax;

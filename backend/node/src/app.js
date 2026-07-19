@@ -97,7 +97,22 @@ app.get("/api/strategies/:id", async (req, res) => {
   const strategy = strategies.find((s) => s.id === req.params.id);
   if (!strategy) return res.status(404).json({ error: "Strategy not found" });
   const quote = await getNiftyQuote();
-  res.json(applyNiftyToStrategy(strategy, quote));
+  const detail = applyNiftyToStrategy(strategy, quote);
+
+  // One round-trip first paint: include payoff computed with scaled defaults
+  const wantPayoff =
+    req.query.payoff === "1" ||
+    req.query.payoff === "true" ||
+    req.query.includePayoff === "1";
+  if (wantPayoff && strategy.hasPayoff) {
+    try {
+      const payoff = computePayoff(strategy.id, detail.defaultParams ?? {});
+      return res.json({ ...detail, initialPayoff: payoff });
+    } catch {
+      return res.json(detail);
+    }
+  }
+  res.json(detail);
 });
 
 app.post("/api/payoff", (req, res) => {
