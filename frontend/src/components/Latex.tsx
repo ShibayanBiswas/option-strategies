@@ -72,6 +72,7 @@ export function Latex({
       return (
         <div
           className={`math-equation-full math-compact serif-math no-scrollbar ${fullWidth ? "w-full" : ""} ${className}`}
+          style={{ display: "flex", justifyContent: "center", textAlign: "center" }}
         >
           <BlockMath math={rendered} />
         </div>
@@ -88,6 +89,7 @@ export function Latex({
         return (
           <div
             className={`math-equation-full math-compact serif-math no-scrollbar ${fullWidth ? "w-full" : ""} ${className}`}
+            style={{ display: "flex", justifyContent: "center", textAlign: "center" }}
           >
             <BlockMath math={normalized} />
           </div>

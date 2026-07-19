@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { GREEK_META, GREEK_ORDER, type GreekKey } from "./greekTheme";
 import { ProseMath } from "./ProseMath";
+import { Latex } from "./Latex";
 
 export interface LaymanGreekBlock {
   key: GreekKey;
@@ -57,6 +58,11 @@ export function LaymanGreekCards({ blocks }: { blocks: LaymanGreekBlock[] }) {
             <ProseMath text={block.strategyTip} />
           </p>
         </div>
+        {block.formula && (
+          <div className="layman-greek-formula">
+            <Latex math={block.formula} block fullWidth />
+          </div>
+        )}
       </div>
     </div>
   );
