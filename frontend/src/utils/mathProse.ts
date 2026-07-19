@@ -22,7 +22,8 @@ const GREEK: Record<string, string> = {
   "ρ": "\\rho",
   "σ": "\\sigma",
   "τ": "\\tau",
-  "φ": "\\varphi",
+  "φ": "\\phi",
+  "ϕ": "\\phi",
   "ω": "\\omega",
   "∂": "\\partial",
   "∞": "\\infty",
@@ -45,7 +46,7 @@ function sym(base: string): string {
 /** Translate a small math fragment with unicode operators to LaTeX. */
 function mathify(s: string): string {
   let out = s;
-  out = out.replace(/[ΔΓΘΛΣΠΩαβγδεθκλμνπρστφω∂∞]/g, (c) => `${GREEK[c] ?? c} `);
+  out = out.replace(/[ΔΓΘΛΣΠΩαβγδεθκλμνπρστφϕω∂∞]/g, (c) => GREEK[c] ?? c);
   out = out
     .replace(/≈/g, "\\approx ")
     .replace(/≥/g, "\\geq ")
@@ -163,6 +164,14 @@ const RULES: Array<{ src: string; latex: (m: RegExpExecArray) => string }> = [
   },
   { src: "S\\^\\*_\\{?(down|up)\\}?", latex: (m) => `S^*_{\\text{${m[1]}}}` },
   { src: "S\\^\\*", latex: () => "S^*" },
+  { src: "\\\\phi_i\\(S_T\\)", latex: () => "\\phi_i(S_T)" },
+  { src: "φ_i\\(S_T\\)", latex: () => "\\phi_i(S_T)" },
+  { src: "ϕ_i\\(S_T\\)", latex: () => "\\phi_i(S_T)" },
+  { src: "\\\\phi_i\\b", latex: () => "\\phi_i" },
+  { src: "φ_i\\b", latex: () => "\\phi_i" },
+  { src: "ϕ_i\\b", latex: () => "\\phi_i" },
+  { src: "\\\\sigma_i\\b", latex: () => "\\sigma_i" },
+  { src: "σ_i\\b", latex: () => "\\sigma_i" },
   { src: "P_\\{?max\\}?", latex: () => "P_{\\max}" },
   { src: "L_\\{?max\\}?", latex: () => "L_{\\max}" },
   { src: "V\\^\\{\\\\text\\{intr\\}\\}", latex: () => "V^{\\text{intr}}" },
@@ -202,11 +211,11 @@ const RULES: Array<{ src: string; latex: (m: RegExpExecArray) => string }> = [
   { src: "\\\\sqrt\\{([^}]*)\\}", latex: (m) => `\\sqrt{${m[1]}}` },
   // Subscripts only on Greek or single known math letters — never mid-word latin (avoids \\sigma_i → a_i)
   {
-    src: "([ΔΓΘνρσκA-Z])_\\{([^}]+)\\}",
+    src: "([ΔΓΘνρσκφϕA-Z])_\\{([^}]+)\\}",
     latex: (m) => `${sym(m[1])}_{${mathify(m[2])}}`,
   },
   {
-    src: "([ΔΓΘνρσκ]|[KSTfV])_([A-Za-z0-9]+)",
+    src: "([ΔΓΘνρσκφϕ]|[KSTfV])_([A-Za-z0-9]+)",
     latex: (m) => `${sym(m[1])}_{${mathify(m[2])}}`,
   },
   { src: "\\+1\\b", latex: () => "+1" },
@@ -215,7 +224,8 @@ const RULES: Array<{ src: string; latex: (m: RegExpExecArray) => string }> = [
   { src: "≤", latex: () => "\\leq" },
   { src: "≠", latex: () => "\\neq" },
   { src: "≈", latex: () => "\\approx" },
-  { src: "[ΔΓΘΛΣΠΩκλμνπρστφω∂]", latex: (m) => sym(m[0]) },
+  // Bare Greek last — never steals φ_i / σ_i (those matched above)
+  { src: "[ΔΓΘΛΣΠΩκλμνπρστφϕω∂]", latex: (m) => sym(m[0]) },
 ];
 
 const COMPILED: Rule[] = RULES.map((r) => ({ re: new RegExp(r.src, "y"), latex: r.latex }));

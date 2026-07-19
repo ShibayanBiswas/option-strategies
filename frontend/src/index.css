@@ -430,21 +430,10 @@ html.dark .katex-error {
 .math-notation-rail {
   position: relative;
   margin: 0.35rem 0 1.35rem;
+  overflow: visible;
   /* Soft edge fades hint horizontal scroll without clipping the cards */
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent 0,
-    #000 1.25rem,
-    #000 calc(100% - 1.25rem),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    90deg,
-    transparent 0,
-    #000 1.25rem,
-    #000 calc(100% - 1.25rem),
-    transparent 100%
-  );
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 .math-notation-grid {
@@ -453,7 +442,7 @@ html.dark .katex-error {
   align-items: stretch;
   gap: 0.85rem;
   margin: 0;
-  padding: 0.65rem 1.15rem 0.85rem;
+  padding: 0.85rem 1.15rem 1.05rem;
   overflow-x: auto;
   overflow-y: visible;
   scroll-snap-type: x proximity;
@@ -487,7 +476,7 @@ html.dark .katex-error {
   max-width: min(22rem, 88vw);
   font-family: var(--prose-font);
   font-size: 0.88rem;
-  padding: 0.95rem 1.2rem 0.95rem 1.25rem;
+  padding: 1.05rem 1.25rem 1.1rem 1.3rem;
   border-radius: 1.15rem;
   background:
     linear-gradient(
@@ -502,7 +491,8 @@ html.dark .katex-error {
     0 0 0 1px color-mix(in srgb, var(--ar-gold) 18%, transparent),
     inset 0 1px 0 color-mix(in srgb, #ffffff 70%, transparent);
   position: relative;
-  overflow: hidden;
+  /* visible so KaTeX subscripts / superscripts are never clipped */
+  overflow: visible;
   min-height: 0;
   box-sizing: border-box;
   scroll-snap-align: start;
@@ -525,11 +515,13 @@ html.dark .katex-error {
   z-index: 1;
 }
 
-/* Gold shimmer — notation cards only */
+/* Gold shimmer — notation cards only (clip-path keeps overflow:visible for scripts) */
 .math-notation-item::after {
   content: "";
   position: absolute;
   inset: 0;
+  border-radius: inherit;
+  clip-path: inset(0 round 1.15rem);
   background: linear-gradient(
     115deg,
     transparent 32%,
@@ -580,6 +572,7 @@ html.dark .katex-error {
 
 .math-notation-item dt .katex {
   font-size: 1.18em !important;
+  line-height: 1.35 !important;
 }
 
 .math-notation-item dd {
@@ -602,8 +595,8 @@ html.dark .katex-error {
   justify-content: center;
   width: max-content;
   min-width: 2.85rem;
-  min-height: 2.45rem;
-  padding: 0.4rem 0.8rem;
+  min-height: 2.65rem;
+  padding: 0.55rem 0.85rem 0.6rem;
   border-radius: 0.85rem;
   background: linear-gradient(
     160deg,
@@ -615,8 +608,23 @@ html.dark .katex-error {
     inset 0 1px 0 color-mix(in srgb, var(--ar-gold) 50%, transparent),
     0 6px 16px -6px color-mix(in srgb, var(--ar-gold) 55%, transparent);
   white-space: nowrap;
+  overflow: visible;
+  line-height: 1.35;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
   animation: notation-glyph-breathe 3.2s ease-in-out infinite;
+}
+
+.math-notation-glyph .katex,
+.math-notation-glyph .katex-html {
+  overflow: visible !important;
+}
+
+/* Keep script metrics intact inside notation chips */
+.math-notation-glyph .katex .vlist-t,
+.math-notation-glyph .katex .vlist-t2,
+.math-inline .katex .vlist-t,
+.math-inline .katex .vlist-t2 {
+  display: inline-table !important;
 }
 
 .math-notation-item:hover .math-notation-glyph {

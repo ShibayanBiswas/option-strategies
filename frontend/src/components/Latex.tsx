@@ -36,7 +36,12 @@ export function normalizeLatex(raw: string): string {
     .replace(/Θ/g, "\\Theta")
     .replace(/ν/g, "\\nu")
     .replace(/ρ/g, "\\rho")
-    .replace(/σ/g, "\\sigma");
+    .replace(/σ/g, "\\sigma")
+    .replace(/φ|ϕ/g, "\\phi");
+
+  // Brace multi-letter unbraced subscripts: S_net → S_{net}, \\Delta_net → \\Delta_{net}
+  // Keep single-char / digit scripts (S_0, d_1, K_2, \\phi_i) untouched.
+  s = s.replace(/((?:\\[a-zA-Z]+|[A-Za-z]))_([A-Za-z]{2,})\b/g, "$1_{$2}");
 
   return s;
 }
@@ -44,13 +49,28 @@ export function normalizeLatex(raw: string): string {
 const STRUCTURAL_TEX =
   /\\(?:d?frac|tfrac|dfrac|sqrt|sum|prod|int|left|right|begin|end|over|atop|choose|partial)\b|\\\\/;
 
-/** Bold-italic emphasize without breaking fractions / display structure. */
+/**
+ * Bold the math nucleus only so subscripts/superscripts stay outside \\boldsymbol{...}.
+ * \\boldsymbol{\\phi_i} can look broken; \\boldsymbol{\\phi}_i renders cleanly.
+ */
 export function emphasizeLatex(s: string): string {
   const t = s.trim();
   if (!t) return t;
   if (/\\boldsymbol|\\mathbf|\\bm\b|\\bold/.test(t)) return t;
   // Never wrap structural display math — \boldsymbol breaks numerator/denominator layout
   if (STRUCTURAL_TEX.test(t) || t.length > 80) return t;
+
+  // nucleus = TeX command or single letter; scripts = chain of _x /^x /_{...} /^{...}
+  const m = t.match(
+    /^((?:\\[a-zA-Z]+\*?|[A-Za-z]))((?:(?:_|\^)(?:\{[^}]*\}|[A-Za-z0-9+*'′∗]))*)([\s\S]*)$/
+  );
+  if (m) {
+    const [, base, scripts, rest] = m;
+    if (scripts) {
+      return `\\boldsymbol{${base}}${scripts}${rest}`;
+    }
+  }
+
   return `\\boldsymbol{${t}}`;
 }
 
