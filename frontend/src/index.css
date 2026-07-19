@@ -164,35 +164,9 @@ body {
   box-shadow: 0 1px 0 color-mix(in srgb, var(--ar-gold) 35%, transparent);
 }
 
-/* Shimmer sweep on every card */
+/* Soft gold edge — no shimmer / click motion */
 .card-shine {
   position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.card-shine::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 40%,
-    color-mix(in srgb, var(--ar-gold) 22%, transparent) 50%,
-    transparent 60%
-  );
-  transform: translateX(-120%);
-  pointer-events: none;
-  z-index: 1;
-  transition: transform 0.01s;
-}
-
-.card-shine:hover::after {
-  animation: card-shine-sweep 0.85s ease forwards;
-}
-
-@keyframes card-shine-sweep {
-  to { transform: translateX(120%); }
 }
 
 .strategy-card {
@@ -203,8 +177,6 @@ body {
 
 .strategy-card:hover {
   border-top-color: var(--ar-gold);
-  box-shadow: 0 18px 40px -16px color-mix(in srgb, var(--ar-maroon) 28%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ar-gold) 35%, transparent);
 }
 
 .hero-desk {
@@ -411,15 +383,12 @@ html.dark .katex-error {
   padding: 1rem 1.15rem;
   margin-top: 1rem;
   box-shadow: var(--ar-shadow);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   position: relative;
   overflow: visible;
 }
 
 .math-panel:hover {
-  transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
-  box-shadow: 0 16px 36px -14px color-mix(in srgb, var(--ar-maroon) 18%, transparent);
 }
 
 .math-panel-compact {
@@ -553,40 +522,8 @@ html.dark .katex-error {
   z-index: 1;
 }
 
-.math-notation-item::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    115deg,
-    transparent 35%,
-    color-mix(in srgb, var(--ar-gold) 28%, transparent) 50%,
-    transparent 65%
-  );
-  transform: translateX(-130%);
-  pointer-events: none;
-  z-index: 0;
-  transition: transform 0.01s;
-}
-
 .math-notation-item:hover {
   border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
-  box-shadow:
-    0 18px 36px -14px color-mix(in srgb, var(--ar-gold) 50%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ar-gold) 22%, transparent),
-    inset 0 1px 0 color-mix(in srgb, #ffffff 65%, transparent);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--ar-gold) 16%, var(--ar-surface)) 0%, var(--ar-surface) 45%, color-mix(in srgb, var(--ar-gold) 12%, var(--ar-panel)) 100%);
-}
-
-.math-notation-item:hover::after {
-  animation: notation-shine 0.85s ease forwards;
-}
-
-@keyframes notation-shine {
-  to {
-    transform: translateX(130%);
-  }
 }
 
 .math-notation-item dt,
@@ -634,15 +571,6 @@ html.dark .katex-error {
     inset 0 1px 0 color-mix(in srgb, var(--ar-gold) 40%, transparent),
     0 4px 12px -6px color-mix(in srgb, var(--ar-gold) 45%, transparent);
   white-space: nowrap;
-  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
-}
-
-.math-notation-item:hover .math-notation-glyph {
-  transform: scale(1.06);
-  border-color: color-mix(in srgb, var(--ar-gold) 75%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--ar-gold) 50%, transparent),
-    0 8px 18px -8px color-mix(in srgb, var(--ar-gold) 55%, transparent);
 }
 
 .math-notation-meaning {
@@ -666,17 +594,10 @@ html.dark .katex-error {
 .math-equation-block {
   border-radius: 0.65rem;
   padding: 0.35rem 0.25rem;
-  transition: box-shadow 0.24s ease, background 0.24s ease;
-}
-
-.math-equation-block:hover {
-  background: var(--ar-panel);
-  box-shadow: 0 10px 28px rgba(17, 17, 17, 0.15);
 }
 
 .math-equation-block:hover .math-equation-full {
-  border-color: rgba(212, 178, 76, 0.28);
-  box-shadow: 0 0 0 1px rgba(212, 178, 76, 0.08);
+  border-color: color-mix(in srgb, var(--ar-gold) 40%, transparent);
 }
 
 .param-control-card {
@@ -684,7 +605,7 @@ html.dark .katex-error {
   border-radius: 0.85rem;
   border: 1px solid var(--ar-border);
   background: var(--ar-panel);
-  transition: border-color 0.28s ease, box-shadow 0.28s ease, background 0.28s ease, transform 0.28s ease;
+  transition: border-color 0.2s ease, background 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -692,8 +613,6 @@ html.dark .katex-error {
 .param-control-card:hover {
   border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
   background: var(--ar-surface);
-  box-shadow: 0 14px 28px color-mix(in srgb, var(--ar-maroon) 12%, transparent);
-  transform: translateY(-3px);
 }
 
 .param-range {
@@ -749,7 +668,6 @@ html.dark .param-number-input {
   background: color-mix(in srgb, var(--ar-gold) 28%, transparent);
   border-color: var(--ar-gold);
   color: var(--ar-gold-dark);
-  transform: translateY(-1px);
 }
 
 html.dark .param-reset-btn {
@@ -768,18 +686,25 @@ html.dark .param-reset-btn:hover {
 .stat-tile:hover {
   border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
   border-top-color: var(--ar-gold);
-  box-shadow: 0 14px 28px color-mix(in srgb, var(--ar-maroon) 14%, transparent);
 }
 
 .interactive-card {
-  transition: border-color 0.32s ease, box-shadow 0.32s ease;
+  transition: border-color 0.2s ease;
   border-top: 2px solid transparent;
 }
 
 .interactive-card:hover {
   border-color: color-mix(in srgb, var(--ar-gold) 40%, transparent);
   border-top-color: var(--ar-gold);
-  box-shadow: 0 20px 44px -18px color-mix(in srgb, var(--ar-maroon) 22%, transparent);
+}
+
+.param-control-card:hover {
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
+  background: var(--ar-surface);
+}
+
+.math-panel:hover {
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
 }
 
 /* Strategy monograph meta cards — outlook / risk / type */
@@ -812,15 +737,10 @@ html.dark .param-reset-btn:hover {
   box-shadow:
     0 10px 28px -16px color-mix(in srgb, var(--ar-gold) 45%, transparent),
     inset 0 1px 0 color-mix(in srgb, #ffffff 50%, transparent);
-  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
 }
 
 .strategy-meta-card:hover {
-  border-color: color-mix(in srgb, var(--ar-gold) 65%, transparent);
-  box-shadow:
-    0 16px 32px -14px color-mix(in srgb, var(--ar-maroon) 18%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--ar-gold) 20%, transparent);
-  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
 }
 
 .strategy-meta-label {
@@ -998,16 +918,10 @@ html.dark .strategy-meta-label {
   margin-bottom: 1.25rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--ar-border);
-  transition: transform 0.22s ease;
-}
-
-.math-equation-block:hover {
-  transform: translateY(-1px);
 }
 
 .math-equation-block:hover .math-equation-full {
   border-color: rgba(212, 178, 76, 0.3);
-  box-shadow: 0 12px 24px rgba(17, 17, 17, 0.14);
 }
 
 .math-equation-block:last-child {
@@ -1104,24 +1018,15 @@ html.dark .prose-op {
   padding: 1rem 1.15rem;
   background: var(--ar-panel);
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: border-color 0.2s ease;
 }
 
 .moneyness-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+  content: none;
 }
 
 .moneyness-card:hover {
-  transform: translateY(-4px);
-}
-
-.moneyness-card:hover::before {
-  opacity: 1;
+  border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
 }
 
 .moneyness-itm {
@@ -1130,7 +1035,6 @@ html.dark .prose-op {
 
 .moneyness-itm:hover {
   border-color: rgba(16, 185, 129, 0.6);
-  box-shadow: 0 12px 30px -12px rgba(16, 185, 129, 0.55);
 }
 
 .moneyness-itm::before {
@@ -1143,7 +1047,6 @@ html.dark .prose-op {
 
 .moneyness-atm:hover {
   border-color: rgba(212, 178, 76, 0.6);
-  box-shadow: 0 12px 30px -12px rgba(212, 178, 76, 0.55);
 }
 
 .moneyness-atm::before {
@@ -1156,7 +1059,6 @@ html.dark .prose-op {
 
 .moneyness-otm:hover {
   border-color: rgba(122, 30, 44, 0.6);
-  box-shadow: 0 12px 30px -12px rgba(122, 30, 44, 0.55);
 }
 
 .moneyness-otm::before {
@@ -1471,27 +1373,18 @@ html.dark .fin-chart-plot {
   background: var(--ar-surface);
   cursor: pointer;
   overflow: hidden;
-  transition: border-color 0.25s, box-shadow 0.25s;
+  transition: none;
 }
 
 .greek-tile-glow {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
-  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06), transparent 70%);
-}
-
-.greek-tile:hover .greek-tile-glow,
-.greek-tile-active .greek-tile-glow {
-  opacity: 1;
+  display: none;
 }
 
 .greek-tile-active {
-  box-shadow: 0 8px 32px color-mix(in srgb, var(--ar-gold) 28%, transparent);
   border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
   background: color-mix(in srgb, var(--ar-gold) 16%, var(--ar-surface));
   color: var(--ar-gold-dark);
+  box-shadow: none;
 }
 
 .greek-tile-delta.greek-tile-active,
@@ -1500,9 +1393,9 @@ html.dark .fin-chart-plot {
 .greek-tile-vega.greek-tile-active,
 .greek-tile-rho.greek-tile-active {
   border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
-  box-shadow: 0 8px 28px color-mix(in srgb, var(--ar-gold) 22%, transparent);
   background: color-mix(in srgb, var(--ar-gold) 16%, var(--ar-surface));
   color: var(--ar-gold-dark);
+  box-shadow: none;
 }
 
 html.dark .greek-tile-active,
@@ -1716,7 +1609,6 @@ html.dark .greek-col-rho.greek-col-active {
   width: 1rem;
   height: 1rem;
   color: var(--ar-subtle);
-  transition: transform 0.3s;
 }
 
 .formula-deck-chevron.is-open {
@@ -1745,7 +1637,7 @@ html.dark .greek-col-rho.greek-col-active {
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.22s ease;
+  transition: border-color 0.12s ease, background-color 0.12s ease, color 0.12s ease;
   white-space: nowrap;
 }
 
@@ -1757,10 +1649,10 @@ html.dark .greek-col-rho.greek-col-active {
 
 .formula-chip-active {
   border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--ar-gold) 28%, transparent), var(--ar-surface));
+  background: color-mix(in srgb, var(--ar-gold) 16%, var(--ar-surface));
   color: var(--ar-gold-dark);
-  box-shadow: 0 2px 12px -4px color-mix(in srgb, var(--ar-gold) 35%, transparent);
   font-weight: 700;
+  box-shadow: none;
 }
 
 html.dark .formula-chip-active {
@@ -1938,7 +1830,7 @@ html.dark .greek-tab-active {
   background: var(--ar-panel);
   color: var(--ar-subtle);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.12s ease, color 0.12s ease;
 }
 
 .greek-nav-btn:hover {
@@ -2306,11 +2198,11 @@ html.dark .greek-identity-tab-active {
   border: 1px solid var(--ar-border);
   background: var(--ar-surface);
   cursor: default;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s ease;
 }
 
 .directional-metric:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  border-color: color-mix(in srgb, var(--ar-gold) 40%, transparent);
 }
 
 .directional-metric-icon {
@@ -2425,16 +2317,16 @@ html.dark .greek-identity-tab-active {
   background: var(--ar-panel);
   color: var(--ar-muted);
   cursor: pointer;
-  transition: all 0.22s;
+  transition: border-color 0.12s ease, background-color 0.12s ease, color 0.12s ease;
 }
 
 .layman-greek-tab-active {
-  box-shadow: 0 2px 12px -4px color-mix(in srgb, var(--ar-gold) 35%, transparent);
   color: var(--ar-gold-dark);
   background: color-mix(in srgb, var(--ar-gold) 16%, transparent);
   border-color: color-mix(in srgb, var(--ar-gold) 65%, transparent);
   font-weight: 700;
   font-style: italic;
+  box-shadow: none;
 }
 
 html.dark .layman-greek-tab-active {
@@ -2591,12 +2483,11 @@ html.dark .layman-greek-tip-label {
   border: 1px solid var(--ar-border);
   padding: 0.85rem 1rem;
   background: var(--ar-surface);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s ease;
 }
 
 .greek-leg-ref-card:hover {
-  border-color: rgba(212, 178, 76, 0.35);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
 }
 
 .greek-leg-ref-label {
@@ -2635,16 +2526,14 @@ html.dark .layman-greek-tip-label {
 .greek-leg-ref-card,
 .greek-tile,
 .moneyness-card,
-.param-control-card {
-  transition:
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+.param-control-card,
+.leg-structure-card {
+  transition: border-color 0.12s ease;
 }
 
 .fin-chart-frame:hover,
 .greek-section-shell:hover {
   border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
-  box-shadow: 0 18px 40px -16px color-mix(in srgb, var(--ar-maroon) 20%, transparent);
 }
 
 .formula-deck:hover,
@@ -2662,6 +2551,34 @@ html.dark .layman-greek-tip-label {
 
 .greek-tile:hover {
   border-top-color: var(--ar-gold);
+}
+
+.leg-structure-card,
+.leg-structure-card-active,
+.greek-tile,
+.greek-tab,
+.layman-greek-tab,
+.formula-chip,
+.param-reset-btn,
+.research-paper-body button,
+.greek-panel button {
+  transform: none !important;
+}
+
+.leg-structure-card:active,
+.greek-tile:active,
+.greek-tab:active,
+.layman-greek-tab:active,
+.formula-chip:active,
+.research-paper-body button:active,
+.greek-panel button:active {
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.greek-nav-btn {
+  transition: border-color 0.12s ease, color 0.12s ease;
 }
 
 .greek-section-shell::after {
@@ -2688,17 +2605,7 @@ html.dark .layman-greek-tip-label {
   box-shadow: 0 4px 16px color-mix(in srgb, var(--ar-maroon) 6%, transparent);
 }
 
-@keyframes card-rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
+/* Enter animations disabled — they re-felt like click bounce on remounts */
 .desk-shell .glass,
 .desk-shell .stat-tile,
 .desk-shell .strategy-card,
@@ -2706,7 +2613,7 @@ html.dark .layman-greek-tip-label {
 .desk-shell .param-control-card,
 .desk-shell .greek-leg-ref-card,
 .desk-shell .directional-leg-card {
-  animation: card-rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

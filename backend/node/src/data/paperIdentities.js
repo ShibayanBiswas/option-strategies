@@ -194,14 +194,14 @@ export const PAPER_IDENTITIES = {
   },
   "put-ratio-backspread": {
     breakevenLatex:
-      "S^*_{\\text{up}} = K_1 + H/N_S \\ (H<0);\\quad S^*_{\\text{down}} = \\dfrac{N_L K_2 - N_S K_1 - H}{N_L - N_S}",
-    maxProfitLatex: "P_{\\max} = N_L K_2 - N_S K_1 - H",
-    maxLossLatex: "L_{\\max} = N_S (K_1 - K_2) + H",
+      "S^*_{\\text{up}} = K_2 + H/N_S \\ (H<0);\\quad S^*_{\\text{down}} = \\dfrac{N_L K_1 - N_S K_2 - H}{N_L - N_S}",
+    maxProfitLatex: "P_{\\max} = N_L K_1 - N_S K_2 - H",
+    maxLossLatex: "L_{\\max} = N_S (K_2 - K_1) + H",
   },
   "ratio-call-spread": {
     breakevenLatex:
-      "S^*_{\\text{down}} = K_2 + H/N_L \\ (H>0);\\quad S^*_{\\text{up}} = \\dfrac{N_S K_1 - N_L K_2 - H}{N_S - N_L}",
-    maxProfitLatex: "P_{\\max} = N_L (K_1 - K_2) - H",
+      "S^*_{\\text{down}} = K_1 + H/N_L \\ (H>0);\\quad S^*_{\\text{up}} = \\dfrac{N_S K_2 - N_L K_1 - H}{N_S - N_L}",
+    maxProfitLatex: "P_{\\max} = N_L (K_2 - K_1) - H",
     maxLossLatex: `L_{\\max} = ${U}`,
   },
   "ratio-put-spread": {

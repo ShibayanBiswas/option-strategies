@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
-import { motion } from "framer-motion";
 import { ProseMath } from "./ProseMath";
-import { cardHover, cardTap } from "../motion/cardMotion";
 
 interface ChartFrameProps {
   yLabel: string;
@@ -15,15 +13,7 @@ interface ChartFrameProps {
 /** Terminal-style chart wrapper — axis titles outside SVG to prevent overlap */
 export function ChartFrame({ yLabel, xLabel, meta, legend, height = 360, children }: ChartFrameProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 14, scale: 0.985 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{ type: "spring", stiffness: 280, damping: 26 }}
-      whileHover={cardHover}
-      whileTap={cardTap}
-      className="fin-chart-frame card-shine rounded-xl border border-ar-border bg-ar-chart-bg overflow-hidden"
-    >
+    <div className="fin-chart-frame rounded-xl border border-ar-border bg-ar-chart-bg overflow-hidden">
       {meta && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5 border-b border-ar-border bg-ar-panel text-[11px] font-mono text-ar-subtle">
           {meta}
@@ -47,7 +37,7 @@ export function ChartFrame({ yLabel, xLabel, meta, legend, height = 360, childre
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -64,10 +54,9 @@ export function ChartLegendPills({ items }: { items: LegendItem[] }) {
   return (
     <div className="flex flex-wrap gap-2">
       {items.map((item) => (
-        <motion.div
+        <div
           key={item.key}
-          whileHover={{ y: -2, scale: 1.03 }}
-          className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-md border text-[11px] font-medium transition-opacity ${
+          className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-md border text-[11px] font-medium ${
             item.dimmed ? "opacity-35 border-ar-border text-ar-subtle" : "border-ar-border text-ar-muted bg-ar-panel"
           } ${item.active ? "ring-1 ring-ar-gold/40 border-ar-gold/30" : ""}`}
         >
@@ -83,7 +72,7 @@ export function ChartLegendPills({ items }: { items: LegendItem[] }) {
           <span className="truncate max-w-[160px]" title={item.label}>
             <ProseMath text={item.label} stripParens={false} className="text-[11px]" />
           </span>
-        </motion.div>
+        </div>
       ))}
     </div>
   );

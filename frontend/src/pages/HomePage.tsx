@@ -1,11 +1,10 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchCategories, fetchIntro, fetchStrategies, type StrategySummary } from "../api/client";
 import { GlassCard, Stat } from "../components/GlassCard";
 import { NotationGrid } from "../components/NotationGrid";
-import { cardHover, staggerDelay } from "../motion/cardMotion";
+import { staggerDelay } from "../motion/cardMotion";
 
 export function HomePage() {
   const [strategies, setStrategies] = useState<StrategySummary[]>([]);
@@ -27,26 +26,13 @@ export function HomePage() {
 
   return (
     <div className="w-full space-y-10">
-      <motion.section
-        initial={{ opacity: 0, y: 24, scale: 0.985 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: "spring", stiffness: 260, damping: 26 }}
-        whileHover={{ y: -2 }}
-        className="relative overflow-hidden rounded-2xl border border-ar-gold/35 bg-ar-surface p-8 lg:p-12 shadow-ar card-shine hero-desk"
-      >
+      <section className="relative overflow-hidden rounded-2xl border border-ar-gold/35 bg-ar-surface p-8 lg:p-12 shadow-ar hero-desk">
         <div className="absolute inset-0 bg-gradient-to-br from-ar-gold/20 via-transparent to-ar-maroon/15 pointer-events-none" />
-        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ar-gold/20 blur-3xl pointer-events-none animate-pulse-glow" />
-        <div className="absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-ar-gold/15 blur-3xl pointer-events-none animate-float" />
         <div className="relative z-10">
-          <motion.div
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 }}
-            className="flex items-center gap-2 text-ar-gold text-sm mb-4 font-semibold"
-          >
+          <div className="flex items-center gap-2 text-ar-gold text-sm mb-4 font-semibold">
             <Sparkles className="w-4 h-4 text-ar-gold" />
             <span>Anand Rathi Wealth · Options Desk</span>
-          </motion.div>
+          </div>
           <h1 className="text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight mb-4 font-display">
             <span className="gradient-text">Option Strategies</span>
             <br />
@@ -57,25 +43,21 @@ export function HomePage() {
             structure—from single options to complex spreads.
           </p>
           <div className="flex flex-wrap gap-4">
-            <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
-              <Link
-                to="/strategies"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-ar-gold text-ar-ink font-semibold hover:bg-ar-gold-dark hover:text-white transition-colors shadow-ar"
-              >
-                Explore Strategies <ArrowRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
-              <Link
-                to="/intro"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-ar-gold/50 bg-ar-gold/10 text-ar-ink hover:bg-ar-gold/20 transition-colors font-medium"
-              >
-                Foundations &amp; Greeks
-              </Link>
-            </motion.div>
+            <Link
+              to="/strategies"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-ar-gold text-ar-ink font-semibold hover:bg-ar-gold-dark hover:text-white transition-colors shadow-ar"
+            >
+              Explore Strategies <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/intro"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-ar-gold/50 bg-ar-gold/10 text-ar-ink hover:bg-ar-gold/20 transition-colors font-medium"
+            >
+              Foundations &amp; Greeks
+            </Link>
           </div>
         </div>
-      </motion.section>
+      </section>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Stat label="Strategies" value={strategies.length} tone="cyan" delay={0.05} />
@@ -116,17 +98,15 @@ export function HomePage() {
           },
         ].map((card, i) => (
           <GlassCard key={card.title} delay={staggerDelay(i, 0.08)} inView>
-            <motion.div whileHover={cardHover}>
-              <card.icon className="w-8 h-8 text-ar-gold mb-4" />
-              <h3 className="text-lg font-semibold text-ar-ink mb-2">{card.title}</h3>
-              <p className="text-ar-muted text-sm mb-4">{card.desc}</p>
-              <Link
-                to={card.to}
-                className="text-ar-gold text-sm hover:text-ar-gold-dark inline-flex items-center gap-1 font-semibold transition-colors"
-              >
-                View <ArrowRight className="w-3 h-3" />
-              </Link>
-            </motion.div>
+            <card.icon className="w-8 h-8 text-ar-gold mb-4" />
+            <h3 className="text-lg font-semibold text-ar-ink mb-2">{card.title}</h3>
+            <p className="text-ar-muted text-sm mb-4">{card.desc}</p>
+            <Link
+              to={card.to}
+              className="text-ar-gold text-sm hover:text-ar-gold-dark inline-flex items-center gap-1 font-semibold transition-colors"
+            >
+              View <ArrowRight className="w-3 h-3" />
+            </Link>
           </GlassCard>
         ))}
       </div>

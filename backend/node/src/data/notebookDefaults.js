@@ -101,9 +101,9 @@ export const NOTEBOOK_BY_ID = {
   "strip": { S0: 50, K: 50, D: 5, ...SPOT_RANGES.vol50 },
 
   "call-ratio-backspread": { S0: 50, K1: 45, K2: 55, NS: 1, NL: 2, H: 5, ...SPOT_RANGES.vol50 },
-  "put-ratio-backspread": { S0: 50, K1: 50, K2: 55, NL: 2, NS: 1, H: 5, ...SPOT_RANGES.vol50 },
+  "put-ratio-backspread": { S0: 50, K1: 45, K2: 55, NL: 2, NS: 1, H: 5, ...SPOT_RANGES.vol50 },
   "ratio-call-spread": { S0: 50, K1: 45, K2: 55, NS: 2, NL: 1, H: 5, ...SPOT_RANGES.vol50 },
-  "ratio-put-spread": { S0: 50, K1: 45, K2: 55, NS: 1, NL: 2, H: 5, ...SPOT_RANGES.vol50 },
+  "ratio-put-spread": { S0: 50, K1: 45, K2: 55, NS: 2, NL: 1, H: 5, ...SPOT_RANGES.vol50 },
 
   "long-call-butterfly": { S0: 50, K1: 40, K2: 52, K3: 60, D: 2, ...SPOT_RANGES.vol50 },
   "modified-call-butterfly": { S0: 50, K1: 45, K2: 50, K3: 60, D: 2, ...SPOT_RANGES.vol50 },

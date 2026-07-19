@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { ArrowLeft, Activity, Sigma } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -48,6 +47,7 @@ import { ResearchSection } from "../components/ResearchLayout";
 import { capParagraphs } from "../utils/capParagraphs";
 import { constrainParams, hasStrikeRules } from "../utils/paramConstraints";
 import { payoffChartHighlightIndex, structurePayoffLabels } from "../utils/payoffChartLegs";
+import type { GreekKey } from "../components/greekTheme";
 
 
 
@@ -59,6 +59,7 @@ export function StrategyDetailPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [highlightLeg, setHighlightLeg] = useState<number | null>(null);
+  const [activeGreek, setActiveGreek] = useState<GreekKey>("delta");
   /** True when GET already seeded charts — skip the immediate duplicate POST. */
   const seededPayoffRef = useRef(false);
 
@@ -69,6 +70,7 @@ export function StrategyDetailPage() {
     setPayoff(null);
     setError(null);
     setHighlightLeg(null);
+    setActiveGreek("delta");
     setParams({});
     seededPayoffRef.current = false;
 
@@ -161,7 +163,7 @@ export function StrategyDetailPage() {
 
 
 
-      <motion.header initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="research-paper-head !pb-8 !pt-4">
+      <header className="research-paper-head !pb-8 !pt-4">
 
         <p className="research-doc-type">
 
@@ -193,7 +195,7 @@ export function StrategyDetailPage() {
 
         </div>
 
-      </motion.header>
+      </header>
 
 
 
@@ -205,11 +207,11 @@ export function StrategyDetailPage() {
 
             {overviewParagraphs.map((p, i) => (
 
-              <motion.p key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+              <p key={i}>
 
                 <ProseMath text={p} />
 
-              </motion.p>
+              </p>
 
             ))}
 
@@ -222,11 +224,8 @@ export function StrategyDetailPage() {
               </p>
               <ul className="space-y-2">
                 {strategy.conditions.map((c, i) => (
-                  <motion.li
+                  <li
                     key={i}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
                     className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-lg bg-white/[0.03] border border-surface-border px-3 py-2"
                   >
                     <span className="shrink-0 rounded-md bg-accent-cyan/10 px-2 py-1">
@@ -235,7 +234,7 @@ export function StrategyDetailPage() {
                     <span className="text-sm text-ar-muted font-serif">
                       <ProseMath text={c.note} stripParens={false} />
                     </span>
-                  </motion.li>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -330,7 +329,7 @@ export function StrategyDetailPage() {
             />
 
             {metrics && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
                 <Stat label="Max Profit" value={formatINR(Number(metrics.maxProfit))} tone="emerald" />
                 <Stat label="Max Loss" value={formatINR(Number(metrics.maxLoss))} tone="amber" />
                 <Stat
@@ -351,7 +350,7 @@ export function StrategyDetailPage() {
                   value={formatINR(Number(metrics.payoffAtSpot))}
                   tone="violet"
                 />
-              </motion.div>
+              </div>
             )}
           </ResearchSection>
         </GlassCard>
@@ -383,14 +382,19 @@ export function StrategyDetailPage() {
             {payoff?.greeks ? (
               <>
                 <div className="mt-5 mb-6">
-                  <GreeksPanel aggregate={payoff.greeks.aggregate} legs={payoff.greeks.legs} />
+                  <GreeksPanel
+                    aggregate={payoff.greeks.aggregate}
+                    legs={payoff.greeks.legs}
+                    selectedGreek={activeGreek}
+                    onSelectGreek={setActiveGreek}
+                  />
                 </div>
 
                 <div className="greek-chart-banner">
                   <Activity className="w-4 h-4 text-ar-gold" strokeWidth={1.75} />
                   <div>
                     <h3 className="greek-chart-banner-title">{titleCase("Live Greek Curves Vs Spot")}</h3>
-                    <p className="greek-chart-banner-desc">Dashed = Legs · Solid = Net Book</p>
+                    <p className="greek-chart-banner-desc">Dashed = Legs · Solid = Net Book · Click a tile or tab to switch Greek</p>
                   </div>
                 </div>
 
@@ -401,6 +405,8 @@ export function StrategyDetailPage() {
                   spot={params.S0 ?? 100}
                   highlightLegIndex={highlightLeg}
                   chartHeight={380}
+                  activeGreek={activeGreek}
+                  onActiveGreekChange={setActiveGreek}
                 />
 
                 {strategy.greeksProfile?.legBreakdown && (
@@ -408,10 +414,10 @@ export function StrategyDetailPage() {
                     <h3 className="greek-leg-ref-head">Leg-by-leg reference</h3>
                     <div className="greek-leg-ref-grid">
                       {strategy.greeksProfile.legBreakdown.map((lb) => (
-                        <motion.div key={lb.id} whileHover={{ y: -2 }} className="greek-leg-ref-card">
+                        <div key={lb.id} className="greek-leg-ref-card">
                           <p className="greek-leg-ref-label"><ProseMath text={lb.label} stripParens={false} /></p>
                           <p className="greek-leg-ref-text"><ProseMath text={lb.text} /></p>
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
                   </div>

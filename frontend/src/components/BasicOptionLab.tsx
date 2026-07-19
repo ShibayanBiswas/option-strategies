@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { fetchPayoff, type PayoffResponse } from "../api/client";
 import { ProseMath } from "./ProseMath";
@@ -9,6 +8,7 @@ import { GreeksPanel } from "./GreeksPanel";
 import { MathBlock } from "./MathBlock";
 import { ParamControls } from "./ParamControls";
 import { PayoffChart } from "./PayoffChart";
+import type { GreekKey } from "./greekTheme";
 
 interface BasicOption {
   id: string;
@@ -31,11 +31,13 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
   const [params, setParams] = useState(options[0]?.defaultParams || {});
   const [payoff, setPayoff] = useState<PayoffResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [activeGreek, setActiveGreek] = useState<GreekKey>("delta");
 
   const current = options[active];
 
   useEffect(() => {
     if (options[active]) setParams({ ...options[active].defaultParams });
+    setActiveGreek("delta");
   }, [active, options]);
 
   const load = useCallback(async () => {
@@ -85,12 +87,11 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
       <h3 className="text-lg font-semibold text-ar-ink mb-4 font-serif italic">Laboratory Controls</h3>
       <div className="flex flex-wrap gap-2 mb-6">
         {options.map((opt, i) => (
-          <motion.button
+          <button
             key={opt.id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            type="button"
             onClick={() => setActive(i)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border font-serif ${
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors border font-serif ${
               active === i
                 ? "bg-gradient-to-r from-ar-gold/25 to-ar-gold/10 border-ar-gold/45 text-ar-ink font-semibold"
                 : "border-surface-border text-ar-muted hover:text-ar-ink hover:border-ar-border"
@@ -98,19 +99,11 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
           >
             <span className={opt.direction === "Long" ? "text-emerald-400" : "text-rose-400"}>{opt.direction}</span>{" "}
             {opt.name.replace(`${opt.direction} `, "")}
-          </motion.button>
+          </button>
         ))}
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={current.id}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={{ duration: 0.3 }}
-          className="space-y-6 w-full"
-        >
+      <div key={current.id} className="space-y-6 w-full">
           <div className="research-prose mb-4">
             <p><ProseMath text={current.description} /></p>
           </div>
@@ -148,18 +141,24 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
               subtitle={current.greeksText}
               accent="violet"
             >
-              <GreeksPanel aggregate={payoff.greeks.aggregate} legs={payoff.greeks.legs} />
+              <GreeksPanel
+                aggregate={payoff.greeks.aggregate}
+                legs={payoff.greeks.legs}
+                selectedGreek={activeGreek}
+                onSelectGreek={setActiveGreek}
+              />
               <GreeksChart
                 spotPrices={payoff.spotPrices}
                 aggregateProfiles={payoff.greeks.aggregateProfiles}
                 legs={payoff.greeks.legs}
                 spot={params.S0 ?? 100}
                 chartHeight={320}
+                activeGreek={activeGreek}
+                onActiveGreekChange={setActiveGreek}
               />
             </GreekSectionShell>
           )}
-        </motion.div>
-      </AnimatePresence>
+      </div>
     </div>
   );
 }

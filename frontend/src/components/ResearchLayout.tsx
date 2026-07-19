@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { motion } from "framer-motion";
 import { Latex } from "./Latex";
 import { ProseMath } from "./ProseMath";
 
@@ -76,27 +75,9 @@ interface MoneynessCardProps {
 
 export function MoneynessCards({ items }: { items: MoneynessCardProps[] }) {
   return (
-    <motion.div
-      className="moneyness-grid"
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.3 }}
-      variants={{
-        hidden: {},
-        show: { transition: { staggerChildren: 0.14 } },
-      }}
-    >
+    <div className="moneyness-grid">
       {items.map((item) => (
-        <motion.article
-          key={item.abbr}
-          className={`moneyness-card card-shine moneyness-${item.tone}`}
-          variants={{
-            hidden: { opacity: 0, y: 24, scale: 0.96 },
-            show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 260, damping: 22 } },
-          }}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.99 }}
-        >
+        <article key={item.abbr} className={`moneyness-card moneyness-${item.tone}`}>
           <div className="moneyness-card-head">
             <span className="moneyness-abbr">{item.abbr}</span>
             <h4 className="moneyness-label">{item.label}</h4>
@@ -115,8 +96,8 @@ export function MoneynessCards({ items }: { items: MoneynessCardProps[] }) {
               </dd>
             </div>
           </dl>
-        </motion.article>
+        </article>
       ))}
-    </motion.div>
+    </div>
   );
 }

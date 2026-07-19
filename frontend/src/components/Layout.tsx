@@ -44,9 +44,7 @@ export function Layout() {
           </button>
 
           <NavLink to="/" className="flex shrink-0 items-center gap-3 group" onClick={() => setOpen(false)}>
-            <motion.img
-              whileHover={{ scale: 1.03 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            <img
               src={theme === "dark" ? "/brand/arwl-logo-white.png" : "/brand/arwl-logo.png"}
               alt="Anand Rathi — Private Wealth. uncomplicated."
               className="h-9 w-auto sm:h-11"
@@ -83,10 +81,7 @@ export function Layout() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <motion.div
-              whileHover={{ y: -1 }}
-              className="hidden items-center gap-2 rounded-lg border border-ar-border bg-ar-surface px-2.5 py-1.5 text-[11px] sm:flex shadow-sm"
-            >
+            <div className="hidden items-center gap-2 rounded-lg border border-ar-border bg-ar-surface px-2.5 py-1.5 text-[11px] sm:flex shadow-sm">
               <span
                 className={`h-2 w-2 rounded-full ${
                   engineOk ? "bg-emerald-600 animate-pulse" : engineOk === false ? "bg-rose-600" : "bg-stone-400"
@@ -95,14 +90,12 @@ export function Layout() {
               <span className="text-ar-subtle">
                 Engine {engineOk ? "Live" : engineOk === false ? "Offline" : "…"}
               </span>
-            </motion.div>
+            </div>
 
-            <motion.button
+            <button
               type="button"
-              whileHover={{ y: -1, scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
               onClick={toggleTheme}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-ar-gold/40 bg-ar-surface px-2.5 py-1.5 text-xs font-medium text-ar-ink transition hover:bg-ar-gold/15 shadow-sm"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-ar-gold/40 bg-ar-surface px-2.5 py-1.5 text-xs font-medium text-ar-ink transition-colors hover:bg-ar-gold/15 shadow-sm"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? (
@@ -111,7 +104,7 @@ export function Layout() {
                 <Moon className="h-3.5 w-3.5 text-ar-gold" />
               )}
               <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"}</span>
-            </motion.button>
+            </button>
           </div>
         </div>
 

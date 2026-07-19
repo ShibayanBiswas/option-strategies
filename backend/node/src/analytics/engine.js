@@ -3,6 +3,7 @@
 import {
   callGreeks,
   callGreeksArray,
+  combineProfiles,
   combineProfilesArrays,
   profileToDict,
   profilesArraysToDict,
@@ -12,23 +13,37 @@ import {
   scaleProfileArrays,
   stockGreeks,
   stockGreeksArray,
-  valueAtSpot,
 } from "./greeks.js";
 import { MULTI_EXPIRY_IDS, computeMultiExpiry } from "./multiExpiry.js";
 
 const CREDIT_H_IDS = new Set(["ratio-call-spread", "ratio-put-spread"]);
 const DOUBLE_DEBIT_D_IDS = new Set(["long-box"]);
 
+/** Pin S0 onto the spot grid so Greek profiles sample the exact evaluation spot. */
+function snapSpotIntoGrid(st, s0) {
+  let idx = 0;
+  let minDiff = Math.abs(st[0] - s0);
+  for (let i = 1; i < st.length; i++) {
+    const diff = Math.abs(st[i] - s0);
+    if (diff < minDiff) {
+      minDiff = diff;
+      idx = i;
+    }
+  }
+  st[idx] = s0;
+  return st;
+}
+
 function spotGrid(params, s0, points = 500) {
   if ("spotMin" in params && "spotMax" in params) {
     const lo = Number(params.spotMin);
     const hi = Number(params.spotMax);
-    return linspace(lo, hi, points);
+    return snapSpotIntoGrid(linspace(lo, hi, points), s0);
   }
   const width = Number(params.range ?? 0.55);
   const lo = Math.max(1.0, s0 * (1 - width));
   const hi = s0 * (1 + width);
-  return linspace(lo, hi, points);
+  return snapSpotIntoGrid(linspace(lo, hi, points), s0);
 }
 
 function linspace(lo, hi, points) {
@@ -245,11 +260,13 @@ function directionalBlock(aggregate, greekLegs, st, payoff, s0) {
   const label = directionalLabel(aggregate.delta);
 
   const legDeltaTerms = greekLegs.map((gl) => {
-    const sign = gl.direction === "long" ? 1.0 : -1.0;
+    const signed = Number(gl.delta);
+    const signStr = signed >= 0 ? "+" : "";
     return {
       leg: gl.label ?? `${gl.direction} ${gl.type}`,
-      delta: gl.delta,
-      contributionLatex: `\\sigma_i \\Delta_i = (${sign >= 0 ? "+" : ""}${sign.toFixed(0)})(${gl.delta >= 0 ? "+" : ""}${gl.delta.toFixed(4)})`,
+      delta: signed,
+      // gl.delta is already σ_i × q_i × Δ_unit — do not multiply by σ again.
+      contributionLatex: `\\Delta_i^{\\mathrm{signed}} = ${signStr}${signed.toFixed(4)}`,
     };
   });
 
@@ -313,14 +330,26 @@ function computeFromLegs(strategyId, legs, params) {
 
     greekLegs = [];
     const arrayProfiles = [];
+    const scalarProfiles = [];
     for (const leg of legs) {
       const { legDict, arrays } = vectorizedLegGreeks(st, leg, params, s0, t, r, sigma);
       greekLegs.push(legDict);
       arrayProfiles.push(arrays);
+      scalarProfiles.push({
+        delta: legDict.delta,
+        gamma: legDict.gamma,
+        theta: legDict.theta,
+        vega: legDict.vega,
+        rho: legDict.rho,
+      });
     }
     aggregateArrays =
       arrayProfiles.length > 0 ? combineProfilesArrays(...arrayProfiles) : stockGreeksArray(st, 0);
-    aggregate = valueAtSpot(aggregateArrays, s0, st);
+    // Exact BS at S0 (sum of leg scalars) — must match the leg table, not nearest-grid sample.
+    aggregate =
+      scalarProfiles.length > 0
+        ? combineProfiles(...scalarProfiles)
+        : { delta: 0, gamma: 0, theta: 0, vega: 0, rho: 0 };
   } else {
     legPayoffMatrix = vectorizedLegPayoffs(st, s0, legs, params);
     const rawPayoff = new Float64Array(st.length);
@@ -332,14 +361,25 @@ function computeFromLegs(strategyId, legs, params) {
 
     greekLegs = [];
     const arrayProfiles = [];
+    const scalarProfiles = [];
     for (const leg of legs) {
       const { legDict, arrays } = vectorizedLegGreeks(st, leg, params, s0, t, r, sigma);
       greekLegs.push(legDict);
       arrayProfiles.push(arrays);
+      scalarProfiles.push({
+        delta: legDict.delta,
+        gamma: legDict.gamma,
+        theta: legDict.theta,
+        vega: legDict.vega,
+        rho: legDict.rho,
+      });
     }
     aggregateArrays =
       arrayProfiles.length > 0 ? combineProfilesArrays(...arrayProfiles) : stockGreeksArray(st, 0);
-    aggregate = valueAtSpot(aggregateArrays, s0, st);
+    aggregate =
+      scalarProfiles.length > 0
+        ? combineProfiles(...scalarProfiles)
+        : { delta: 0, gamma: 0, theta: 0, vega: 0, rho: 0 };
   }
 
   const directional = directionalBlock(aggregate, greekLegs, st, payoff, s0);
@@ -506,12 +546,12 @@ export const STRATEGY_LEGS = {
     { side: "long", type: "call", strike: "K2", qty: "NL" },
   ],
   "put-ratio-backspread": [
-    { side: "short", type: "put", strike: "K1", qty: "NS" },
-    { side: "long", type: "put", strike: "K2", qty: "NL" },
+    { side: "long", type: "put", strike: "K1", qty: "NL" },
+    { side: "short", type: "put", strike: "K2", qty: "NS" },
   ],
   "ratio-call-spread": [
-    { side: "short", type: "call", strike: "K1", qty: "NS" },
-    { side: "long", type: "call", strike: "K2", qty: "NL" },
+    { side: "long", type: "call", strike: "K1", qty: "NL" },
+    { side: "short", type: "call", strike: "K2", qty: "NS" },
   ],
   "ratio-put-spread": [
     { side: "short", type: "put", strike: "K1", qty: "NS" },

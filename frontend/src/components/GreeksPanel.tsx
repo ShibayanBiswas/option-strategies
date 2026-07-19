@@ -6,18 +6,25 @@ import { ProseMath } from "./ProseMath";
 interface GreeksPanelProps {
   aggregate: Record<string, number> | null;
   legs?: Record<string, unknown>[];
-  onSelectGreek?: (key: GreekKey | null) => void;
+  /** Controlled selected Greek — keeps tiles in sync with the plot tabs. */
+  selectedGreek?: GreekKey;
+  onSelectGreek?: (key: GreekKey) => void;
 }
 
-export function GreeksPanel({ aggregate, legs, onSelectGreek }: GreeksPanelProps) {
-  const [selected, setSelected] = useState<GreekKey | null>("delta");
+export function GreeksPanel({
+  aggregate,
+  legs,
+  selectedGreek: controlledGreek,
+  onSelectGreek,
+}: GreeksPanelProps) {
+  const [internalGreek, setInternalGreek] = useState<GreekKey>("delta");
+  const selected = controlledGreek ?? internalGreek;
 
   if (!aggregate) return null;
 
   const handleSelect = (key: GreekKey) => {
-    const next = selected === key ? null : key;
-    setSelected(next);
-    onSelectGreek?.(next);
+    if (controlledGreek === undefined) setInternalGreek(key);
+    onSelectGreek?.(key);
   };
 
   return (
@@ -34,6 +41,7 @@ export function GreeksPanel({ aggregate, legs, onSelectGreek }: GreeksPanelProps
               type="button"
               onClick={() => handleSelect(key)}
               className={`greek-tile greek-tile-${key} ${isActive ? "greek-tile-active" : ""}`}
+              aria-pressed={isActive}
             >
               <div className="greek-tile-top">
                 <span className={`greek-tile-symbol ${g.accent}`}>{g.symbol}</span>
@@ -50,11 +58,9 @@ export function GreeksPanel({ aggregate, legs, onSelectGreek }: GreeksPanelProps
         <div className="greek-leg-table-wrap">
           <div className="greek-leg-table-head">
             <span>Leg breakdown</span>
-            {selected && (
-              <span className={`greek-leg-highlight-tag greek-tag-${selected}`}>
-                Highlighting {GREEK_META[selected].symbol}
-              </span>
-            )}
+            <span className={`greek-leg-highlight-tag greek-tag-${selected}`}>
+              Highlighting {GREEK_META[selected].symbol}
+            </span>
           </div>
           <div className="overflow-x-auto no-scrollbar">
             <table className="greek-leg-table">

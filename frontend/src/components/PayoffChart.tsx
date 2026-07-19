@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import {
   Area,
   ComposedChart,
@@ -132,13 +131,7 @@ export function PayoffChart({
   if (loading) {
     return (
       <div className="h-[440px] flex items-center justify-center fin-chart-frame rounded-xl">
-        <motion.div
-          animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="text-ar-gold/80 text-sm font-mono"
-        >
-          Computing Payoff…
-        </motion.div>
+        <div className="text-ar-gold/80 text-sm font-mono">Computing Payoff…</div>
       </div>
     );
   }

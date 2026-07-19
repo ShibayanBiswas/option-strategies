@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { NotationGrid } from "./NotationGrid";
 import { ProseMath } from "./ProseMath";
 import { Latex } from "./Latex";
@@ -86,21 +85,12 @@ export function MathBlock({
   const eqs = normalizeEquations(equations, maxEquations);
   const { panel, perEq } = resolveUniqueNotation(notation, eqs);
 
-  // Prefer one context line: block context, else first equation context.
-  // Skip equation contexts that repeat the block (or an earlier) context.
   const seenContexts = new Set<string>();
   const panelContext = (context || "").trim();
   if (panelContext) seenContexts.add(panelContext.toLowerCase());
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.15 }}
-      whileHover={{ y: -3 }}
-      transition={{ type: "spring", stiffness: 300, damping: 26 }}
-      className={`math-panel card-shine w-full ${compact ? "math-panel-compact" : ""} ${className}`}
-    >
+    <div className={`math-panel w-full ${compact ? "math-panel-compact" : ""} ${className}`}>
       {title && <h3 className="math-panel-title">{title}</h3>}
       {panelContext && (
         <p className="math-panel-context">
@@ -118,12 +108,7 @@ export function MathBlock({
           const eqNotation = perEq[idx];
 
           return (
-            <motion.div
-              key={`${eq.latex}-${idx}`}
-              className="math-equation-block"
-              whileHover={{ y: -2 }}
-              transition={{ type: "spring", stiffness: 380, damping: 26 }}
-            >
+            <div key={`${eq.latex}-${idx}`} className="math-equation-block">
               {showContext && (
                 <p className="math-equation-context">
                   <ProseMath text={eqContext} stripParens={false} />
@@ -131,10 +116,10 @@ export function MathBlock({
               )}
               {eqNotation && eqNotation.length > 0 && <NotationGrid items={eqNotation} />}
               <Latex math={eq.latex} block fullWidth />
-            </motion.div>
+            </div>
           );
         })}
       </div>
-    </motion.div>
+    </div>
   );
 }

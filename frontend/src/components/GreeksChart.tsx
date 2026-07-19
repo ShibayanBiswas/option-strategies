@@ -7,8 +7,9 @@ import { ChartFrame, ChartLegendPills } from "./ChartFrame";
 import { PremiumGrid } from "./PremiumGrid";
 import { ProseMath } from "./ProseMath";
 import { LEG_PAYOFF_COLORS, NET_PAYOFF_COLOR } from "./PayoffChart";
+import type { GreekKey } from "./greekTheme";
 
-const GREEK_META: Record<string, { label: string; symbol: string; color: string; tab: string }> = {
+const GREEK_META: Record<GreekKey, { label: string; symbol: string; color: string; tab: string }> = {
   delta: { label: "Delta", symbol: "Δ", color: NET_PAYOFF_COLOR, tab: "Δ" },
   gamma: { label: "Gamma", symbol: "Γ", color: "#8b5cf6", tab: "Γ" },
   vega: { label: "Vega", symbol: "ν", color: "#10b981", tab: "ν" },
@@ -23,6 +24,8 @@ interface GreeksChartProps {
   spot: number;
   highlightLegIndex?: number | null;
   chartHeight?: number;
+  activeGreek?: GreekKey;
+  onActiveGreekChange?: (key: GreekKey) => void;
 }
 
 function GreekTooltip({
@@ -54,8 +57,22 @@ function GreekTooltip({
   );
 }
 
-export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlightLegIndex = null, chartHeight = 300 }: GreeksChartProps) {
-  const [activeGreek, setActiveGreek] = useState<keyof typeof GREEK_META>("delta");
+export function GreeksChart({
+  spotPrices,
+  aggregateProfiles,
+  legs,
+  spot,
+  highlightLegIndex = null,
+  chartHeight = 300,
+  activeGreek: controlledGreek,
+  onActiveGreekChange,
+}: GreeksChartProps) {
+  const [internalGreek, setInternalGreek] = useState<GreekKey>("delta");
+  const activeGreek = controlledGreek ?? internalGreek;
+  const setActiveGreek = (key: GreekKey) => {
+    if (controlledGreek === undefined) setInternalGreek(key);
+    onActiveGreekChange?.(key);
+  };
   const { theme } = useTheme();
   const chartTheme = getChartTheme(theme === "dark");
 
@@ -67,7 +84,7 @@ export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlig
     const step = Math.max(1, Math.floor(spotPrices.length / 80));
     const rows = spotPrices
       .map((s, i) => {
-        if (i % step !== 0 && i !== spotPrices.length - 1) return null;
+        if (i % step !== 0 && i !== spotPrices.length - 1 && s !== spot) return null;
         const row: Record<string, number> = { spot: s, aggregate: profile[i] };
         legs?.forEach((leg, j) => {
           const legProfiles = leg.profiles as Record<string, number[]> | undefined;
@@ -78,7 +95,7 @@ export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlig
       .filter(Boolean) as Record<string, number>[];
 
     return { rows, meta: GREEK_META[activeGreek] };
-  }, [activeGreek, aggregateProfiles, legs, spotPrices]);
+  }, [activeGreek, aggregateProfiles, legs, spot, spotPrices]);
 
   if (!aggregateProfiles || !spotPrices.length) {
     return (
@@ -110,12 +127,13 @@ export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlig
   return (
     <div className="space-y-3">
       <div className="flex gap-1 p-1 rounded-lg bg-ar-panel border border-ar-border w-fit">
-        {(Object.keys(GREEK_META) as (keyof typeof GREEK_META)[]).map((g) => (
+        {(Object.keys(GREEK_META) as GreekKey[]).map((g) => (
           <button
             key={g}
             type="button"
             onClick={() => setActiveGreek(g)}
-            className={`px-3 py-1.5 rounded-md text-xs font-mono font-semibold transition-all ${
+            aria-pressed={activeGreek === g}
+            className={`px-3 py-1.5 rounded-md text-xs font-mono font-semibold transition-colors ${
               activeGreek === g
                 ? "bg-gradient-to-br from-ar-gold/30 to-ar-gold/10 text-ar-gold-dark shadow-sm border border-ar-gold/55 dark:from-ar-gold/25 dark:to-ar-panel dark:text-ar-gold-light font-bold italic"
                 : "text-ar-subtle hover:text-ar-muted border border-transparent hover:bg-ar-gold/10"
@@ -174,9 +192,9 @@ export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlig
                   dataKey={`leg${j}`}
                   name={chartSeriesLabel(String(leg.label ?? `L${j + 1}`), 20)}
                   stroke={LEG_PAYOFF_COLORS[j % LEG_PAYOFF_COLORS.length]}
-                  strokeWidth={highlighted ? 2 : 1}
+                  strokeWidth={highlighted ? 2.5 : 1}
                   strokeDasharray={highlighted ? "0" : "4 3"}
-                  strokeOpacity={dimmed ? 0.15 : 0.7}
+                  strokeOpacity={dimmed ? 0.12 : highlighted ? 1 : 0.65}
                   dot={false}
                   isAnimationActive={false}
                 />
@@ -187,7 +205,8 @@ export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlig
               dataKey="aggregate"
               name={`Net ${meta.symbol}`}
               stroke={meta.color}
-              strokeWidth={2.25}
+              strokeWidth={highlightLegIndex === null ? 2.5 : 2}
+              strokeOpacity={highlightLegIndex === null ? 1 : 0.45}
               dot={false}
               isAnimationActive={false}
             />

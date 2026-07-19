@@ -1037,26 +1037,26 @@ export const rawStrategies = [
     id: "put-ratio-backspread",
     section: "2.37",
     name: "Put Ratio Backspread",
-    description: "Short N_S close-to-ATM puts K_1 and long N_L OTM puts K_2 with N_L > N_S. Strongly bearish capital gain with tail convexity below K_2.",
+    description: "Long N_L OTM puts K_1 and short N_S closer-to-ATM puts K_2 with N_L > N_S (K_1 < K_2). Strongly bearish capital gain with tail convexity below K_1.",
     outlook: "bearish",
-    risk: "Limited loss near K_1; large profit on crash",
+    risk: "Limited loss near K_2; large profit on crash",
     riskType: "capital-gain",
-    payoffLatex: "f_T = N_L \\cdot \\max(K_2 - S_T, 0) - N_S \\cdot \\max(K_1 - S_T, 0) - H",
-    maxProfitLatex: "P_{\\max} = N_L K_2 - N_S K_1 - H",
+    payoffLatex: "f_T = N_L \\cdot \\max(K_1 - S_T, 0) - N_S \\cdot \\max(K_2 - S_T, 0) - H",
+    maxProfitLatex: "P_{\\max} = N_L K_1 - N_S K_2 - H",
     maxLossLatex: "L_{\\max} = H",
     paramKeys: ["S0", "sigma", "T", "K1", "K2", "NL", "NS", "H"],
     legs: [
       {
-        side: "short",
-        type: "put",
-        strike: "K1",
-        qty: "NS"
-      },
-      {
         side: "long",
         type: "put",
-        strike: "K2",
+        strike: "K1",
         qty: "NL"
+      },
+      {
+        side: "short",
+        type: "put",
+        strike: "K2",
+        qty: "NS"
       }
     ],
   },
@@ -1064,26 +1064,26 @@ export const rawStrategies = [
     id: "ratio-call-spread",
     section: "2.38",
     name: "Ratio Call Spread",
-    description: "Short N_S close-to-ATM calls K_1 and long N_L ITM calls K_2 with N_L < N_S, typically 1:2. Income if net premium; neutral to bearish with naked short call risk above K_1.",
+    description: "Long N_L closer-to-ATM calls K_1 and short N_S OTM calls K_2 with N_S > N_L, typically 1:2. Income if net premium; neutral to mildly bearish with naked short-call risk above K_2.",
     outlook: "neutral-to-bearish",
-    risk: "Naked short calls above K_1",
+    risk: "Naked short calls above K_2",
     riskType: "income",
-    payoffLatex: "f_T = N_L \\cdot \\max(S_T - K_2, 0) - N_S \\cdot \\max(S_T - K_1, 0) - H",
-    maxProfitLatex: "P_{\\max} = N_L(K_1 - K_2) - H",
+    payoffLatex: "f_T = N_L \\cdot \\max(S_T - K_1, 0) - N_S \\cdot \\max(S_T - K_2, 0) - H",
+    maxProfitLatex: "P_{\\max} = N_L(K_2 - K_1) - H",
     maxLossLatex: "L_{\\max} = \\infty",
     paramKeys: ["S0", "sigma", "T", "K1", "K2", "NL", "NS", "H"],
     legs: [
       {
-        side: "short",
-        type: "call",
-        strike: "K1",
-        qty: "NS"
-      },
-      {
         side: "long",
         type: "call",
-        strike: "K2",
+        strike: "K1",
         qty: "NL"
+      },
+      {
+        side: "short",
+        type: "call",
+        strike: "K2",
+        qty: "NS"
       }
     ],
   },

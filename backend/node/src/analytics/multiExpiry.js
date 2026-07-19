@@ -124,12 +124,27 @@ export function computeMultiExpiry(strategyId, st, s0, params, r, sigma) {
   }
   const payoff = applyPremium(rawPayoff, params);
   const aggregateArrays = combineProfilesArrays(longArrays, shortArrays);
-  const aggregate = valueAtSpot(aggregateArrays, s0, st);
+  const aggregate = {
+    delta: longScalar.delta + shortScalar.delta,
+    gamma: longScalar.gamma + shortScalar.gamma,
+    theta: longScalar.theta + shortScalar.theta,
+    vega: longScalar.vega + shortScalar.vega,
+    rho: longScalar.rho + shortScalar.rho,
+  };
+
+  const strikeLong =
+    strategyId.startsWith("diagonal")
+      ? resolve(params, "K1")
+      : resolve(params, "K");
+  const strikeShort =
+    strategyId.startsWith("diagonal")
+      ? resolve(params, "K2")
+      : resolve(params, "K");
 
   const greekLegs = [
     {
       type: legTypes[0],
-      strike: null,
+      strike: strikeLong,
       direction: "long",
       qty: 1,
       signedQty: qtyLong,
@@ -139,7 +154,7 @@ export function computeMultiExpiry(strategyId, st, s0, params, r, sigma) {
     },
     {
       type: legTypes[1],
-      strike: null,
+      strike: strikeShort,
       direction: "short",
       qty: 1,
       signedQty: qtyShort,

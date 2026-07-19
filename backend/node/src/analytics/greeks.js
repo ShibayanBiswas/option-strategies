@@ -329,20 +329,47 @@ export function profilesArraysToDict(profile) {
 }
 
 export function valueAtSpot(profile, s0, spotGrid) {
-  let idx = 0;
-  let minDiff = Math.abs(spotGrid[0] - s0);
-  for (let i = 1; i < spotGrid.length; i++) {
-    const diff = Math.abs(spotGrid[i] - s0);
-    if (diff < minDiff) {
-      minDiff = diff;
-      idx = i;
-    }
+  const n = spotGrid.length;
+  if (n === 0) {
+    return { delta: 0, gamma: 0, theta: 0, vega: 0, rho: 0 };
   }
+  if (n === 1 || s0 <= spotGrid[0]) {
+    return {
+      delta: profile.delta[0],
+      gamma: profile.gamma[0],
+      theta: profile.theta[0],
+      vega: profile.vega[0],
+      rho: profile.rho[0],
+    };
+  }
+  if (s0 >= spotGrid[n - 1]) {
+    const i = n - 1;
+    return {
+      delta: profile.delta[i],
+      gamma: profile.gamma[i],
+      theta: profile.theta[i],
+      vega: profile.vega[i],
+      rho: profile.rho[i],
+    };
+  }
+
+  // Binary search + linear interpolation so scalars match the chart at exact S0.
+  let lo = 0;
+  let hi = n - 1;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (spotGrid[mid] <= s0) lo = mid;
+    else hi = mid;
+  }
+  const x0 = spotGrid[lo];
+  const x1 = spotGrid[hi];
+  const w = x1 === x0 ? 0 : (s0 - x0) / (x1 - x0);
+  const lerp = (a, b) => a + (b - a) * w;
   return {
-    delta: profile.delta[idx],
-    gamma: profile.gamma[idx],
-    theta: profile.theta[idx],
-    vega: profile.vega[idx],
-    rho: profile.rho[idx],
+    delta: lerp(profile.delta[lo], profile.delta[hi]),
+    gamma: lerp(profile.gamma[lo], profile.gamma[hi]),
+    theta: lerp(profile.theta[lo], profile.theta[hi]),
+    vega: lerp(profile.vega[lo], profile.vega[hi]),
+    rho: lerp(profile.rho[lo], profile.rho[hi]),
   };
 }
