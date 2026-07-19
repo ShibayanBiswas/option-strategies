@@ -248,32 +248,25 @@ export function StrategyDetailPage() {
             </div>
           )}
 
-          <div className="grid sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-surface-border text-sm font-serif">
-
-            <div>
-
-              <span className="text-ar-subtle block mb-1 research-doc-type !text-[0.65rem]">Market outlook</span>
-
-              <span className="text-ar-ink">{titleCase(strategy.outlook?.replace(/-/g, " ") ?? "")}</span>
-
-            </div>
-
-            <div>
-
-              <span className="text-ar-subtle block mb-1 research-doc-type !text-[0.65rem]">Primary risk</span>
-
-              <span className="text-ar-ink"><ProseMath text={strategy.risk ?? ""} /></span>
-
-            </div>
-
-            <div>
-
-              <span className="text-ar-subtle block mb-1 research-doc-type !text-[0.65rem]">Strategy type</span>
-
-              <span className="text-ar-ink">{titleCase(strategy.riskType?.replace("-", " ") ?? "")}</span>
-
-            </div>
-
+          <div className="strategy-meta-cards">
+            <article className="strategy-meta-card strategy-meta-outlook">
+              <span className="strategy-meta-label">Market outlook</span>
+              <p className="strategy-meta-value">
+                {titleCase(strategy.outlook?.replace(/-/g, " ") ?? "—")}
+              </p>
+            </article>
+            <article className="strategy-meta-card strategy-meta-risk">
+              <span className="strategy-meta-label">Primary risk</span>
+              <p className="strategy-meta-value">
+                <ProseMath text={strategy.risk ?? "—"} />
+              </p>
+            </article>
+            <article className="strategy-meta-card strategy-meta-type">
+              <span className="strategy-meta-label">Strategy type</span>
+              <p className="strategy-meta-value">
+                {titleCase(strategy.riskType?.replace(/-/g, " ") ?? "—")}
+              </p>
+            </article>
           </div>
 
         </ResearchSection>
