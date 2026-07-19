@@ -1,8 +1,28 @@
 # Option Strategies Dashboard
 
-Interactive research desk for **56 equity option strategies** — live payoff diagrams, Black–Scholes Greeks, directional analytics, and typeset payoff/breakeven identities.
+Interactive research desk for **60 equity option strategies** — live payoff diagrams, Black–Scholes Greeks, directional analytics, and typeset payoff / breakeven identities.
 
-Styled to match the [Anand Rathi Primary SP Dashboard](https://sp-dashboard-eta.vercel.app/) (gold / maroon, light & dark).
+Styled to match the [Anand Rathi Primary SP Dashboard](https://sp-dashboard-eta.vercel.app/) (gold / maroon, light & dark). Metrics display in **INR**.
+
+---
+
+## What’s in the product
+
+| Surface | What you get |
+| ------- | ------------ |
+| **Introduction & Greeks** | Foundations, moneyness, single-leg lab, BS identities, interactive Greek explorer |
+| **Strategies catalog** | Filterable monograph list with live Nifty-scaled defaults |
+| **Strategy page** | Structure panel, parameter sliders, live payoff + Greeks charts, directional compass, payoff formalism |
+| **Market** | Nifty 50 ATM scaling (Yahoo `^NSEI` with cached fallback); badge refreshes periodically |
+
+### Desk behaviour (current)
+
+- **Live params** — sliders debounce into `POST /api/payoff`; charts, max P/L, breakevens, and Greeks stay in sync. Moving `S0` recenters the spot window; **Reset** re-fetches fresh Nifty-scaled defaults.
+- **Payoff math** — textbook / notebook default identities are unchanged. Premiums (`C` / `D` / `H`) and strikes move the curve as expected.
+- **KaTeX** — gold-highlighted math atoms (including trailing premiums like `C` in `K_2 - K_1 - C`); stacked `\ln(S/K)` fractions; clean subscripts / superscripts.
+- **Payoff Formalism** — united identities (net payoff, breakeven, max profit, max loss) in one FormulaDeck with shared notation.
+- **Dropdowns** — most formula / Greek folds start **collapsed**; important decks (**Payoff Formalism**, basic-lab terminal payoff) start **open**. Greek fold toggles are gold buttons with chevrons.
+- **Greek guides** — short lead paragraph on screen; **Read more** holds three detailed paragraphs per Greek (Δ, Γ, Θ, ν, ρ), with symmetric call/put wording.
 
 ---
 
@@ -14,6 +34,7 @@ Everything deploys on **one Vercel project**. No Render, Railway, or separate Py
 frontend/                 React + Vite + TypeScript UI     → static on Vercel
 backend/node/             Express API + strategy catalog
   src/analytics/          Embedded Black–Scholes engine    → /api serverless
+  scripts/                verify-greeks.mjs, verify-payoffs.mjs
 api/index.js              Vercel entry that mounts Express
 ```
 
@@ -146,6 +167,7 @@ Windows: `.\setup.ps1` then `.\run.ps1`.
 | Intro      | http://localhost:5173/intro |
 | Strategies | http://localhost:5173/strategies |
 | API health | http://localhost:4000/api/health |
+| Nifty quote | http://localhost:4000/api/market/nifty |
 
 ---
 
@@ -166,9 +188,47 @@ Brand marks live under `frontend/public/brand/` (`arwl-logo.png`, `arwl-logo-whi
 
 ## Verification
 
-With the Node API running:
+With the Node API available (or using the engine directly):
 
 ```bash
 cd backend/node
+
+# Smoke one payoff
 node -e "import { computePayoff } from './src/analytics/index.js'; console.log(computePayoff('long-call',{S0:100,K:100,D:5,T:0.25,r:0.05,sigma:0.25,spotMin:50,spotMax:150}).metrics)"
+
+# Full Greeks audit (unit BS + all strategies)
+node scripts/verify-greeks.mjs
+
+# Defaults + slider sensitivity (K / D / C / S0 / H)
+node scripts/verify-payoffs.mjs
+```
+
+Both verify scripts should print `ALL … CHECKS PASSED`.
+
+---
+
+## Key API routes
+
+| Method | Path | Purpose |
+| ------ | ---- | ------- |
+| `GET` | `/api/health` | Liveness + market peek |
+| `GET` | `/api/market/nifty` | Live / cached Nifty meta |
+| `GET` | `/api/intro` | Intro monograph + basic options (Nifty-scaled) |
+| `GET` | `/api/strategies` | Strategy list |
+| `GET` | `/api/strategies/:id?payoff=1` | Monograph + optional seeded payoff |
+| `POST` | `/api/payoff` | Body `{ strategyId, params }` → spots, payoffs, Greeks, directional |
+
+---
+
+## Repository layout (UI)
+
+```
+frontend/src/
+  pages/           Home, Intro, Strategies, StrategyDetail
+  components/      PayoffChart, Greeks*, FormulaDeck, ParamControls, Latex, …
+  utils/           syncSpotWindow, paramConstraints, equationsToFormulaRecord, mathProse
+backend/node/src/
+  analytics/       engine, greeks, multiExpiry
+  data/            catalog, notebookDefaults, equationMeta, introData
+  market/          nifty scaling
 ```
