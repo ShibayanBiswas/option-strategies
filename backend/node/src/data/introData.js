@@ -164,10 +164,10 @@ export const greeksIntro = {
         { symbol: "S", meaning: "Underlying spot price" },
       ],
       paragraphs: capParagraphs([
-        "Delta is the easiest Greek to start with: it answers how much your option position gains or loses when the stock moves one dollar. If delta is +0.50, a one-dollar rise in the stock adds about fifty cents to your position value, and a one-dollar fall subtracts about fifty cents.",
-        "Call deltas run from 0 to +1—deep out-of-the-money calls near zero, deep in-the-money calls near +1. Put deltas run from −1 to 0. Owning 100 shares is like delta +100; a long call might behave like owning 50 shares when delta is 0.50.",
-        "Market makers use delta to hedge—they buy or sell stock to stay neutral. As a retail trader, delta tells you whether you are effectively long or short the market at this moment, before expiry.",
-        "Delta is not fixed: it changes as the stock moves and as time passes. That change is measured by gamma. Near expiry, at-the-money options have deltas that swing quickly—why weeklies feel jumpy.",
+        "Delta is the easiest Greek to start with: it answers how much your option position gains or loses when the underlying moves. A positive delta means the book tends to rise with the market; a negative delta means it tends to fall. The size of delta tells you how strongly that directional link behaves right now.",
+        "Call deltas sit between zero and one—deep out-of-the-money calls near zero, deep in-the-money calls near one. Put deltas sit between minus one and zero. Owning stock is like full positive delta; a long call behaves like a fractional long stock position while its delta is between those extremes.",
+        "Market makers use delta to hedge—they buy or sell the underlying to stay neutral. As a retail trader, delta tells you whether you are effectively long or short the market at this moment, before expiry.",
+        "Delta is not fixed: it changes as the underlying moves and as time passes. That change is measured by gamma. Near expiry, at-the-money options have deltas that swing quickly—why weeklies feel jumpy.",
         "On every strategy page, leg deltas sum to Δ_net. Click a leg to see its piece of the total highlighted on the live chart.",
       ]),
       callProfile: "\\Delta_{\\text{call}} = N(d_1)",
@@ -216,7 +216,7 @@ export const greeksIntro = {
       paragraphs: capParagraphs([
         "Vega measures sensitivity to implied volatility—the market’s forecast of future movement baked into option prices. When vol rises, options usually become more expensive even if spot has not moved; vega quantifies that mark-to-market effect. A long straddle or strangle is primarily a bet on movement or vol expansion, which shows up as positive vega before expiry.",
         "Short-vol structures such as iron condors or short straddles carry negative vega: you benefit from a vol crush after events but suffer if uncertainty reprices higher. Income traders watch vega around earnings, FOMC, and macro headlines because the terminal payoff at expiry may be unchanged while mark-to-market P/L moves sharply beforehand.",
-        "At-the-money options with more time to expiration generally carry the most vega per dollar of premium; deep out-of-the-money weeklies have little vega because there is not much extrinsic value left to reprice. That is why calendar spreads and diagonals mix different vega profiles across expiries.",
+        "At-the-money options with more time to expiration generally carry the most vega per rupee of premium; deep out-of-the-money weeklies have little vega because there is not much extrinsic value left to reprice. That is why calendar spreads and diagonals mix different vega profiles across expiries.",
         "Even when your expiry payoff looks fixed, pre-expiry profit and loss can swing on vol alone—that is vega at work. Compare realized movement with implied vol when diagnosing why a directionally correct trade still lost money on a quiet week.",
         "Use ν_net on the live tiles and profile chart to see whether you are net long or short vol at S_0. Pair that reading with gamma when sizing trades into known event dates.",
       ]),

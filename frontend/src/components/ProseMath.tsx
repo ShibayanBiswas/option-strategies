@@ -11,7 +11,7 @@ interface ProseMathProps {
 }
 
 /** Numbers, signed ints, percents, and comparison operators left in plain text. */
-const EMPH_RE = /(\$?-?\d[\d,]*(?:\.\d+)?%?|[<>≤≥≠≈]=?|\+1\b|(?<![\d.A-Za-z])-1\b)/g;
+const EMPH_RE = /(₹?-?\d[\d,]*(?:\.\d+)?%?|[<>≤≥≠≈]=?|\+1\b|(?<![\d.A-Za-z])-1\b)/g;
 
 function emphasizePlain(content: string, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = [];
@@ -23,7 +23,7 @@ function emphasizePlain(content: string, keyPrefix: string): ReactNode[] {
       nodes.push(<span key={`${keyPrefix}-t${last}`}>{content.slice(last, m.index)}</span>);
     }
     const token = m[0];
-    const isNum = /^\$?-?\d/.test(token);
+    const isNum = /^₹?-?\d/.test(token);
     nodes.push(
       <span key={`${keyPrefix}-e${m.index}`} className={isNum ? "prose-num" : "prose-op"}>
         {token}

@@ -22,6 +22,7 @@ import { NotationGrid } from "../components/NotationGrid";
 import { Latex } from "../components/Latex";
 import { ProseMath } from "../components/ProseMath";
 import { titleCase } from "../utils/formatText";
+import { formatINR, formatINRLevel } from "../utils/money";
 
 import { DirectionalPanel } from "../components/DirectionalPanel";
 
@@ -311,7 +312,7 @@ export function StrategyDetailPage() {
           <ResearchSection number="§2" title="Live Payoff At Expiration">
             <div className="research-prose !mb-4">
               <p>
-                <ProseMath text="The chart below is live: dashed curves show each leg's component payoff at expiry, and the solid gold line is net profit or loss after premium. Green shading marks spots where f_T > 0; red shading marks f_T < 0. Hover any point for dollar values, and use the structure panel to highlight individual legs." />
+                <ProseMath text="The chart below is live: dashed curves show each leg's component payoff at expiry, and the solid gold line is net profit or loss after premium. Green shading marks spots where f_T > 0; red shading marks f_T < 0. Hover any point for rupee values, and use the structure panel to highlight individual legs." />
               </p>
             </div>
 
@@ -332,18 +333,26 @@ export function StrategyDetailPage() {
 
             {metrics && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-                <Stat label="Max Profit" value={`$${Number(metrics.maxProfit).toFixed(2)}`} tone="emerald" />
-                <Stat label="Max Loss" value={`$${Number(metrics.maxLoss).toFixed(2)}`} tone="amber" />
+                <Stat label="Max Profit" value={formatINR(Number(metrics.maxProfit))} tone="emerald" />
+                <Stat label="Max Loss" value={formatINR(Number(metrics.maxLoss))} tone="amber" />
                 <Stat
                   label="Breakevens"
                   value={
                     Array.isArray(metrics.breakevens) && metrics.breakevens.length
-                      ? (metrics.breakevens as number[]).map((b) => `$${b}`).join(", ")
+                      ? (metrics.breakevens as number[]).map((b) => formatINRLevel(Number(b))).join(", ")
                       : "—"
                   }
                   tone="cyan"
                 />
-                <Stat label={<ProseMath text="P/L @ S_0" stripParens={false} />} value={`$${Number(metrics.payoffAtSpot).toFixed(2)}`} tone="violet" />
+                <Stat
+                  label={
+                    <span className="inline-flex items-center gap-1">
+                      P/L @ <Latex math="S_0" />
+                    </span>
+                  }
+                  value={formatINR(Number(metrics.payoffAtSpot))}
+                  tone="violet"
+                />
               </motion.div>
             )}
           </ResearchSection>

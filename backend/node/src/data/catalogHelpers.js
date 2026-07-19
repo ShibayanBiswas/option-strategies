@@ -77,7 +77,7 @@ const LAYMAN_GREEK_BASE = {
   delta: {
     title: "Delta — Direction",
     plain:
-      "Think of delta as how much your position wins or loses when the stock moves one dollar. A delta of +0.50 means you gain about fifty cents per one-dollar rise and lose about fifty cents per one-dollar fall. Stock always has delta of +1 or −1; options sit between −1 and +1.",
+      "Think of delta as how much your position wins or loses when the underlying moves. Positive delta leans with the market; negative delta leans against it. Stock carries full unit delta; options sit between minus one and plus one depending on moneyness and side.",
     formula: "\\Delta = \\frac{\\partial V}{\\partial S}",
   },
   gamma: {
@@ -244,7 +244,7 @@ function buildLegRole(leg) {
   const long = leg.side === "long";
   if (leg.type === "stock") {
     return long
-      ? "You own the underlying. You participate dollar-for-dollar in price rises and falls."
+      ? "You own the underlying. You participate rupee-for-rupee in price rises and falls."
       : "You are short the underlying. You gain when price falls and lose when it rises.";
   }
   if (leg.type === "call") {
@@ -357,13 +357,13 @@ function buildGreekIntuition(raw, outlook, category) {
   } else if (id === "long-call" || id === "long-put") {
     const opt = id === "long-call" ? "call" : "put";
     p1 = `${name} is the simplest options trade: you pay premium upfront for the right to buy or sell at the strike. You are not obligated to exercise—you can let it expire if the move never comes. That limited downside is why the chart shows a flat loss equal to premium on the wrong side of the strike.`;
-    p2 = `Delta on ${name} tells you how many dollars you roughly gain or lose per one-dollar stock move today. Long ${opt}s have positive gamma and vega—you benefit from sharp favourable moves and rising volatility—but negative theta, meaning quiet days slowly erode the option unless price helps you.`;
+    p2 = `Delta on ${name} tells you how much mark-to-market value roughly gains or loses per unit move in the underlying today. Long ${opt}s have positive gamma and vega—you benefit from sharp favourable moves and rising volatility—but negative theta, meaning quiet days slowly erode the option unless price helps you.`;
   } else if (id === "short-call" || id === "short-put") {
     const opt = id === "short-call" ? "call" : "put";
     p1 = `${name} means you collect the option premium today and accept obligation if the stock crosses the strike. Your best case is often a slow drift or range—the green zone on the payoff chart shows where you keep the full premium. Your worst case can be large if the market gaps through the strike.`;
     p2 = `Short ${opt}s flip the Greek signs versus the long side: delta points the other way, gamma is negative so adverse moves accelerate losses, vega hurts if vol spikes, and theta is usually positive because time decay works in your favour when the stock stays cooperative.`;
   } else if (category === "income-hedge") {
-    p1 = `${name} combines stock with options—think of it as owning the business while renting out upside, buying insurance, or both. The stock leg moves dollar-for-dollar with the share price and has no gamma or vega; the option leg adds curvature, vol sensitivity, and time decay.`;
+    p1 = `${name} combines stock with options—think of it as owning the business while renting out upside, buying insurance, or both. The stock leg moves rupee-for-rupee with the share price and has no gamma or vega; the option leg adds curvature, vol sensitivity, and time decay.`;
     p2 = `Net delta blends share exposure with option delta: covered calls often sit mildly bullish but capped; protective puts reduce delta on dips. Theta on income structures is frequently positive when you sell options; protective structures often pay theta on the long put you bought.`;
   } else if (category === "spreads") {
     p1 = `${name} buys one option and sells another at a different strike—like paying for a cheaper ticket with a narrower prize zone. Max loss is usually the net premium paid or the spread width minus the premium received, which is why the payoff chart shows a flat loss floor instead of unlimited risk.`;
@@ -470,7 +470,7 @@ export function buildStrategyParagraphs(raw, greeksProfile, category, directiona
         : "Risk depends on net premium, strike placement, and whether you are net long or short options. Spreads usually cap both profit and loss; naked short options can carry substantial tail risk that does not show up in a calm week but appears quickly on a gap. Use the metrics row under the payoff chart for numeric max profit, max loss, breakevens, and P/L at current spot."
     ),
     cleanProse(
-      `${payoffNote} Hover the payoff chart for dollar values at any spot; the legend identifies every series. Default parameters and spot-axis limits are tuned for each strategy. ${raw.breakevenLatex ? "Formal breakeven identities appear in section §5 with notation grids." : "Scan zero crossings on the chart if no single breakeven formula is listed."}`
+      `${payoffNote} Hover the payoff chart for rupee values at any spot; the legend identifies every series. Default parameters and spot-axis limits are tuned for each strategy. ${raw.breakevenLatex ? "Formal breakeven identities appear in section §5 with notation grids." : "Scan zero crossings on the chart if no single breakeven formula is listed."}`
     ),
     cleanProse(
       "Use the parameter panel as a laboratory: move spot, strikes, volatility, and time while watching breakevens, max profit and loss, Greeks, and highlighted legs update instantly. Section §3 explains sensitivities with live tiles and curves; section §4 covers net directional movement with typeset identities. Each section is capped at five paragraphs; every equation includes symbol definitions."

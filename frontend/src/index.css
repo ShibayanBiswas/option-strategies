@@ -261,7 +261,8 @@ body {
   border-radius: 0.65rem;
   background: var(--math-eq-bg);
   border: 1px solid var(--math-panel-border);
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: visible;
   transition: border-color 0.24s ease, box-shadow 0.24s ease;
 }
 
@@ -270,18 +271,14 @@ body {
   overflow: visible !important;
   max-width: 100%;
   text-align: center;
-  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .math-equation-full .katex {
   font-size: 1.12em !important;
-  max-width: 100%;
-  white-space: nowrap !important;
   text-align: center;
-}
-
-.math-equation-full .base {
-  white-space: nowrap !important;
+  /* Do NOT force nowrap on the whole tree — that flattens fractions / aligned rows */
 }
 
 .math-equation-full .frac-line {
@@ -296,14 +293,32 @@ body {
 .math-equation-block,
 .greek-formula-panel,
 .greek-identity-panel,
-.formula-reveal {
+.formula-reveal,
+.formula-deck .formula-reveal,
+.layman-greek-formula,
+.math-equations-stack {
   text-align: center;
 }
 
-.greek-identity-panel {
+.greek-formula-panel,
+.greek-identity-panel,
+.layman-greek-formula,
+.formula-reveal {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.greek-formula-panel .math-notation-rail,
+.greek-identity-panel .math-notation-rail,
+.formula-reveal .math-notation-rail,
+.layman-greek-formula .math-notation-rail,
+.greek-formula-panel .math-equation-context,
+.greek-identity-panel .math-equation-context {
+  width: 100%;
+  align-self: stretch;
 }
 
 .math-emph .katex,
@@ -2063,7 +2078,7 @@ html.dark .greek-identity-tab-active {
 }
 
 .directional-needle-hub {
-  fill: #0f172a;
+  fill: var(--ar-ink);
   stroke: var(--ar-gold);
   stroke-width: 2;
 }
@@ -2333,11 +2348,22 @@ html.dark .layman-tab-rho.layman-greek-tab-active {
   border: 1px solid rgba(212, 178, 76, 0.35);
 }
 
-.layman-badge-delta { border-color: rgba(212, 178, 76, 0.4); color: var(--ar-gold); }
-.layman-badge-gamma { border-color: rgba(212, 178, 76, 0.45); color: var(--ar-gold-dark); }
-.layman-badge-theta { border-color: rgba(251, 191, 36, 0.4); color: #fcd34d; }
-.layman-badge-vega { border-color: rgba(52, 211, 153, 0.4); color: var(--neon-green); }
-.layman-badge-rho { border-color: rgba(251, 113, 133, 0.4); color: #f87171; }
+.layman-badge-delta,
+.layman-badge-gamma,
+.layman-badge-theta,
+.layman-badge-vega,
+.layman-badge-rho {
+  border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
+  color: var(--ar-gold-dark);
+}
+
+html.dark .layman-badge-delta,
+html.dark .layman-badge-gamma,
+html.dark .layman-badge-theta,
+html.dark .layman-badge-vega,
+html.dark .layman-badge-rho {
+  color: var(--ar-gold-light);
+}
 
 .layman-greek-symbol {
   font-size: 1.1rem;
@@ -2365,7 +2391,7 @@ html.dark .layman-tab-rho.layman-greek-tab-active {
 }
 
 .layman-greek-tip {
-  border-left: 3px solid rgba(16, 185, 129, 0.45);
+  border-left: 3px solid color-mix(in srgb, var(--ar-gold) 55%, transparent);
   padding-left: 0.85rem;
   margin-bottom: 1rem;
 }
@@ -2376,15 +2402,19 @@ html.dark .layman-tab-rho.layman-greek-tab-active {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--neon-green);
+  color: var(--ar-gold-dark);
   margin-bottom: 0.35rem;
+}
+
+html.dark .layman-greek-tip-label {
+  color: var(--ar-gold-light);
 }
 
 .layman-greek-tip p {
   font-family: var(--prose-font);
   font-size: 0.92rem;
   line-height: 1.65;
-  color: var(--neon-green);
+  color: var(--ar-muted);
   margin: 0;
   font-style: italic;
 }

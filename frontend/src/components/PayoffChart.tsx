@@ -15,7 +15,7 @@ import { ChartFrame, ChartLegendPills } from "./ChartFrame";
 import { PremiumGrid } from "./PremiumGrid";
 import { ProseMath } from "./ProseMath";
 import { useTheme } from "../theme/ThemeProvider";
-import { chartSeriesLabel, formatCurrencyFull, formatPnLTick, formatSpotTick } from "../utils/chartFormat";
+import { chartSeriesLabel, formatCurrencyFull, formatINRLevel, formatPnLTick, formatSpotTick } from "../utils/chartFormat";
 import { getChartTheme } from "../utils/chartTheme";
 
 export const LEG_PAYOFF_COLORS = ["#7a1e2c", "#b8860b", "#16a34a", "#a16207", "#d4b24c", "#c9a882"];
@@ -222,8 +222,8 @@ export function PayoffChart({
               <span className="text-ar-subtle">|</span>
               <span>
                 BE{" "}
-                <strong className="text-amber-400/90 tabular-nums">
-                  {breakevens.map((b) => b.toFixed(1)).join(" · ")}
+                <strong className="text-ar-gold tabular-nums">
+                  {breakevens.map((b) => formatINRLevel(b)).join(" · ")}
                 </strong>
               </span>
             </>
@@ -233,7 +233,7 @@ export function PayoffChart({
               <span className="text-ar-subtle">|</span>
               <span>
                 <ProseMath text="@ S_0" stripParens={false} />{" "}
-                <strong className="text-emerald-400/90 tabular-nums">
+                <strong className="text-ar-gold tabular-nums">
                   {formatCurrencyFull(Number(data.metrics.payoffAtSpot))}
                 </strong>
               </span>

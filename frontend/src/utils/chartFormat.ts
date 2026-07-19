@@ -1,6 +1,10 @@
 /** Compact axis & tooltip formatters — financial terminal style */
 
+import { formatINR, formatINRLevel } from "./money";
+
 export const CHART_MARGIN = { top: 8, right: 16, left: 8, bottom: 8 };
+
+export { formatINRLevel };
 
 export function formatSpotTick(v: number): string {
   if (Math.abs(v) >= 1000) return `${(v / 1000).toFixed(1)}k`;
@@ -23,9 +27,9 @@ export function formatGreekTick(v: number, greek: string): string {
   return v.toFixed(3);
 }
 
+/** Signed INR for chart tooltips and metric chips. */
 export function formatCurrencyFull(v: number): string {
-  const sign = v < 0 ? "−" : "+";
-  return `${sign}$${Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatINR(v, { signed: true, digits: 2 });
 }
 
 /** Strip qty markers; keep K_1-style tokens for ProseMath rendering. */
