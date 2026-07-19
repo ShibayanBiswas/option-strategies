@@ -4,7 +4,9 @@ const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 
 const api = axios.create({
   baseURL: apiBase ? `${apiBase}/api` : "/api",
-  timeout: 12000,
+  timeout: 20000,
+  headers: { Accept: "application/json" },
+  validateStatus: (status) => status >= 200 && status < 300,
 });
 
 export interface StrategySummary {
@@ -118,15 +120,37 @@ export interface StrategyDetail extends StrategySummary {
   initialPayoff?: PayoffResponse;
 }
 
+function assertJsonPayload(data: unknown, url: string): void {
+  if (typeof data === "string" && data.trimStart().startsWith("<!")) {
+    throw new Error(`API routed to HTML instead of JSON (${url})`);
+  }
+  if (data == null || typeof data !== "object") {
+    throw new Error(`Invalid API response from ${url}`);
+  }
+}
+
 export const fetchHealth = () => api.get("/health");
 export const fetchIntro = () => api.get("/intro");
 export const fetchCategories = () => api.get("/categories");
 export const fetchStrategies = (scope?: "chapter" | "all") =>
   api.get<StrategySummary[]>("/strategies", { params: scope ? { scope } : {} });
-/** Strategy monograph + optional first-paint payoff in one round-trip (?payoff=1). */
+
 const strategyDetailCache = new Map<string, { at: number; data: StrategyDetail }>();
 const STRATEGY_CACHE_MS = 60_000;
 
+async function getStrategyOnce(id: string, withPayoff: boolean) {
+  const res = await api.get<StrategyDetail>(`/strategies/${id}`, {
+    params: withPayoff ? { payoff: 1 } : undefined,
+    timeout: withPayoff ? 25000 : 15000,
+  });
+  assertJsonPayload(res.data, `/strategies/${id}`);
+  if (!(res.data as StrategyDetail).id) {
+    throw new Error("Strategy payload missing id");
+  }
+  return res;
+}
+
+/** Strategy monograph; prefers bundled payoff, falls back to monograph-only if seed fails. */
 export const fetchStrategy = async (id: string, opts?: { payoff?: boolean }) => {
   const withPayoff = opts?.payoff !== false;
   const cacheKey = `${id}:${withPayoff ? "p1" : "p0"}`;
@@ -134,18 +158,25 @@ export const fetchStrategy = async (id: string, opts?: { payoff?: boolean }) => 
   if (hit && Date.now() - hit.at < STRATEGY_CACHE_MS) {
     return { data: hit.data };
   }
-  const res = await api.get<StrategyDetail>(`/strategies/${id}`, {
-    params: withPayoff ? { payoff: 1 } : undefined,
-    timeout: 12000,
-  });
-  strategyDetailCache.set(cacheKey, { at: Date.now(), data: res.data });
-  return res;
+
+  try {
+    const res = await getStrategyOnce(id, withPayoff);
+    strategyDetailCache.set(cacheKey, { at: Date.now(), data: res.data });
+    strategyDetailCache.set(`${id}:p0`, { at: Date.now(), data: res.data });
+    return res;
+  } catch (err) {
+    if (!withPayoff) throw err;
+    // Retry without payoff seed — still show the monograph
+    const res = await getStrategyOnce(id, false);
+    strategyDetailCache.set(`${id}:p0`, { at: Date.now(), data: res.data });
+    return res;
+  }
 };
 
 export const fetchPayoff = (strategyId: string, params: Record<string, number>) =>
-  api.post<PayoffResponse>("/payoff", { strategyId, params }, { timeout: 12000 });
+  api.post<PayoffResponse>("/payoff", { strategyId, params }, { timeout: 20000 });
 
-/** Warm the strategy monograph cache on hover / focus (cuts click → paint latency). */
+/** Warm the strategy monograph cache on hover / focus. */
 export function prefetchStrategy(id: string) {
   if (!id) return;
   void fetchStrategy(id, { payoff: true }).catch(() => undefined);

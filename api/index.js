@@ -1,6 +1,6 @@
 /**
  * Vercel serverless entry — Express app with embedded Black–Scholes engine.
- * All /api/* routes are handled in-process (no Render / external Python).
+ * Mounted at /api via vercel.json rewrite: /api/(.*) → /api
  */
 import app from "../backend/node/src/app.js";
 

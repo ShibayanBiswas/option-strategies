@@ -83,8 +83,16 @@ export function StrategyDetailPage() {
           seededPayoffRef.current = true;
         }
       })
-      .catch(() => {
-        if (!cancelled) setError("Could not load this strategy. Check the connection and try again.");
+      .catch((err) => {
+        if (cancelled) return;
+        const status = err?.response?.status;
+        const detail =
+          status === 404
+            ? "Strategy not found."
+            : status
+              ? `Server error (${status}). Try again in a moment.`
+              : "Could not reach the API. If you just deployed, wait for the build to finish, then refresh.";
+        setError(detail);
       });
 
     return () => {

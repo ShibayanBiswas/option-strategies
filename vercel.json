@@ -4,13 +4,13 @@
   "buildCommand": "npm --prefix frontend run build",
   "outputDirectory": "frontend/dist",
   "functions": {
-    "api/[...path].js": {
+    "api/index.js": {
       "maxDuration": 30,
-      "includeFiles": "backend/node/src/**"
+      "includeFiles": "backend/node/**"
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [

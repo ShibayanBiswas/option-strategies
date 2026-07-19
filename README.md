@@ -14,7 +14,7 @@ Everything deploys on **one Vercel project**. No Render, Railway, or separate Py
 frontend/                 React + Vite + TypeScript UI     → static on Vercel
 backend/node/             Express API + strategy catalog
   src/analytics/          Embedded Black–Scholes engine    → /api serverless
-api/[...path].js          Vercel entry that mounts Express
+api/index.js              Vercel entry that mounts Express
 ```
 
 Payoffs and Greeks run in-process inside the Node API on the same deployment.
@@ -53,11 +53,11 @@ git push -u origin main
 | Install Command | `npm install && npm --prefix frontend install && npm --prefix backend/node install` |
 | Build Command | `npm --prefix frontend run build` |
 | Output Directory | `frontend/dist` |
-| Serverless function | `api/[...path].js` (includes `backend/node/src/**`) |
+| Serverless function | `api/index.js` (includes `backend/node/**`) |
 
 Rewrites:
 
-- `/api/*` → Express handler
+- `/api/*` → Express (`destination: /api`)
 - all other routes → SPA `index.html` (React Router)
 
 ### 4. Environment variables
@@ -107,11 +107,12 @@ npm --prefix frontend run dev         # UI :5173 (proxies /api → :4000)
 
 | Symptom | Fix |
 | ------- | --- |
-| `/api/*` 404 | Root Directory must be repo root; confirm `api/[...path].js` is deployed |
+| `/api/*` 404 or HTML | Root Directory must be repo root; confirm `api/index.js` is deployed; open `/api/health` |
 | UI calls wrong host | Remove `VITE_API_URL` from Vercel env and redeploy |
 | Blank SPA routes | Confirm SPA rewrite in `vercel.json` for non-API paths |
 | Cold start / timeout | Function `maxDuration` is 30s; first Nifty fetch may take a second |
 | Nifty offline | API falls back to last cache / static ATM; payoffs still compute |
+| “Could not load this strategy” | Open `/api/health` then `/api/strategies/<id>` — both must return JSON, not HTML |
 
 Prefer `vercel dev` from the repo root for full-stack local parity with production routing.
 
