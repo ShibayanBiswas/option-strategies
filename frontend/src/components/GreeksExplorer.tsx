@@ -43,7 +43,7 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
   const hasCall = Boolean(card.callProfile);
   const hasPut = Boolean(card.putProfile);
   const hasIdentities = hasCall || hasPut;
-  const paragraphs = capParagraphs(card.paragraphs);
+  const paragraphs = capParagraphs(card.paragraphs, 4);
   const lead = paragraphs[0];
   const more = paragraphs.slice(1);
 
