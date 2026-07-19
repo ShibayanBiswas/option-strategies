@@ -1,4 +1,5 @@
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { useState } from "react";
 import { ProseMath } from "./ProseMath";
 import { formatLegLabel } from "../utils/chartFormat";
 
@@ -25,8 +26,10 @@ interface LegStructurePanelProps {
   chartLabels?: string[];
 }
 
-/** Leg picker — all roles visible; click highlights the leg on charts. */
+/** Leg picker — accordion details (first open by default); click highlights charts. */
 export function LegStructurePanel({ legs, activeIndex, onSelect, chartLabels }: LegStructurePanelProps) {
+  const [expanded, setExpanded] = useState<number | null>(0);
+
   return (
     <div className="space-y-3 leg-structure-panel">
       <p className="text-xs text-ar-subtle leading-relaxed font-serif">
@@ -34,13 +37,17 @@ export function LegStructurePanel({ legs, activeIndex, onSelect, chartLabels }: 
       </p>
       {legs.map((leg, i) => {
         const isActive = activeIndex === i;
+        const isOpen = expanded === i;
         const isLong = leg.directionTag === "long";
 
         return (
           <button
             key={leg.id}
             type="button"
-            onClick={() => onSelect(isActive ? null : i)}
+            onClick={() => {
+              onSelect(isActive ? null : i);
+              setExpanded(isOpen && isActive ? null : i);
+            }}
             className={`leg-structure-card w-full text-left rounded-xl border p-4 ${
               isActive
                 ? "leg-structure-card-active border-ar-gold/55 bg-ar-gold/12"
@@ -67,16 +74,18 @@ export function LegStructurePanel({ legs, activeIndex, onSelect, chartLabels }: 
                 <ProseMath text={leg.subtitle} stripParens={false} />
               </p>
             )}
-            <div>
-              <p className="text-sm text-ar-muted mt-3 leading-relaxed border-t border-surface-border pt-3 font-serif research-prose">
-                <ProseMath text={leg.role} />
-              </p>
-              {chartLabels?.[i] && (
-                <p className="text-xs text-ar-subtle mt-2 font-serif">
-                  Payoff series: <ProseMath text={formatLegLabel(chartLabels[i])} stripParens={false} />
+            {isOpen && (
+              <div className="overflow-hidden">
+                <p className="text-sm text-ar-muted mt-3 leading-relaxed border-t border-surface-border pt-3 font-serif research-prose">
+                  <ProseMath text={leg.role} />
                 </p>
-              )}
-            </div>
+                {chartLabels?.[i] && (
+                  <p className="text-xs text-ar-subtle mt-2 font-serif">
+                    Payoff series: <ProseMath text={formatLegLabel(chartLabels[i])} stripParens={false} />
+                  </p>
+                )}
+              </div>
+            )}
           </button>
         );
       })}

@@ -1,3 +1,5 @@
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { FORMULA_META } from "./greekTheme";
 import { Latex } from "./Latex";
 import type { EquationSpec, NotationItem } from "./MathBlock";
@@ -9,82 +11,113 @@ type FormulaValue = string | EquationSpec;
 interface FormulaDeckProps {
   formulas: Record<string, FormulaValue>;
   title?: string;
-  /** Kept for call-site compatibility — all identities render open. */
   defaultExpanded?: string | null;
   compact?: boolean;
 }
 
-function resolveFormula(key: string, value: FormulaValue): EquationSpec & { title: string } {
-  const meta = FORMULA_META[key];
-  const title =
-    meta?.title ?? key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
+function resolveFormula(key: string, value: FormulaValue): EquationSpec {
   if (typeof value === "string") {
+    const meta = FORMULA_META[key];
     return {
-      title,
       latex: value,
       context: meta?.context,
       notation: meta?.notation,
     };
   }
+  // Object payload already carries context/notation from the API — do not re-attach meta copies.
   return {
-    title,
     latex: value.latex,
-    context: value.context ?? meta?.context,
-    notation: value.notation ?? meta?.notation,
+    context: value.context,
+    notation: value.notation,
   };
 }
 
-/** All identities visible at once — no collapse chips, no hidden formulas. */
+/**
+ * Collapsible identity deck with chip picker.
+ * Opens by default; first (or defaultExpanded) identity is selected so nothing starts blank.
+ */
 export function FormulaDeck({
   formulas,
   title = "Formal Notation",
-  compact = true,
+  defaultExpanded = null,
 }: FormulaDeckProps) {
-  const entries = Object.entries(formulas).map(([key, value]) => resolveFormula(key, value));
+  const entries = Object.entries(formulas);
+  const initialKey =
+    (defaultExpanded && formulas[defaultExpanded] != null ? defaultExpanded : null) ??
+    entries[0]?.[0] ??
+    null;
+  const [active, setActive] = useState<string | null>(initialKey);
+  const [expanded, setExpanded] = useState(true);
+
   if (entries.length === 0) return null;
 
-  const seenNotation = new Set<string>();
-  const shared: NotationItem[] = [];
-  for (const eq of entries) {
-    for (const item of eq.notation ?? []) {
-      const fp = `${String(item.symbol).trim()}::${String(item.meaning).trim()}`;
-      if (seenNotation.has(fp)) continue;
-      seenNotation.add(fp);
-      shared.push(item);
-    }
-  }
-
-  const seenContexts = new Set<string>();
+  const activeSpec = active ? resolveFormula(active, formulas[active]) : null;
 
   return (
-    <div className={`formula-deck formula-deck-open ${compact ? "formula-deck-compact" : ""}`}>
-      <div className="formula-deck-head">
-        <h3 className="formula-deck-toggle-label">{title}</h3>
+    <div className="formula-deck">
+      <button
+        type="button"
+        onClick={() => setExpanded((e) => !e)}
+        className="formula-deck-toggle"
+        aria-expanded={expanded}
+      >
+        <span className="formula-deck-toggle-label">{title}</span>
         <span className="formula-deck-count">{entries.length} identities</span>
-      </div>
+        <ChevronDown className={`formula-deck-chevron ${expanded ? "is-open" : ""}`} />
+      </button>
 
-      {shared.length > 0 && <NotationGrid items={shared} />}
+      {expanded && (
+        <div>
+          <div className="formula-chip-row">
+            {entries.map(([key]) => {
+              const meta = FORMULA_META[key] ?? {
+                title: key.replace(/([A-Z])/g, " $1"),
+                subtitle: "Identity",
+                icon: ChevronDown,
+              };
+              const Icon = meta.icon;
+              const isActive = active === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setActive(key)}
+                  className={`formula-chip ${isActive ? "formula-chip-active" : ""}`}
+                >
+                  <Icon className="formula-chip-icon" strokeWidth={1.75} />
+                  <span className="formula-chip-title">{meta.title}</span>
+                </button>
+              );
+            })}
+          </div>
 
-      <div className="math-equations-stack">
-        {entries.map((eq) => {
-          const ctx = (eq.context || "").trim();
-          const ctxKey = ctx.toLowerCase();
-          const showContext = Boolean(ctx) && !seenContexts.has(ctxKey);
-          if (showContext) seenContexts.add(ctxKey);
-
-          return (
-            <div key={`${eq.title}-${eq.latex}`} className="math-equation-block formula-reveal">
-              <p className="formula-reveal-sub">{eq.title}</p>
-              {showContext && (
+          {active && activeSpec && (
+            <div className="formula-reveal">
+              {activeSpec.context ? (
                 <p className="math-equation-context">
-                  <ProseMath text={ctx} stripParens={false} />
+                  <ProseMath text={activeSpec.context} stripParens={false} />
                 </p>
+              ) : (
+                FORMULA_META[active]?.subtitle && (
+                  <p className="formula-reveal-sub">
+                    <ProseMath text={FORMULA_META[active].subtitle} stripParens={false} />
+                  </p>
+                )
               )}
-              <Latex math={eq.latex} block fullWidth className="math-compact-inline" />
+              {activeSpec.notation && activeSpec.notation.length > 0 && (
+                <NotationGrid items={activeSpec.notation as NotationItem[]} />
+              )}
+              <Latex math={activeSpec.latex} block fullWidth className="math-compact-inline" />
             </div>
-          );
-        })}
-      </div>
+          )}
+
+          {!active && (
+            <p className="formula-deck-hint">
+              Select an identity above to reveal notation, context, and the typeset formula.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

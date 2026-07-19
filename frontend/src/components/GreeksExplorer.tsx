@@ -94,7 +94,7 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
           </div>
 
           <details className="greek-formula-fold" open>
-            <summary className="greek-formula-fold-summary">Formal definition</summary>
+            <summary className="greek-formula-fold-summary">View formal definition</summary>
             <div className="greek-formula-panel">
               {card.formulaContext && <p className="math-equation-context">{card.formulaContext}</p>}
               {card.formulaNotation && card.formulaNotation.length > 0 && (

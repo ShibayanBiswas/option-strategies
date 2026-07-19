@@ -1613,14 +1613,13 @@ html.dark .greek-col-rho.greek-col-active {
   color: #f87171;
 }
 
-/* Formula deck — all identities open by default */
+/* Formula deck */
 .formula-deck {
   margin-top: 1.25rem;
   border-radius: 0.75rem;
   border: 1px solid var(--ar-border);
   background: var(--ar-panel);
-  padding: 1rem 1.15rem 0.85rem;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .formula-deck-head {
