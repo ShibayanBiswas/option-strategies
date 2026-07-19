@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GREEK_META, greekKeyFromName, type GreekKey } from "./greekTheme";
 import { NotationGrid } from "./NotationGrid";
@@ -21,6 +21,15 @@ type IdentityTab = "call" | "put";
 
 function resolveGreekKey(card: GreekCardData): GreekKey {
   return greekKeyFromName(card.name) ?? "delta";
+}
+
+function FoldSummary({ label }: { label: string }) {
+  return (
+    <summary className="greek-formula-fold-summary">
+      <span className="greek-fold-btn-label">{label}</span>
+      <ChevronDown className="greek-fold-btn-chevron" strokeWidth={2} aria-hidden />
+    </summary>
+  );
 }
 
 export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
@@ -104,7 +113,7 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
           )}
 
           <details className="greek-formula-fold" open>
-            <summary className="greek-formula-fold-summary">View formal definition</summary>
+            <FoldSummary label="View formal definition" />
             <div className="greek-formula-panel">
               {card.formulaContext && (
                 <p className="math-equation-context">
@@ -120,7 +129,7 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
 
           {more.length > 0 && (
             <details className="greek-formula-fold" open>
-              <summary className="greek-formula-fold-summary">Read more</summary>
+              <FoldSummary label="Read more" />
               <div className="research-prose greek-prose-stack">
                 {more.map((p, j) => (
                   <p key={j}>
@@ -133,7 +142,7 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
 
           {hasIdentities && (
             <details className="greek-formula-fold greek-identity-fold" open>
-              <summary className="greek-formula-fold-summary">Call &amp; put identities</summary>
+              <FoldSummary label="Call & put identities" />
               <div className="greek-identity-block greek-identity-block-nested">
                 <div className="greek-identity-tabs" role="tablist" aria-label={`${card.name} identities`}>
                   {hasCall && (
