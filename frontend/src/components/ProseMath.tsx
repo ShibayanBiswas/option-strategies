@@ -10,8 +10,9 @@ interface ProseMathProps {
   stripParens?: boolean;
 }
 
-/** Numbers, signed ints, percents, and comparison operators left in plain text. */
-const EMPH_RE = /(₹?-?\d[\d,]*(?:\.\d+)?%?|[<>≤≥≠≈]=?|\+1\b|(?<![\d.A-Za-z])-1\b)/g;
+/** Numbers, signed ints, percents, comparison ops, and bare premium letters left in plain text. */
+const EMPH_RE =
+  /(₹?-?\d[\d,]*(?:\.\d+)?%?|[<>≤≥≠≈]=?|\+1\b|(?<![\d.A-Za-z])-1\b|(?<![A-Za-z])[CDHKSTVN](?![A-Za-z0-9_]))/g;
 
 function emphasizePlain(content: string, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = [];

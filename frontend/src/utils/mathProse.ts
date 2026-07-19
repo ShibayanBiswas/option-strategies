@@ -220,6 +220,8 @@ const RULES: Array<{ src: string; latex: (m: RegExpExecArray) => string }> = [
     src: "([ΔΓΘνρσκφϕ]|[KSTfV])_([A-Za-z0-9]+)",
     latex: (m) => `${sym(m[1])}_{${mathify(m[2])}}`,
   },
+  // Bare premium / spot / strike letters (C, D, H, K, …) so trailing terms stay math-highlighted
+  { src: "(?<![A-Za-z])([CDHKSTVNr])(?![A-Za-z0-9_])", latex: (m) => m[1] },
   { src: "\\+1\\b", latex: () => "+1" },
   { src: "(?<![\\d.A-Za-z])-1\\b", latex: () => "-1" },
   { src: "≥", latex: () => "\\geq" },

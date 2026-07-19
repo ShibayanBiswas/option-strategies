@@ -53,29 +53,32 @@ export function normalizeLatex(raw: string): string {
 const STRUCTURAL_TEX =
   /\\(?:d?frac|tfrac|dfrac|sqrt|sum|prod|int|left|right|begin|end|over|atop|choose|partial)\b|\\\\/;
 
+/** TeX commands that must not be wrapped in \\boldsymbol (breaks macros / layout). */
+const NO_BOLD_CMD =
+  /^(?:text|mathrm|operatorname|mathsf|mathbf|boldsymbol|bm|bold|left|right|bigl|bigr|Bigl|Bigr|big|Big|frac|dfrac|tfrac|sqrt|ln|log|exp|max|min|sup|inf|lim|sum|prod|int|partial|quad|qquad|cdot|times|infty|leq|geq|neq|approx|to|rightarrow|leftarrow|overline|underline|hat|bar|vec|tilde|color|begin|end|mathrm|textrm|textit|textbf)$/;
+
+const ATOM_RE =
+  /((?:\\[a-zA-Z]+\*?|[A-Za-zΔΓΘνρσφϕ]))((?:(?:_|\^)(?:\{[^}]*\}|[A-Za-z0-9+*'′∗]))*)/g;
+
 /**
- * Bold the math nucleus only so subscripts/superscripts stay outside \\boldsymbol{...}.
- * \\boldsymbol{\\phi_i} can look broken; \\boldsymbol{\\phi}_i renders cleanly.
+ * Bold every math nucleus (K, C, D, H, \\phi, …) while leaving subscripts/superscripts
+ * outside \\boldsymbol{...}. Fixes edge cases like K_2 - K_1 - C where only the first
+ * strike was previously highlighted.
  */
 export function emphasizeLatex(s: string): string {
   const t = s.trim();
   if (!t) return t;
   if (/\\boldsymbol|\\mathbf|\\bm\b|\\bold/.test(t)) return t;
-  // Never wrap structural display math — \boldsymbol breaks numerator/denominator layout
-  if (STRUCTURAL_TEX.test(t) || t.length > 80) return t;
+  // Never rewrite structural display math — \boldsymbol breaks fraction / aligned layout
+  if (STRUCTURAL_TEX.test(t)) return t;
 
-  // nucleus = TeX command or single letter; scripts = chain of _x /^x /_{...} /^{...}
-  const m = t.match(
-    /^((?:\\[a-zA-Z]+\*?|[A-Za-z]))((?:(?:_|\^)(?:\{[^}]*\}|[A-Za-z0-9+*'′∗]))*)([\s\S]*)$/
-  );
-  if (m) {
-    const [, base, scripts, rest] = m;
-    if (scripts) {
-      return `\\boldsymbol{${base}}${scripts}${rest}`;
+  return t.replace(ATOM_RE, (full, base: string, scripts: string) => {
+    if (base.startsWith("\\")) {
+      const cmd = base.slice(1).replace(/\*$/, "");
+      if (NO_BOLD_CMD.test(cmd)) return full;
     }
-  }
-
-  return `\\boldsymbol{${t}}`;
+    return `\\boldsymbol{${base}}${scripts ?? ""}`;
+  });
 }
 
 export function Latex({
