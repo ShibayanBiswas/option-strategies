@@ -86,13 +86,17 @@ export function FormulaDeck({
 
           {active && activeSpec && (
             <div className="formula-reveal">
-              <p className="formula-reveal-sub">
-                <ProseMath text={(FORMULA_META[active] ?? { subtitle: "" }).subtitle} stripParens={false} />
-              </p>
-              {activeSpec.context && (
+              {/* Prefer API/context line; skip chip subtitle when it would duplicate the explanation */}
+              {activeSpec.context ? (
                 <p className="math-equation-context">
                   <ProseMath text={activeSpec.context} stripParens={false} />
                 </p>
+              ) : (
+                FORMULA_META[active]?.subtitle && (
+                  <p className="formula-reveal-sub">
+                    <ProseMath text={FORMULA_META[active].subtitle} stripParens={false} />
+                  </p>
+                )
               )}
               {activeSpec.notation && activeSpec.notation.length > 0 && (
                 <NotationGrid items={activeSpec.notation as NotationItem[]} />

@@ -293,32 +293,58 @@ body {
 .math-equation-block,
 .greek-formula-panel,
 .greek-identity-panel,
-.formula-reveal,
-.formula-deck .formula-reveal,
 .layman-greek-formula,
 .math-equations-stack {
+  /* Only the typeset equation is centered; prose/context stay natural */
+}
+
+.math-equation-block {
+  text-align: left;
+}
+
+.math-equation-block .math-equation-full {
   text-align: center;
 }
 
 .greek-formula-panel,
 .greek-identity-panel,
-.layman-greek-formula,
-.formula-reveal {
+.layman-greek-formula {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
+}
+
+.greek-formula-panel .math-equation-full,
+.greek-identity-panel .math-equation-full,
+.layman-greek-formula .math-equation-full {
+  text-align: center;
+  align-self: center;
   width: 100%;
 }
 
-.greek-formula-panel .math-notation-rail,
-.greek-identity-panel .math-notation-rail,
-.formula-reveal .math-notation-rail,
-.layman-greek-formula .math-notation-rail,
-.greek-formula-panel .math-equation-context,
-.greek-identity-panel .math-equation-context {
+/* Formula deck: prose left, equation centered (do not center captions) */
+.formula-reveal {
+  display: block;
   width: 100%;
-  align-self: stretch;
+  text-align: left;
+}
+
+.formula-reveal .formula-reveal-sub,
+.formula-reveal .math-equation-context {
+  text-align: left;
+  width: 100%;
+}
+
+.formula-reveal .math-notation-rail {
+  width: 100%;
+}
+
+.formula-reveal .math-equation-full {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .math-emph .katex,
@@ -1647,6 +1673,7 @@ html.dark .formula-chip-active {
 
 .formula-reveal {
   padding: 0.5rem 1.15rem 1.25rem;
+  text-align: left;
 }
 
 .formula-reveal-sub {
@@ -1655,6 +1682,7 @@ html.dark .formula-chip-active {
   font-style: italic;
   color: var(--ar-subtle);
   margin: 0 0 0.75rem;
+  text-align: left;
 }
 
 .formula-reveal .math-equation-full,
