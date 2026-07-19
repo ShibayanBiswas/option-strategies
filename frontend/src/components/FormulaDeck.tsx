@@ -12,6 +12,8 @@ interface FormulaDeckProps {
   formulas: Record<string, FormulaValue>;
   title?: string;
   defaultExpanded?: string | null;
+  /** When true, the deck body starts open. Most decks stay collapsed. */
+  defaultOpen?: boolean;
   compact?: boolean;
   /** Shared glossary shown once above the chip picker. */
   sharedNotation?: NotationItem[];
@@ -48,12 +50,13 @@ function chipTitle(key: string, value: FormulaValue): string {
 
 /**
  * Collapsible identity deck with chip picker.
- * Opens by default; first (or defaultExpanded) identity is selected so nothing starts blank.
+ * Collapsed by default unless defaultOpen; first (or defaultExpanded) chip is preselected.
  */
 export function FormulaDeck({
   formulas,
   title = "Formal Notation",
   defaultExpanded = null,
+  defaultOpen = false,
   sharedNotation,
   deckContext,
 }: FormulaDeckProps) {
@@ -63,7 +66,7 @@ export function FormulaDeck({
     entries[0]?.[0] ??
     null;
   const [active, setActive] = useState<string | null>(initialKey);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(defaultOpen);
 
   const activeSpec = useMemo(
     () => (active ? resolveFormula(active, formulas[active]) : null),

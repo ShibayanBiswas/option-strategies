@@ -26,9 +26,9 @@ interface LegStructurePanelProps {
   chartLabels?: string[];
 }
 
-/** Leg picker — accordion details (first open by default); click highlights charts. */
+/** Leg picker — accordion details (collapsed by default); click highlights charts. */
 export function LegStructurePanel({ legs, activeIndex, onSelect, chartLabels }: LegStructurePanelProps) {
-  const [expanded, setExpanded] = useState<number | null>(0);
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   return (
     <div className="space-y-3 leg-structure-panel">

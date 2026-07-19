@@ -112,7 +112,7 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
             </div>
           )}
 
-          <details className="greek-formula-fold" open>
+          <details className="greek-formula-fold">
             <FoldSummary label="View formal definition" />
             <div className="greek-formula-panel">
               {card.formulaContext && (
@@ -128,7 +128,7 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
           </details>
 
           {more.length > 0 && (
-            <details className="greek-formula-fold" open>
+            <details className="greek-formula-fold">
               <FoldSummary label="Read more" />
               <div className="research-prose greek-prose-stack">
                 {more.map((p, j) => (
@@ -141,7 +141,7 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
           )}
 
           {hasIdentities && (
-            <details className="greek-formula-fold greek-identity-fold" open>
+            <details className="greek-formula-fold greek-identity-fold">
               <FoldSummary label="Call & put identities" />
               <div className="greek-identity-block greek-identity-block-nested">
                 <div className="greek-identity-tabs" role="tablist" aria-label={`${card.name} identities`}>

@@ -513,6 +513,7 @@ export function StrategyDetailPage() {
                 (strategy.payoffEquationBlock.equations || []) as EquationSpec[],
               )}
               defaultExpanded="netPayoff"
+              defaultOpen
               compact
             />
           </ResearchSection>
