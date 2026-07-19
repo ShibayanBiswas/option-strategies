@@ -2,35 +2,45 @@ import { motion } from "framer-motion";
 import { Latex } from "./Latex";
 import { ProseMath } from "./ProseMath";
 
-interface NotationItem {
+export interface NotationItem {
   symbol: string;
   meaning: string;
 }
 
-function isWideSymbol(symbol: string): boolean {
-  return /\\ln|\\frac|\\dfrac|\\\\left|\\sum/.test(symbol);
-}
-
+/** Symbol-reference cards in a horizontal scroll rail (used on every page). */
 export function NotationGrid({ items }: { items: NotationItem[] }) {
   if (!items?.length) return null;
 
   return (
-    <dl className="math-notation-grid">
-      {items.map((n) => (
-        <motion.div
-          key={n.symbol}
-          className={`math-notation-item ${isWideSymbol(n.symbol) ? "math-notation-item-wide" : ""}`}
-          whileHover={{ y: -3, scale: 1.01 }}
-          transition={{ type: "spring", stiffness: 420, damping: 28 }}
-        >
-          <dt className="math-notation-symbol">
-            <Latex math={n.symbol.replace(/\\\\/g, "\\")} />
-          </dt>
-          <dd className="math-notation-meaning">
-            <ProseMath text={n.meaning} stripParens={false} />
-          </dd>
-        </motion.div>
-      ))}
-    </dl>
+    <div className="math-notation-rail">
+      <dl className="math-notation-grid">
+        {items.map((n, i) => (
+          <motion.div
+            key={`${n.symbol}-${i}`}
+            className="math-notation-item"
+            initial={{ opacity: 0, y: 14, scale: 0.94 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{
+              type: "spring",
+              stiffness: 380,
+              damping: 24,
+              delay: Math.min(i * 0.05, 0.45),
+            }}
+            whileHover={{ y: -5, scale: 1.035 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <dt className="math-notation-symbol">
+              <span className="math-notation-glyph">
+                <Latex math={n.symbol} emphasize />
+              </span>
+            </dt>
+            <dd className="math-notation-meaning">
+              <ProseMath text={n.meaning} stripParens={false} />
+            </dd>
+          </motion.div>
+        ))}
+      </dl>
+    </div>
   );
 }

@@ -1,9 +1,7 @@
 import { motion } from "framer-motion";
-import { BlockMath } from "react-katex";
 import { NotationGrid } from "./NotationGrid";
 import { ProseMath } from "./ProseMath";
-
-import "katex/dist/katex.min.css";
+import { Latex } from "./Latex";
 
 export interface NotationItem {
   symbol: string;
@@ -54,7 +52,14 @@ export function MathBlock({
   const eqs = normalizeEquations(equations, maxEquations);
 
   return (
-    <div className={`math-panel w-full ${compact ? "math-panel-compact" : ""} ${className}`}>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      whileHover={{ y: -3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 26 }}
+      className={`math-panel card-shine w-full ${compact ? "math-panel-compact" : ""} ${className}`}
+    >
       {title && <h3 className="math-panel-title">{title}</h3>}
       {context && (
         <p className="math-panel-context">
@@ -77,12 +82,10 @@ export function MathBlock({
               </p>
             )}
             {eq.notation && eq.notation.length > 0 && <NotationGrid items={eq.notation} />}
-            <div className="math-equation-full math-compact">
-              <BlockMath math={eq.latex.replace(/\\\\/g, "\\")} />
-            </div>
+            <Latex math={eq.latex} block fullWidth />
           </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }

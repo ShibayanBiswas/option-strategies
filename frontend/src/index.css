@@ -2,33 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Anand Rathi SP Dashboard theme (light + dark) ── */
+/* ── Anand Rathi SP Dashboard theme (light default + dark) ── */
 :root {
   color-scheme: light;
-  --ar-bg: #f7f7f7;
+  --ar-bg: #f4f4f5;
   --ar-surface: #ffffff;
-  --ar-panel: #fafafa;
+  --ar-panel: #fafaf9;
   --ar-ink: #111111;
-  --ar-muted: #57534e;
+  --ar-muted: #44403c;
   --ar-subtle: #78716c;
-  --ar-border: #11111114;
+  --ar-border: #11111122;
   --ar-gold: #d4b24c;
   --ar-gold-light: #e5cf94;
   --ar-gold-dark: #b8860b;
   --ar-maroon: #7a1e2c;
+  --ar-accent: #d4b24c;
   --ar-nav-bg: #ffffff;
-  --ar-header-bg: #ffffffeb;
-  --ar-subnav-bg: #fafaf9cc;
+  --ar-header-bg: #fffffff5;
+  --ar-subnav-bg: #fafaf9ee;
   --ar-input-bg: #ffffff;
   --ar-mesh-top: #ffffff;
   --ar-mesh-mid: #f7f7f7;
-  --ar-mesh-bottom: #f2f2f2;
-  --ar-shadow: 0 8px 32px -8px #11111114, 0 2px 8px -2px #1111110a;
+  --ar-mesh-bottom: #f0ebe3;
+  --ar-shadow: 0 10px 36px -10px #7a1e2c14, 0 4px 14px -4px #d4b24c22, 0 1px 0 #d4b24c33;
   --ar-chart-bg: #ffffff;
   --ar-chart-plot: #fafaf9;
-  --ar-chart-border: #78716c33;
-  --ar-chart-tick: #57534e;
-  --ar-chart-label: #44403c;
+  --ar-chart-border: #d4b24c44;
+  --ar-chart-tick: #44403c;
+  --ar-chart-label: #292524;
   --ar-table-head-from: #faf8f3;
   --ar-table-head-to: #f5f0e6;
   --ar-table-row: #ffffff;
@@ -42,10 +43,10 @@
   --prose-font: var(--font-sans);
   --math-ink: #111111;
   --math-panel-bg: #ffffff;
-  --math-panel-border: #11111114;
+  --math-panel-border: #d4b24c33;
   --math-eq-bg: #faf8f3;
-  --glass-bg: #fffffff2;
-  --glass-border: #11111114;
+  --glass-bg: #fffffff5;
+  --glass-border: #d4b24c40;
   --accent-line: #d4b24c;
 }
 
@@ -57,12 +58,12 @@ html.dark {
   --ar-ink: #f5f5f4;
   --ar-muted: #e0d9d4;
   --ar-subtle: #c9c2bd;
-  --ar-border: #d4b24c24;
+  --ar-border: #d4b24c33;
   --ar-gold: #d4b24c;
   --ar-gold-light: #f0d78c;
   --ar-gold-dark: #e8c96a;
-  --ar-maroon: #c9a882;
-  --ar-accent: #c9a882;
+  --ar-maroon: #c45a6a;
+  --ar-accent: #d4b24c;
   --ar-nav-bg: #0a0708;
   --ar-header-bg: #050403f0;
   --ar-subnav-bg: #0a0708f0;
@@ -70,7 +71,7 @@ html.dark {
   --ar-mesh-top: #140e10;
   --ar-mesh-mid: #080605;
   --ar-mesh-bottom: #030202;
-  --ar-shadow: 0 16px 48px -16px #000c, 0 0 0 1px #d4b24c1f;
+  --ar-shadow: 0 16px 48px -16px #000c, 0 0 0 1px #d4b24c33;
   --ar-chart-bg: #040303;
   --ar-chart-plot: #080506;
   --ar-chart-border: #d4b24c52;
@@ -83,13 +84,13 @@ html.dark {
   --neon-green: #16a34a;
   --neon-amber: #d9a33b;
   --neon-cyan: #d4b24c;
-  --neon-purple: #b8956a;
+  --neon-purple: #c45a6a;
   --math-ink: #f5f5f4;
   --math-panel-bg: #110c0e;
-  --math-panel-border: #d4b24c24;
+  --math-panel-border: #d4b24c33;
   --math-eq-bg: #0a0708;
   --glass-bg: #110c0ef2;
-  --glass-border: #d4b24c24;
+  --glass-border: #d4b24c40;
   --accent-line: #d4b24c;
 }
 
@@ -138,9 +139,76 @@ body {
 
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   box-shadow: var(--ar-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Gold top rail — SP desk signature */
+.desk-gold-rail {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--ar-maroon), var(--ar-gold) 40%, var(--ar-gold-light) 70%, var(--ar-maroon));
+  background-size: 200% 100%;
+  animation: gold-rail-flow 8s ease-in-out infinite;
+}
+
+@keyframes gold-rail-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.desk-header {
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ar-gold) 35%, transparent);
+}
+
+/* Shimmer sweep on every card */
+.card-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.card-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    color-mix(in srgb, var(--ar-gold) 22%, transparent) 50%,
+    transparent 60%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+  z-index: 1;
+  transition: transform 0.01s;
+}
+
+.card-shine:hover::after {
+  animation: card-shine-sweep 0.85s ease forwards;
+}
+
+@keyframes card-shine-sweep {
+  to { transform: translateX(120%); }
+}
+
+.strategy-card {
+  box-shadow: var(--ar-shadow);
+  border-top: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+.strategy-card:hover {
+  border-top-color: var(--ar-gold);
+  box-shadow: 0 18px 40px -16px color-mix(in srgb, var(--ar-maroon) 28%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--ar-gold) 35%, transparent);
+}
+
+.hero-desk {
+  border-top: 3px solid var(--ar-gold);
 }
 
 .gradient-text {
@@ -150,11 +218,17 @@ body {
   background-clip: text;
 }
 
-/* KaTeX — theme-aware, correct metrics */
+/* KaTeX — theme-aware, correct metrics.
+   Do NOT set white-space:normal on .katex/.base — that collapses
+   vertical fraction stacks (numerator/denominator) into a broken line. */
 .katex-display {
   margin: 0.5rem 0 !important;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: visible !important;
+  max-width: 100%;
+  text-align: center;
+}
+
+.katex-display > .katex {
   max-width: 100%;
 }
 
@@ -167,9 +241,81 @@ body {
   font-size: 1.05em;
 }
 
+/* Hide MathML completely — it duplicates glyphs and can stack as visible text */
+.katex .katex-mathml {
+  display: none !important;
+}
+
 .katex-display .katex,
 .math-equation-full .katex {
-  font-size: 1.08em;
+  font-size: 1.12em;
+}
+
+.math-equation-full {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1.15rem 1.25rem;
+  border-radius: 0.65rem;
+  background: var(--math-eq-bg);
+  border: 1px solid var(--math-panel-border);
+  overflow: visible;
+  transition: border-color 0.24s ease, box-shadow 0.24s ease;
+}
+
+.math-equation-full .katex-display {
+  margin: 0 auto !important;
+  overflow: visible !important;
+  max-width: 100%;
+  text-align: center;
+  width: 100%;
+}
+
+.math-equation-full .katex {
+  font-size: 1.12em !important;
+  max-width: 100%;
+  white-space: nowrap !important;
+  text-align: center;
+}
+
+.math-equation-full .base {
+  white-space: nowrap !important;
+}
+
+.math-equation-full .frac-line {
+  border-bottom-width: 0.08em !important;
+  border-bottom-color: var(--math-ink) !important;
+}
+
+.math-equation-full.math-compact .katex {
+  font-size: 1.08em !important;
+}
+
+.math-equation-block,
+.greek-formula-panel,
+.greek-identity-panel,
+.formula-reveal {
+  text-align: center;
+}
+
+.greek-identity-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.math-emph .katex,
+.prose-math-inline .katex,
+.math-notation-glyph .katex {
+  color: var(--ar-gold-dark) !important;
+}
+
+html.dark .math-emph .katex,
+html.dark .prose-math-inline .katex,
+html.dark .math-notation-glyph .katex {
+  color: var(--ar-gold-light) !important;
 }
 
 .katex-error {
@@ -185,12 +331,21 @@ html.dark .katex-error {
 
 .math-panel {
   width: 100%;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   border: 1px solid var(--math-panel-border);
   background: var(--math-panel-bg);
   padding: 1rem 1.15rem;
   margin-top: 1rem;
   box-shadow: var(--ar-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative;
+  overflow: visible;
+}
+
+.math-panel:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
+  box-shadow: 0 16px 36px -14px color-mix(in srgb, var(--ar-maroon) 18%, transparent);
 }
 
 .math-panel-compact {
@@ -220,24 +375,6 @@ html.dark .katex-error {
   margin: 0 0 0.75rem;
 }
 
-.math-equation-full {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  border-radius: 0.35rem;
-  background: var(--math-eq-bg);
-  border: 1px solid var(--math-panel-border);
-  overflow-x: auto;
-  overflow-y: hidden;
-  transition: border-color 0.24s ease, box-shadow 0.24s ease;
-}
-
-.math-equation-full.math-compact .katex {
-  font-size: 0.95em !important;
-}
-
 .math-inline {
   display: inline;
   white-space: nowrap;
@@ -247,72 +384,209 @@ html.dark .katex-error {
   font-size: 1em !important;
 }
 
+.math-notation-rail {
+  position: relative;
+  margin: 0.35rem 0 1.35rem;
+  /* Soft edge fades hint horizontal scroll without clipping the cards */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 1.25rem,
+    #000 calc(100% - 1.25rem),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 1.25rem,
+    #000 calc(100% - 1.25rem),
+    transparent 100%
+  );
+}
+
 .math-notation-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-  padding: 0.85rem 1rem;
-  border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--ar-panel) 80%, transparent);
-  border: 1px solid var(--ar-border);
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0.65rem 1.15rem 0.85rem;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 1.15rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ar-gold) 55%, transparent) transparent;
+}
+
+.math-notation-grid::-webkit-scrollbar {
+  height: 5px;
+}
+
+.math-notation-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.math-notation-grid::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ar-gold) 45%, transparent);
+  border-radius: 999px;
 }
 
 .math-notation-item {
-  display: grid;
-  grid-template-columns: minmax(3.4rem, auto) 1fr;
-  gap: 0.65rem;
-  align-items: start;
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.75rem 0.9rem;
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: none;
   font-family: var(--prose-font);
-  font-size: 0.85rem;
-  padding: 0.65rem 0.75rem;
-  border-radius: 0.7rem;
-  background: var(--ar-panel);
-  border: 1px solid rgba(71, 85, 105, 0.32);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+  font-size: 0.88rem;
+  padding: 0.8rem 1.05rem 0.8rem 1.15rem;
+  border-radius: 1rem;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--ar-gold) 10%, var(--ar-surface)) 0%, var(--ar-surface) 48%, color-mix(in srgb, var(--ar-gold) 7%, var(--ar-panel)) 100%);
+  border: 1px solid color-mix(in srgb, var(--ar-gold) 38%, var(--ar-border));
+  box-shadow:
+    0 10px 28px -16px color-mix(in srgb, var(--ar-gold) 55%, transparent),
+    0 1px 0 color-mix(in srgb, var(--ar-gold) 30%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 55%, transparent);
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+  cursor: default;
+  isolation: isolate;
+  transition:
+    border-color 0.28s ease,
+    box-shadow 0.28s ease,
+    background 0.28s ease;
+}
+
+.math-notation-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  bottom: 0.45rem;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--ar-gold-dark), var(--ar-gold), var(--ar-gold-light));
+  opacity: 0.95;
+  z-index: 1;
+}
+
+.math-notation-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    color-mix(in srgb, var(--ar-gold) 28%, transparent) 50%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
+  pointer-events: none;
+  z-index: 0;
+  transition: transform 0.01s;
 }
 
 .math-notation-item:hover {
-  transform: translateY(-2px);
-  border-color: rgba(212, 178, 76, 0.35);
-  box-shadow: 0 12px 24px rgba(17, 17, 17, 0.18);
-  background: var(--ar-panel);
+  border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
+  box-shadow:
+    0 18px 36px -14px color-mix(in srgb, var(--ar-gold) 50%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--ar-gold) 22%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 65%, transparent);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--ar-gold) 16%, var(--ar-surface)) 0%, var(--ar-surface) 45%, color-mix(in srgb, var(--ar-gold) 12%, var(--ar-panel)) 100%);
+}
+
+.math-notation-item:hover::after {
+  animation: notation-shine 0.85s ease forwards;
+}
+
+@keyframes notation-shine {
+  to {
+    transform: translateX(130%);
+  }
+}
+
+.math-notation-item dt,
+.math-notation-item dd {
+  position: relative;
+  z-index: 1;
 }
 
 .math-notation-item dt {
-  color: var(--ar-gold);
-  min-width: 0;
+  color: var(--ar-gold-dark);
   margin: 0;
+  flex: 0 0 auto;
 }
 
 .math-notation-item dt .katex {
-  font-size: 1em !important;
+  font-size: 1.1em !important;
 }
 
 .math-notation-item dd {
   margin: 0;
   color: var(--ar-muted);
-  line-height: 1.55;
+  line-height: 1.4;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .math-notation-symbol {
   display: inline-flex;
   align-items: center;
-  min-height: 1.8rem;
+  justify-content: center;
+}
+
+.math-notation-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 2.6rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--ar-gold) 28%, transparent), color-mix(in srgb, var(--ar-gold) 10%, transparent));
+  border: 1px solid color-mix(in srgb, var(--ar-gold) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ar-gold) 40%, transparent),
+    0 4px 12px -6px color-mix(in srgb, var(--ar-gold) 45%, transparent);
+  white-space: nowrap;
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+.math-notation-item:hover .math-notation-glyph {
+  transform: scale(1.06);
+  border-color: color-mix(in srgb, var(--ar-gold) 75%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--ar-gold) 50%, transparent),
+    0 8px 18px -8px color-mix(in srgb, var(--ar-gold) 55%, transparent);
 }
 
 .math-notation-meaning {
   display: block;
+  font-size: 0.86rem;
+  white-space: nowrap;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
-.math-notation-item-wide {
-  grid-template-columns: 1fr;
-  gap: 0.45rem;
-}
+@media (prefers-reduced-motion: reduce) {
+  .math-notation-item:hover::after {
+    animation: none;
+  }
 
-.math-notation-item-wide .math-notation-symbol {
-  justify-content: flex-start;
-  padding-bottom: 0.15rem;
+  .math-notation-item:hover .math-notation-glyph {
+    transform: none;
+  }
 }
 
 .math-equation-block {
@@ -336,20 +610,23 @@ html.dark .katex-error {
   border-radius: 0.85rem;
   border: 1px solid var(--ar-border);
   background: var(--ar-panel);
-  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  transition: border-color 0.28s ease, box-shadow 0.28s ease, background 0.28s ease, transform 0.28s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .param-control-card:hover {
-  border-color: rgba(212, 178, 76, 0.28);
-  background: var(--ar-panel);
-  box-shadow: 0 12px 24px rgba(17, 17, 17, 0.14);
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
+  background: var(--ar-surface);
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--ar-maroon) 12%, transparent);
+  transform: translateY(-3px);
 }
 
 .param-range {
   height: 0.5rem;
   border-radius: 9999px;
   appearance: none;
-  background: linear-gradient(90deg, rgba(212, 178, 76, 0.15), rgba(52, 211, 153, 0.12));
+  background: linear-gradient(90deg, rgba(212, 178, 76, 0.25), rgba(122, 30, 44, 0.18));
   accent-color: var(--ar-gold);
   cursor: pointer;
   transition: filter 0.2s ease;
@@ -359,38 +636,76 @@ html.dark .katex-error {
   filter: brightness(1.08);
 }
 
+.param-number-input {
+  width: 6.5rem;
+  text-align: right;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ar-gold-dark);
+  background: color-mix(in srgb, var(--ar-gold) 10%, var(--ar-surface));
+  border: 1px solid color-mix(in srgb, var(--ar-gold) 40%, var(--ar-border));
+  border-radius: 0.45rem;
+  padding: 0.25rem 0.45rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.param-number-input:focus {
+  outline: none;
+  border-color: var(--ar-gold);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ar-gold) 25%, transparent);
+}
+
+html.dark .param-number-input {
+  color: var(--ar-gold-light);
+}
+
 .param-reset-btn {
   font-size: 0.75rem;
   font-family: var(--prose-font);
   padding: 0.45rem 0.85rem;
   border-radius: 0.55rem;
-  border: 1px solid rgba(212, 178, 76, 0.35);
-  background: rgba(212, 178, 76, 0.1);
-  color: var(--ar-gold-light);
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  border: 1px solid color-mix(in srgb, var(--ar-gold) 50%, transparent);
+  background: color-mix(in srgb, var(--ar-gold) 14%, transparent);
+  color: var(--ar-gold-dark);
+  font-weight: 700;
 }
 
 .param-reset-btn:hover {
-  background: rgba(212, 178, 76, 0.18);
-  border-color: rgba(212, 178, 76, 0.55);
-  color: #ecfeff;
+  background: color-mix(in srgb, var(--ar-gold) 28%, transparent);
+  border-color: var(--ar-gold);
+  color: var(--ar-gold-dark);
+  transform: translateY(-1px);
+}
+
+html.dark .param-reset-btn {
+  color: var(--ar-gold-light);
+}
+
+html.dark .param-reset-btn:hover {
+  color: var(--ar-gold-light);
 }
 
 .stat-tile {
-  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+  transition: border-color 0.28s ease, box-shadow 0.28s ease;
+  border-top: 2px solid transparent;
 }
 
 .stat-tile:hover {
-  border-color: rgba(212, 178, 76, 0.28);
-  box-shadow: 0 10px 22px rgba(17, 17, 17, 0.12);
+  border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
+  border-top-color: var(--ar-gold);
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--ar-maroon) 14%, transparent);
 }
 
 .interactive-card {
-  transition: border-color 0.28s ease, box-shadow 0.28s ease;
+  transition: border-color 0.32s ease, box-shadow 0.32s ease;
+  border-top: 2px solid transparent;
 }
 
 .interactive-card:hover {
-  border-color: rgba(212, 178, 76, 0.18);
+  border-color: color-mix(in srgb, var(--ar-gold) 40%, transparent);
+  border-top-color: var(--ar-gold);
+  box-shadow: 0 20px 44px -18px color-mix(in srgb, var(--ar-maroon) 22%, transparent);
 }
 
 
@@ -432,8 +747,9 @@ html.dark .katex-error {
 
 .research-doc-author {
   font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--ar-maroon);
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ar-gold-dark);
   margin: 0 0 1.75rem;
   letter-spacing: 0.04em;
 }
@@ -569,14 +885,48 @@ html.dark .katex-error {
 }
 
 .prose-math-inline .katex {
-  font-size: 1em !important;
+  font-size: 1.05em !important;
+}
+
+.prose-num {
+  font-weight: 700;
   font-style: italic;
+  font-variant-numeric: tabular-nums;
+  color: var(--ar-gold-dark);
+  letter-spacing: 0.01em;
+}
+
+html.dark .prose-num {
+  color: var(--ar-gold-light);
+}
+
+.prose-op {
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ar-gold-dark);
+  padding: 0 0.05em;
+}
+
+html.dark .prose-op {
+  color: var(--ar-gold-light);
 }
 
 .math-panel-context .prose-math-inline,
 .math-equation-context .prose-math-inline,
 .math-notation-meaning .prose-math-inline {
   margin: 0 0.12rem;
+}
+
+/* Emphasize live metric / axis / badge numbers desk-wide */
+.font-mono.tabular-nums,
+.greek-tile-value,
+.greek-leg-val,
+.directional-leg-delta,
+.stat-tile .font-mono,
+.param-control-card .font-mono,
+.fin-tooltip .tabular-nums {
+  font-weight: 700 !important;
+  font-style: italic !important;
 }
 
 .research-lab-note {
@@ -760,19 +1110,50 @@ html.dark .katex-error {
 
 /* Financial chart chrome — AR desk */
 .fin-chart-frame {
+  position: relative;
   box-shadow: var(--ar-shadow);
   background: var(--ar-chart-bg);
-  border-color: var(--ar-chart-border);
+  border-color: color-mix(in srgb, var(--ar-gold) 40%, var(--ar-chart-border));
+  overflow: hidden;
+}
+
+.fin-chart-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212, 178, 76, 0.08), transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fin-chart-plot {
+  position: relative;
+  z-index: 1;
+  background-image:
+    linear-gradient(rgba(212, 178, 76, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 178, 76, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(120, 113, 108, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 113, 108, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px;
+}
+
+html.dark .fin-chart-plot {
+  background-image:
+    linear-gradient(rgba(212, 178, 76, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 178, 76, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(80, 70, 60, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 70, 60, 0.12) 1px, transparent 1px);
 }
 
 .fin-tooltip {
   background: var(--ar-surface);
-  border: 1px solid var(--ar-border);
-  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--ar-gold) 35%, var(--ar-border));
+  border-radius: 12px;
   padding: 10px 12px;
   box-shadow: var(--ar-shadow);
   min-width: 160px;
   color: var(--ar-ink);
+  backdrop-filter: blur(12px);
 }
 
 .fin-tooltip-head {
@@ -865,7 +1246,7 @@ html.dark .katex-error {
 }
 
 .greek-shell-violet .greek-section-icon {
-  color: var(--ar-maroon);
+  color: var(--ar-gold-dark);
 }
 
 .greek-section-titles {
@@ -962,14 +1343,33 @@ html.dark .katex-error {
 }
 
 .greek-tile-active {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--ar-gold) 28%, transparent);
+  border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
+  background: color-mix(in srgb, var(--ar-gold) 16%, var(--ar-surface));
+  color: var(--ar-gold-dark);
 }
 
-.greek-tile-delta.greek-tile-active { border-color: rgba(212, 178, 76, 0.55); box-shadow: 0 0 28px rgba(212, 178, 76, 0.15); }
-.greek-tile-gamma.greek-tile-active { border-color: rgba(122, 30, 44, 0.55); box-shadow: 0 0 28px rgba(122, 30, 44, 0.15); }
-.greek-tile-theta.greek-tile-active { border-color: rgba(251, 191, 36, 0.55); box-shadow: 0 0 28px rgba(251, 191, 36, 0.12); }
-.greek-tile-vega.greek-tile-active { border-color: rgba(52, 211, 153, 0.55); box-shadow: 0 0 28px rgba(52, 211, 153, 0.15); }
-.greek-tile-rho.greek-tile-active { border-color: rgba(251, 113, 133, 0.55); box-shadow: 0 0 28px rgba(251, 113, 133, 0.12); }
+.greek-tile-delta.greek-tile-active,
+.greek-tile-gamma.greek-tile-active,
+.greek-tile-theta.greek-tile-active,
+.greek-tile-vega.greek-tile-active,
+.greek-tile-rho.greek-tile-active {
+  border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--ar-gold) 22%, transparent);
+  background: color-mix(in srgb, var(--ar-gold) 16%, var(--ar-surface));
+  color: var(--ar-gold-dark);
+}
+
+html.dark .greek-tile-active,
+html.dark .greek-tile-delta.greek-tile-active,
+html.dark .greek-tile-gamma.greek-tile-active,
+html.dark .greek-tile-theta.greek-tile-active,
+html.dark .greek-tile-vega.greek-tile-active,
+html.dark .greek-tile-rho.greek-tile-active {
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
+  background: color-mix(in srgb, var(--ar-gold) 18%, var(--ar-panel));
+  color: var(--ar-gold-light);
+}
 
 .greek-tile-top {
   display: flex;
@@ -1066,15 +1466,27 @@ html.dark .katex-error {
 }
 
 .greek-col-active {
-  background: rgba(212, 178, 76, 0.06);
-  color: var(--ar-gold-light) !important;
+  background: color-mix(in srgb, var(--ar-gold) 10%, transparent);
+  color: var(--ar-gold-dark) !important;
 }
 
-.greek-col-delta.greek-col-active { background: rgba(212, 178, 76, 0.08); }
-.greek-col-gamma.greek-col-active { background: rgba(122, 30, 44, 0.08); }
-.greek-col-theta.greek-col-active { background: rgba(251, 191, 36, 0.06); }
-.greek-col-vega.greek-col-active { background: rgba(52, 211, 153, 0.08); }
-.greek-col-rho.greek-col-active { background: rgba(251, 113, 133, 0.06); }
+.greek-col-delta.greek-col-active,
+.greek-col-gamma.greek-col-active,
+.greek-col-theta.greek-col-active,
+.greek-col-vega.greek-col-active,
+.greek-col-rho.greek-col-active {
+  background: color-mix(in srgb, var(--ar-gold) 10%, transparent);
+}
+
+html.dark .greek-col-active,
+html.dark .greek-col-delta.greek-col-active,
+html.dark .greek-col-gamma.greek-col-active,
+html.dark .greek-col-theta.greek-col-active,
+html.dark .greek-col-vega.greek-col-active,
+html.dark .greek-col-rho.greek-col-active {
+  background: color-mix(in srgb, var(--ar-gold) 14%, transparent);
+  color: var(--ar-gold-light) !important;
+}
 
 .greek-leg-row:hover {
   background: color-mix(in srgb, var(--ar-panel) 80%, transparent);
@@ -1171,6 +1583,8 @@ html.dark .katex-error {
   flex-wrap: wrap;
   gap: 0.5rem;
   padding: 1rem 1.15rem 0.5rem;
+  overflow: visible;
+  max-width: 100%;
 }
 
 .formula-chip {
@@ -1180,24 +1594,34 @@ html.dark .katex-error {
   padding: 0.45rem 0.85rem;
   border-radius: 999px;
   border: 1px solid var(--ar-border);
-  background: var(--ar-panel);
+  background: var(--ar-surface);
   color: var(--ar-muted);
   font-family: var(--prose-font);
   font-size: 0.82rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.22s ease;
+  white-space: nowrap;
 }
 
 .formula-chip:hover {
-  border-color: rgba(212, 178, 76, 0.4);
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
   color: var(--ar-ink);
+  background: color-mix(in srgb, var(--ar-gold) 10%, transparent);
 }
 
 .formula-chip-active {
-  border-color: rgba(212, 178, 76, 0.55);
-  background: rgba(212, 178, 76, 0.1);
+  border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ar-gold) 28%, transparent), var(--ar-surface));
+  color: var(--ar-gold-dark);
+  box-shadow: 0 2px 12px -4px color-mix(in srgb, var(--ar-gold) 35%, transparent);
+  font-weight: 700;
+}
+
+html.dark .formula-chip-active {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ar-gold) 22%, transparent), var(--ar-panel));
   color: var(--ar-gold-light);
-  box-shadow: 0 0 20px rgba(212, 178, 76, 0.12);
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
 }
 
 .formula-chip-icon {
@@ -1216,6 +1640,13 @@ html.dark .katex-error {
   font-style: italic;
   color: var(--ar-subtle);
   margin: 0 0 0.75rem;
+}
+
+.formula-reveal .math-equation-full,
+.formula-reveal .katex-display,
+.formula-deck .math-equation-full {
+  overflow: visible;
+  max-width: 100%;
 }
 
 .formula-deck-hint {
@@ -1264,32 +1695,37 @@ html.dark .katex-error {
   border: 1px solid var(--ar-border);
   background: var(--ar-surface);
   cursor: pointer;
-  transition: all 0.25s;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   font-family: var(--prose-font);
   text-align: left;
 }
 
 .greek-tab:hover {
-  border-color: rgba(148, 163, 184, 0.4);
-  transform: translateX(2px);
+  border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
 }
 
 .greek-tab-active {
-  border-color: rgba(212, 178, 76, 0.5);
-  background: linear-gradient(135deg, rgba(212, 178, 76, 0.12), rgba(15, 23, 42, 0.8));
-  box-shadow: 0 4px 24px rgba(212, 178, 76, 0.1);
+  border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ar-gold) 28%, transparent), var(--ar-surface));
+  box-shadow: 0 2px 12px -4px color-mix(in srgb, var(--ar-gold) 35%, transparent);
+  color: var(--ar-gold-dark);
 }
 
-.greek-tab-delta.greek-tab-active { border-color: rgba(212, 178, 76, 0.55); }
-.greek-tab-gamma.greek-tab-active { border-color: rgba(122, 30, 44, 0.55); }
-.greek-tab-theta.greek-tab-active { border-color: rgba(251, 191, 36, 0.5); }
-.greek-tab-vega.greek-tab-active { border-color: rgba(52, 211, 153, 0.5); }
-.greek-tab-rho.greek-tab-active { border-color: rgba(251, 113, 133, 0.5); }
+html.dark .greek-tab-active {
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ar-gold) 20%, transparent), var(--ar-panel));
+  color: var(--ar-gold-light);
+}
 
 .greek-tab-icon {
   width: 1rem;
   height: 1rem;
   opacity: 0.8;
+}
+
+.greek-tab-active .greek-tab-icon {
+  opacity: 1;
+  color: inherit;
 }
 
 .greek-tab-symbol {
@@ -1300,13 +1736,21 @@ html.dark .katex-error {
   min-width: 1.25rem;
 }
 
+.greek-tab-active .greek-tab-symbol {
+  color: inherit;
+  font-weight: 700;
+  font-style: italic;
+}
+
 .greek-tab-name {
   font-size: 0.82rem;
   color: var(--ar-subtle);
 }
 
 .greek-tab-active .greek-tab-name {
-  color: var(--ar-ink);
+  color: inherit;
+  font-weight: 700;
+  font-style: italic;
 }
 
 .greek-explorer-stage {
@@ -1327,14 +1771,9 @@ html.dark .katex-error {
   right: 0;
   width: 40%;
   height: 100%;
-  background: radial-gradient(circle at 100% 0%, rgba(212, 178, 76, 0.05), transparent 60%);
+  background: radial-gradient(circle at 100% 0%, rgba(17, 17, 17, 0.04), transparent 60%);
   pointer-events: none;
 }
-
-.greek-stage-gamma::after { background: radial-gradient(circle at 100% 0%, rgba(122, 30, 44, 0.06), transparent 60%); }
-.greek-stage-theta::after { background: radial-gradient(circle at 100% 0%, rgba(251, 191, 36, 0.05), transparent 60%); }
-.greek-stage-vega::after { background: radial-gradient(circle at 100% 0%, rgba(52, 211, 153, 0.06), transparent 60%); }
-.greek-stage-rho::after { background: radial-gradient(circle at 100% 0%, rgba(251, 113, 133, 0.05), transparent 60%); }
 
 .greek-explorer-nav {
   display: flex;
@@ -1385,14 +1824,10 @@ html.dark .katex-error {
   gap: 0.5rem;
   padding: 0.65rem 1rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(212, 178, 76, 0.35);
-  background: rgba(212, 178, 76, 0.08);
+  border: 1px solid color-mix(in srgb, var(--ar-gold) 45%, transparent);
+  background: color-mix(in srgb, var(--ar-gold) 14%, transparent);
+  color: var(--ar-gold-dark);
 }
-
-.greek-badge-gamma { border-color: rgba(122, 30, 44, 0.4); background: rgba(122, 30, 44, 0.08); }
-.greek-badge-theta { border-color: rgba(251, 191, 36, 0.35); background: rgba(251, 191, 36, 0.06); }
-.greek-badge-vega { border-color: rgba(52, 211, 153, 0.35); background: rgba(52, 211, 153, 0.08); }
-.greek-badge-rho { border-color: rgba(251, 113, 133, 0.35); background: rgba(251, 113, 133, 0.06); }
 
 .greek-explorer-badge-icon {
   width: 1.25rem;
@@ -1405,6 +1840,17 @@ html.dark .katex-error {
   font-weight: 700;
   font-style: italic;
   font-family: var(--prose-font);
+  color: var(--ar-gold-dark);
+}
+
+html.dark .greek-explorer-badge {
+  border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
+  background: color-mix(in srgb, var(--ar-gold) 16%, transparent);
+  color: var(--ar-gold-light);
+}
+
+html.dark .greek-explorer-badge-icon,
+html.dark .greek-explorer-symbol-text {
   color: var(--ar-gold-light);
 }
 
@@ -1497,6 +1943,72 @@ html.dark .katex-error {
   text-transform: uppercase;
   color: var(--ar-subtle);
   margin-bottom: 0.5rem;
+}
+
+.greek-identity-block {
+  margin-top: 1.35rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--ar-border);
+}
+
+.greek-identity-heading {
+  font-family: var(--prose-font);
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ar-ink);
+  margin: 0 0 0.65rem;
+}
+
+.greek-identity-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.greek-identity-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.5rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--ar-border);
+  background: var(--ar-surface);
+  color: var(--ar-muted);
+  font-family: var(--prose-font);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.greek-identity-tab:hover {
+  border-color: color-mix(in srgb, var(--ar-gold) 50%, transparent);
+  color: var(--ar-ink);
+}
+
+.greek-identity-tab-active {
+  border-color: color-mix(in srgb, var(--ar-gold) 70%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ar-gold) 28%, transparent), var(--ar-surface));
+  color: var(--ar-gold-dark);
+  font-weight: 700;
+  box-shadow: 0 2px 10px -4px color-mix(in srgb, var(--ar-gold) 35%, transparent);
+}
+
+html.dark .greek-identity-tab-active {
+  border-color: color-mix(in srgb, var(--ar-gold) 55%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ar-gold) 22%, transparent), var(--ar-panel));
+  color: var(--ar-gold-light);
+}
+
+.greek-identity-panel {
+  border-radius: 0.65rem;
+  border: 1px solid var(--ar-border);
+  background: var(--math-eq-bg);
+  padding: 0.35rem;
+  overflow: clip;
 }
 
 /* Directional panel */
@@ -1758,14 +2270,39 @@ html.dark .katex-error {
 }
 
 .layman-greek-tab-active {
-  box-shadow: 0 0 20px rgba(212, 178, 76, 0.12);
+  box-shadow: 0 2px 12px -4px color-mix(in srgb, var(--ar-gold) 35%, transparent);
+  color: var(--ar-gold-dark);
+  background: color-mix(in srgb, var(--ar-gold) 16%, transparent);
+  border-color: color-mix(in srgb, var(--ar-gold) 65%, transparent);
+  font-weight: 700;
+  font-style: italic;
 }
 
-.layman-tab-delta.layman-greek-tab-active { border-color: rgba(212, 178, 76, 0.55); background: rgba(212, 178, 76, 0.1); }
-.layman-tab-gamma.layman-greek-tab-active { border-color: rgba(122, 30, 44, 0.55); background: rgba(122, 30, 44, 0.1); }
-.layman-tab-theta.layman-greek-tab-active { border-color: rgba(251, 191, 36, 0.5); background: rgba(251, 191, 36, 0.08); }
-.layman-tab-vega.layman-greek-tab-active { border-color: rgba(52, 211, 153, 0.5); background: rgba(52, 211, 153, 0.1); }
-.layman-tab-rho.layman-greek-tab-active { border-color: rgba(251, 113, 133, 0.5); background: rgba(251, 113, 133, 0.08); }
+html.dark .layman-greek-tab-active {
+  color: var(--ar-gold-light);
+  background: color-mix(in srgb, var(--ar-gold) 18%, transparent);
+  border-color: color-mix(in srgb, var(--ar-gold) 50%, transparent);
+}
+
+.layman-tab-delta.layman-greek-tab-active,
+.layman-tab-gamma.layman-greek-tab-active,
+.layman-tab-theta.layman-greek-tab-active,
+.layman-tab-vega.layman-greek-tab-active,
+.layman-tab-rho.layman-greek-tab-active {
+  border-color: color-mix(in srgb, var(--ar-gold) 65%, transparent);
+  background: color-mix(in srgb, var(--ar-gold) 16%, transparent);
+  color: var(--ar-gold-dark);
+}
+
+html.dark .layman-tab-delta.layman-greek-tab-active,
+html.dark .layman-tab-gamma.layman-greek-tab-active,
+html.dark .layman-tab-theta.layman-greek-tab-active,
+html.dark .layman-tab-vega.layman-greek-tab-active,
+html.dark .layman-tab-rho.layman-greek-tab-active {
+  border-color: color-mix(in srgb, var(--ar-gold) 50%, transparent);
+  background: color-mix(in srgb, var(--ar-gold) 18%, transparent);
+  color: var(--ar-gold-light);
+}
 
 .layman-tab-symbol {
   font-weight: 700;
@@ -1797,7 +2334,7 @@ html.dark .katex-error {
 }
 
 .layman-badge-delta { border-color: rgba(212, 178, 76, 0.4); color: var(--ar-gold); }
-.layman-badge-gamma { border-color: rgba(122, 30, 44, 0.4); color: var(--ar-maroon); }
+.layman-badge-gamma { border-color: rgba(212, 178, 76, 0.45); color: var(--ar-gold-dark); }
 .layman-badge-theta { border-color: rgba(251, 191, 36, 0.4); color: #fcd34d; }
 .layman-badge-vega { border-color: rgba(52, 211, 153, 0.4); color: var(--neon-green); }
 .layman-badge-rho { border-color: rgba(251, 113, 133, 0.4); color: #f87171; }
@@ -1909,4 +2446,110 @@ html.dark .katex-error {
   padding-top: 1rem;
   margin-top: 1.25rem;
   font-style: italic;
+}
+
+.fin-chart-frame,
+.greek-section-shell,
+.formula-deck,
+.layman-greek-panel,
+.layman-greek-card,
+.greek-explorer-card,
+.directional-leg-card,
+.greek-leg-ref-card,
+.greek-tile,
+.moneyness-card,
+.param-control-card {
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.fin-chart-frame:hover,
+.greek-section-shell:hover {
+  border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
+  box-shadow: 0 18px 40px -16px color-mix(in srgb, var(--ar-maroon) 20%, transparent);
+}
+
+.formula-deck:hover,
+.layman-greek-panel:hover,
+.layman-greek-card:hover,
+.greek-explorer-card:hover,
+.directional-leg-card:hover,
+.greek-leg-ref-card:hover {
+  border-color: color-mix(in srgb, var(--ar-gold) 45%, transparent);
+}
+
+.greek-tile {
+  border-top: 2px solid transparent;
+}
+
+.greek-tile:hover {
+  border-top-color: var(--ar-gold);
+}
+
+.greek-section-shell::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ar-maroon), var(--ar-gold), var(--ar-maroon));
+  opacity: 0.9;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.fin-chart-frame {
+  box-shadow: var(--ar-shadow);
+  border-color: color-mix(in srgb, var(--ar-gold) 35%, var(--ar-border));
+}
+
+.layman-greek-card,
+.greek-explorer-card,
+.directional-leg-card {
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--ar-maroon) 6%, transparent);
+}
+
+@keyframes card-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.desk-shell .glass,
+.desk-shell .stat-tile,
+.desk-shell .strategy-card,
+.desk-shell .moneyness-card,
+.desk-shell .param-control-card,
+.desk-shell .greek-leg-ref-card,
+.desk-shell .directional-leg-card {
+  animation: card-rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-shine:hover::after,
+  .desk-gold-rail,
+  .desk-shell .glass,
+  .desk-shell .stat-tile,
+  .desk-shell .strategy-card,
+  .desk-shell .moneyness-card,
+  .desk-shell .param-control-card,
+  .desk-shell .math-notation-item,
+  .desk-shell .greek-tile,
+  .desk-shell .layman-greek-card,
+  .desk-shell .greek-leg-ref-card,
+  .desk-shell .directional-leg-card,
+  .desk-shell .greek-explorer-card {
+    animation: none !important;
+  }
+
+  .card-shine:hover::after {
+    display: none;
+  }
 }

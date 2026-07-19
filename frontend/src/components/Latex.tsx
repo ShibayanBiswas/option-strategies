@@ -6,21 +6,21 @@ interface LatexProps {
   block?: boolean;
   fullWidth?: boolean;
   className?: string;
+  /** Wrap in \\boldsymbol for bold-italic emphasis (default true for simple inline only). */
+  emphasize?: boolean;
 }
 
 /** Normalize common encoding issues without breaking valid LaTeX. */
-function normalizeLatex(raw: string): string {
+export function normalizeLatex(raw: string): string {
   let s = (raw ?? "").trim();
   if (!s) return "";
-  // Collapse accidental double-escaping from JSON stringification (\\\\frac → \\frac)
-  // but only when the string clearly has doubled backslashes as command prefixes.
-  if (/\\\\[a-zA-Z]/.test(s) && !/\\[a-zA-Z]/.test(s.replace(/\\\\/g, ""))) {
+
+  // Only collapse doubled command escapes when the string has no real single-backslash commands
+  if (/\\\\[a-zA-Z]/.test(s) && !/(^|[^\\])\\[a-zA-Z]/.test(s)) {
     s = s.replace(/\\\\/g, "\\");
-  } else if (s.includes("\\\\")) {
-    // Mixed: replace doubled command backslashes
-    s = s.replace(/\\\\([a-zA-Z]+)/g, "\\$1");
   }
-  // Unicode operators that sometimes leak into latex fields
+
+  // Unicode operators / greek that sometimes leak into latex fields
   s = s
     .replace(/∞/g, "\\infty")
     .replace(/≤/g, "\\leq")
@@ -28,35 +28,82 @@ function normalizeLatex(raw: string): string {
     .replace(/≠/g, "\\neq")
     .replace(/≈/g, "\\approx")
     .replace(/·/g, "\\cdot")
-    .replace(/×/g, "\\times");
+    .replace(/×/g, "\\times")
+    .replace(/—/g, "---")
+    .replace(/–/g, "-")
+    .replace(/Δ/g, "\\Delta")
+    .replace(/Γ/g, "\\Gamma")
+    .replace(/Θ/g, "\\Theta")
+    .replace(/ν/g, "\\nu")
+    .replace(/ρ/g, "\\rho")
+    .replace(/σ/g, "\\sigma");
+
   return s;
 }
 
-export function Latex({ math, block = false, fullWidth = false, className = "" }: LatexProps) {
-  const normalized = normalizeLatex(math);
+const STRUCTURAL_TEX =
+  /\\(?:d?frac|tfrac|dfrac|sqrt|sum|prod|int|left|right|begin|end|over|atop|choose|partial)\b|\\\\/;
 
+/** Bold-italic emphasize without breaking fractions / display structure. */
+export function emphasizeLatex(s: string): string {
+  const t = s.trim();
+  if (!t) return t;
+  if (/\\boldsymbol|\\mathbf|\\bm\b|\\bold/.test(t)) return t;
+  // Never wrap structural display math — \boldsymbol breaks numerator/denominator layout
+  if (STRUCTURAL_TEX.test(t) || t.length > 80) return t;
+  return `\\boldsymbol{${t}}`;
+}
+
+export function Latex({
+  math,
+  block = false,
+  fullWidth = false,
+  className = "",
+  emphasize = !block,
+}: LatexProps) {
+  const normalized = normalizeLatex(math);
   if (!normalized) return null;
+
+  // Block / display equations: never bold-wrap (preserves fraction metrics)
+  const rendered = block || !emphasize ? normalized : emphasizeLatex(normalized);
 
   try {
     if (block) {
       return (
         <div
-          className={`math-equation-full math-compact serif-math ${fullWidth ? "w-full" : ""} ${className}`}
+          className={`math-equation-full math-compact serif-math no-scrollbar ${fullWidth ? "w-full" : ""} ${className}`}
         >
-          <BlockMath math={normalized} />
+          <BlockMath math={rendered} />
         </div>
       );
     }
     return (
-      <span className={`math-inline ${className}`}>
-        <InlineMath math={normalized} />
+      <span className={`math-inline math-emph ${className}`}>
+        <InlineMath math={rendered} />
       </span>
     );
   } catch {
-    return (
-      <code className={`katex-error text-xs font-mono ${className}`} title="LaTeX parse error">
-        {normalized}
-      </code>
-    );
+    try {
+      if (block) {
+        return (
+          <div
+            className={`math-equation-full math-compact serif-math no-scrollbar ${fullWidth ? "w-full" : ""} ${className}`}
+          >
+            <BlockMath math={normalized} />
+          </div>
+        );
+      }
+      return (
+        <span className={`math-inline math-emph ${className}`}>
+          <InlineMath math={normalized} />
+        </span>
+      );
+    } catch {
+      return (
+        <code className={`katex-error text-xs font-mono ${className}`} title="LaTeX parse error">
+          {normalized}
+        </code>
+      );
+    }
   }
 }

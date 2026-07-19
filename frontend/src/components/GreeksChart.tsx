@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
-import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { chartSeriesLabel, formatGreekTick, formatSpotTick } from "../utils/chartFormat";
+import { getChartTheme } from "../utils/chartTheme";
+import { useTheme } from "../theme/ThemeProvider";
 import { ChartFrame, ChartLegendPills } from "./ChartFrame";
+import { PremiumGrid } from "./PremiumGrid";
 import { ProseMath } from "./ProseMath";
 import { LEG_PAYOFF_COLORS, NET_PAYOFF_COLOR } from "./PayoffChart";
 
@@ -53,6 +56,8 @@ function GreekTooltip({
 
 export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlightLegIndex = null, chartHeight = 300 }: GreeksChartProps) {
   const [activeGreek, setActiveGreek] = useState<keyof typeof GREEK_META>("delta");
+  const { theme } = useTheme();
+  const chartTheme = getChartTheme(theme === "dark");
 
   const { rows, meta } = useMemo(() => {
     if (!aggregateProfiles || !spotPrices.length) return { rows: [], meta: GREEK_META.delta };
@@ -112,8 +117,8 @@ export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlig
             onClick={() => setActiveGreek(g)}
             className={`px-3 py-1.5 rounded-md text-xs font-mono font-semibold transition-all ${
               activeGreek === g
-                ? "bg-ar-gold/15 text-ar-gold shadow-sm border border-ar-gold/30"
-                : "text-ar-subtle hover:text-ar-muted border border-transparent"
+                ? "bg-gradient-to-br from-ar-gold/30 to-ar-gold/10 text-ar-gold-dark shadow-sm border border-ar-gold/55 dark:from-ar-gold/25 dark:to-ar-panel dark:text-ar-gold-light font-bold italic"
+                : "text-ar-subtle hover:text-ar-muted border border-transparent hover:bg-ar-gold/10"
             }`}
           >
             {GREEK_META[g].tab}
@@ -139,26 +144,26 @@ export function GreeksChart({ spotPrices, aggregateProfiles, legs, spot, highlig
       >
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={rows} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid stroke="#1e293b" strokeDasharray="2 6" vertical={false} />
+            <PremiumGrid theme={chartTheme} vertical />
             <XAxis
               dataKey="spot"
-              axisLine={false}
+              axisLine={{ stroke: chartTheme.axisLine, strokeWidth: 1 }}
               tickLine={false}
-              tick={{ fill: "#64748b", fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
+              tick={{ fill: chartTheme.tick, fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
               tickFormatter={formatSpotTick}
               tickCount={6}
               minTickGap={48}
             />
             <YAxis
-              axisLine={false}
+              axisLine={{ stroke: chartTheme.axisLine, strokeWidth: 1 }}
               tickLine={false}
               width={42}
-              tick={{ fill: "#64748b", fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
+              tick={{ fill: chartTheme.tick, fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
               tickFormatter={(v) => formatGreekTick(v, activeGreek)}
               tickCount={4}
             />
-            <Tooltip content={<GreekTooltip symbol={meta.symbol} />} cursor={{ stroke: "#334155", strokeDasharray: "4 4" }} />
-            <ReferenceLine x={spot} stroke="#06b6d4" strokeDasharray="3 6" strokeOpacity={0.5} />
+            <Tooltip content={<GreekTooltip symbol={meta.symbol} />} cursor={{ stroke: chartTheme.cursor, strokeDasharray: "4 4" }} />
+            <ReferenceLine x={spot} stroke={chartTheme.spot} strokeDasharray="3 6" strokeOpacity={0.75} />
             {legs?.map((leg, j) => {
               const highlighted = highlightLegIndex === j;
               const dimmed = highlightLegIndex !== null && !highlighted;

@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { GREEK_META, GREEK_ORDER, type GreekKey } from "./greekTheme";
 import { ProseMath } from "./ProseMath";
@@ -29,43 +28,36 @@ export function LaymanGreekCards({ blocks }: { blocks: LaymanGreekBlock[] }) {
           const m = GREEK_META[b.key];
           const TabIcon = m.icon;
           return (
-            <motion.button
+            <button
               key={b.key}
               type="button"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
               onClick={() => setActive(b.key)}
               className={`layman-greek-tab layman-tab-${b.key} ${active === b.key ? "layman-greek-tab-active" : ""}`}
             >
               <TabIcon className="w-4 h-4" strokeWidth={1.75} />
               <span className="layman-tab-symbol">{m.symbol}</span>
-            </motion.button>
+            </button>
           );
         })}
       </div>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={block.key}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.28 }}
-          className={`layman-greek-card layman-card-${block.key}`}
-        >
-          <div className="layman-greek-card-head">
-            <div className={`layman-greek-badge layman-badge-${block.key}`}>
-              <Icon className="w-5 h-5" strokeWidth={1.5} />
-              <span className="layman-greek-symbol">{meta.symbol}</span>
-            </div>
-            <h4 className="layman-greek-title">{block.title}</h4>
+      <div className={`layman-greek-card layman-card-${block.key}`}>
+        <div className="layman-greek-card-head">
+          <div className={`layman-greek-badge layman-badge-${block.key}`}>
+            <Icon className="w-5 h-5" strokeWidth={1.5} />
+            <span className="layman-greek-symbol">{meta.symbol}</span>
           </div>
-          <p className="layman-greek-plain"><ProseMath text={block.plain} /></p>
-          <div className="layman-greek-tip">
-            <span className="layman-greek-tip-label">For This Strategy</span>
-            <p><ProseMath text={block.strategyTip} /></p>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+          <h4 className="layman-greek-title">{block.title}</h4>
+        </div>
+        <p className="layman-greek-plain">
+          <ProseMath text={block.plain} />
+        </p>
+        <div className="layman-greek-tip">
+          <span className="layman-greek-tip-label">For This Strategy</span>
+          <p>
+            <ProseMath text={block.strategyTip} />
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

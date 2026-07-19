@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#d4b24c" />
     <title>Option Strategies | Anand Rathi Wealth</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("optionlab-theme-v2");
+          if (t === "dark") document.documentElement.classList.add("dark");
+          else document.documentElement.classList.remove("dark");
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />

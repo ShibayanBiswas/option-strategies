@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import {
   Area,
-  CartesianGrid,
   ComposedChart,
   Line,
   ReferenceArea,
@@ -13,8 +12,11 @@ import {
 } from "recharts";
 import type { PayoffResponse } from "../api/client";
 import { ChartFrame, ChartLegendPills } from "./ChartFrame";
+import { PremiumGrid } from "./PremiumGrid";
 import { ProseMath } from "./ProseMath";
+import { useTheme } from "../theme/ThemeProvider";
 import { chartSeriesLabel, formatCurrencyFull, formatPnLTick, formatSpotTick } from "../utils/chartFormat";
+import { getChartTheme } from "../utils/chartTheme";
 
 export const LEG_PAYOFF_COLORS = ["#7a1e2c", "#b8860b", "#16a34a", "#a16207", "#d4b24c", "#c9a882"];
 export const NET_PAYOFF_COLOR = "#d4b24c";
@@ -124,6 +126,9 @@ export function PayoffChart({
   legLabels = [],
   highlightLegIndex = null,
 }: PayoffChartProps) {
+  const { theme } = useTheme();
+  const chartTheme = getChartTheme(theme === "dark");
+
   if (loading) {
     return (
       <div className="h-[440px] flex items-center justify-center fin-chart-frame rounded-xl">
@@ -254,27 +259,27 @@ export function PayoffChart({
               <stop offset="100%" stopColor="#d4b24c" />
             </linearGradient>
           </defs>
-          <CartesianGrid stroke="rgba(120,113,108,0.25)" strokeDasharray="2 6" vertical={false} />
+          <PremiumGrid theme={chartTheme} vertical showZero={false} />
           <XAxis
             dataKey="spot"
-            axisLine={{ stroke: "rgba(120,113,108,0.45)", strokeWidth: 1 }}
+            axisLine={{ stroke: chartTheme.axisLine, strokeWidth: 1 }}
             tickLine={false}
-            tick={{ fill: "#78716c", fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
+            tick={{ fill: chartTheme.tick, fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
             tickFormatter={formatSpotTick}
             tickCount={6}
             minTickGap={48}
             padding={{ left: 8, right: 8 }}
           />
           <YAxis
-            axisLine={{ stroke: "rgba(120,113,108,0.45)", strokeWidth: 1 }}
+            axisLine={{ stroke: chartTheme.axisLine, strokeWidth: 1 }}
             tickLine={false}
             width={44}
-            tick={{ fill: "#78716c", fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
+            tick={{ fill: chartTheme.tick, fontSize: 10, fontFamily: "JetBrains Mono, monospace" }}
             tickFormatter={formatPnLTick}
             tickCount={5}
             domain={yDomain}
           />
-          <Tooltip content={<PayoffTooltip />} cursor={{ stroke: "#a8a29e", strokeWidth: 1 }} />
+          <Tooltip content={<PayoffTooltip />} cursor={{ stroke: chartTheme.cursor, strokeWidth: 1 }} />
           {/* Profit / loss shading vs zero line */}
           <Area
             type="monotone"
@@ -300,18 +305,18 @@ export function PayoffChart({
               key={`be-${i}`}
               x1={be - (spotMax - spotMin) * 0.008}
               x2={be + (spotMax - spotMin) * 0.008}
-              fill="#fbbf24"
+              fill={chartTheme.breakeven}
               fillOpacity={0.12}
               strokeOpacity={0}
             />
           ))}
           {/* Origin — P/L = 0 */}
-          <ReferenceLine y={0} stroke="#a8a29e" strokeWidth={1.5} />
+          <ReferenceLine y={0} stroke={chartTheme.zero} strokeWidth={1.5} />
           {/* Cap levels */}
           {Number.isFinite(maxProfit) && maxProfit !== Infinity && (
             <ReferenceLine
               y={maxProfit}
-              stroke="#10b981"
+              stroke={chartTheme.profit}
               strokeDasharray="6 4"
               strokeOpacity={0.55}
             />
@@ -319,7 +324,7 @@ export function PayoffChart({
           {Number.isFinite(maxLoss) && maxLoss !== -Infinity && (
             <ReferenceLine
               y={maxLoss}
-              stroke="#f43f5e"
+              stroke={chartTheme.loss}
               strokeDasharray="6 4"
               strokeOpacity={0.55}
             />

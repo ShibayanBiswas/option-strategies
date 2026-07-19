@@ -68,7 +68,7 @@ export function IntroPage() {
   const { optionsIntro: intro, greeksIntro } = data;
 
   return (
-    <article className="research-doc max-w-7xl mx-auto space-y-10 no-scrollbar overflow-x-hidden pb-12">
+    <article className="research-doc w-full space-y-10 no-scrollbar overflow-x-clip pb-12">
       <motion.header
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

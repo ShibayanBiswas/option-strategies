@@ -30,20 +30,23 @@ export function Layout() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-ar-bg text-ar-ink">
-      <header className="sticky top-0 z-40 border-b border-ar-border bg-ar-header backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-4 py-3 lg:px-8">
+    <div className="min-h-screen flex flex-col bg-ar-bg text-ar-ink desk-shell">
+      <div className="desk-gold-rail" aria-hidden />
+      <header className="sticky top-0 z-40 border-b border-ar-border bg-ar-header backdrop-blur-xl desk-header">
+        <div className="mx-auto flex w-full items-center gap-4 px-4 py-3 sm:px-6 lg:px-10 xl:px-12">
           <button
             type="button"
-            className="lg:hidden rounded-md p-2 text-ar-muted hover:bg-ar-panel"
+            className="lg:hidden rounded-md p-2 text-ar-muted hover:bg-ar-panel transition-colors"
             onClick={() => setOpen(!open)}
             aria-label="Toggle navigation"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <NavLink to="/" className="flex shrink-0 items-center gap-3" onClick={() => setOpen(false)}>
-            <img
+          <NavLink to="/" className="flex shrink-0 items-center gap-3 group" onClick={() => setOpen(false)}>
+            <motion.img
+              whileHover={{ scale: 1.03 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
               src={theme === "dark" ? "/brand/arwl-logo-white.png" : "/brand/arwl-logo.png"}
               alt="Anand Rathi — Private Wealth. uncomplicated."
               className="h-9 w-auto sm:h-11"
@@ -54,31 +57,36 @@ export function Layout() {
             <h1 className="font-display text-lg font-semibold tracking-tight text-ar-ink sm:text-xl">
               Option Strategies
             </h1>
-            <p className="text-[11px] tracking-wide text-ar-subtle">Analytics desk · live payoffs &amp; Greeks</p>
+            <p className="text-[11px] tracking-wide text-ar-subtle">
+              Analytics desk · live payoffs &amp; Greeks
+            </p>
           </div>
 
-          <nav className="ml-auto hidden items-center gap-1 lg:flex">
+          <nav className="ml-auto hidden items-center gap-1.5 lg:flex">
             {nav.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
                 end={to === "/"}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
+                  `desk-nav-link flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm transition-all duration-300 ${
                     isActive
-                      ? "bg-ar-gold/15 text-ar-ink border border-ar-gold/35"
-                      : "text-ar-muted hover:bg-ar-panel hover:text-ar-ink"
+                      ? "bg-ar-gold text-ar-ink shadow-ar border border-ar-gold font-semibold"
+                      : "text-ar-muted hover:bg-ar-gold/15 hover:text-ar-ink border border-transparent"
                   }`
                 }
               >
-                <Icon className="h-4 w-4 text-ar-gold" />
+                <Icon className="h-4 w-4 shrink-0" />
                 {label}
               </NavLink>
             ))}
           </nav>
 
           <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-2 rounded-md border border-ar-border bg-ar-surface px-2.5 py-1.5 text-[11px] sm:flex">
+            <motion.div
+              whileHover={{ y: -1 }}
+              className="hidden items-center gap-2 rounded-lg border border-ar-border bg-ar-surface px-2.5 py-1.5 text-[11px] sm:flex shadow-sm"
+            >
               <span
                 className={`h-2 w-2 rounded-full ${
                   engineOk ? "bg-emerald-600 animate-pulse" : engineOk === false ? "bg-rose-600" : "bg-stone-400"
@@ -87,23 +95,29 @@ export function Layout() {
               <span className="text-ar-subtle">
                 Engine {engineOk ? "Live" : engineOk === false ? "Offline" : "…"}
               </span>
-            </div>
+            </motion.div>
 
-            <button
+            <motion.button
               type="button"
+              whileHover={{ y: -1, scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
               onClick={toggleTheme}
-              className="inline-flex items-center gap-1.5 rounded-md border border-ar-border bg-ar-surface px-2.5 py-1.5 text-xs font-medium text-ar-muted transition hover:border-ar-gold/40 hover:text-ar-ink"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-ar-gold/40 bg-ar-surface px-2.5 py-1.5 text-xs font-medium text-ar-ink transition hover:bg-ar-gold/15 shadow-sm"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
-              {theme === "dark" ? <Sun className="h-3.5 w-3.5 text-ar-gold" /> : <Moon className="h-3.5 w-3.5 text-ar-maroon" />}
+              {theme === "dark" ? (
+                <Sun className="h-3.5 w-3.5 text-ar-gold" />
+              ) : (
+                <Moon className="h-3.5 w-3.5 text-ar-gold" />
+              )}
               <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"}</span>
-            </button>
+            </motion.button>
           </div>
         </div>
 
         {open && (
           <motion.nav
-            initial={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             className="border-t border-ar-border bg-ar-surface px-4 py-3 lg:hidden"
           >
@@ -115,12 +129,12 @@ export function Layout() {
                   end={to === "/"}
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm ${
-                      isActive ? "bg-ar-gold/15 text-ar-ink" : "text-ar-muted"
+                    `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                      isActive ? "bg-ar-gold text-ar-ink font-semibold" : "text-ar-muted hover:bg-ar-gold/10"
                     }`
                   }
                 >
-                  <Icon className="h-4 w-4 text-ar-gold" />
+                  <Icon className="h-4 w-4" />
                   {label}
                 </NavLink>
               ))}
@@ -129,12 +143,14 @@ export function Layout() {
         )}
       </header>
 
-      <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 lg:px-8 lg:py-8">
+      <main className="mx-auto w-full flex-1 px-4 py-6 sm:px-6 lg:px-10 xl:px-12 lg:py-8">
         <Outlet />
       </main>
 
-      <footer className="border-t border-ar-border bg-ar-nav px-4 py-3 text-center text-[11px] text-ar-subtle lg:px-8">
-        Anand Rathi Wealth · Option Strategies Desk
+      <footer className="border-t border-ar-border bg-ar-nav px-4 py-3 text-center text-[11px] text-ar-subtle sm:px-6 lg:px-10 xl:px-12">
+        <span className="text-ar-gold font-semibold">Anand Rathi Wealth</span>
+        <span className="mx-2 text-ar-gold">·</span>
+        Option Strategies Desk
       </footer>
     </div>
   );

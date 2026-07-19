@@ -16,19 +16,19 @@ export const CORE_NOTATION = [
   { symbol: "C", meaning: "Net option premium received at entry" },
   { symbol: "H", meaning: "Net option premium across multi-leg structures" },
   { symbol: "(x)^+", meaning: "Positive part — max(x, 0)" },
-  { symbol: "\\sigma_i", meaning: "Leg sign: σ_i = +1 long, σ_i = −1 short" },
+  { symbol: "\\sigma_i", meaning: "Leg sign: σ_i = +1 long, σ_i = -1 short" },
 ];
 
 export const GREEK_NOTATION = [
   { symbol: "V", meaning: "Option or portfolio mark-to-market value" },
   { symbol: "S", meaning: "Underlying spot; S_0 is today's spot" },
-  { symbol: "σ", meaning: "Implied volatility" },
+  { symbol: "\\sigma", meaning: "Implied volatility" },
   { symbol: "r", meaning: "Risk-free rate (continuously compounded)" },
-  { symbol: "Δ", meaning: "∂V/∂S — spot sensitivity (direction)" },
-  { symbol: "Γ", meaning: "∂²V/∂S² — convexity in spot" },
-  { symbol: "Θ", meaning: "∂V/∂t — time decay" },
-  { symbol: "ν", meaning: "∂V/∂σ — volatility sensitivity" },
-  { symbol: "ρ", meaning: "∂V/∂r — rate sensitivity" },
+  { symbol: "\\Delta", meaning: "∂V/∂S — spot sensitivity (direction)" },
+  { symbol: "\\Gamma", meaning: "∂²V/∂S² — convexity in spot" },
+  { symbol: "\\Theta", meaning: "∂V/∂t — time decay" },
+  { symbol: "\\nu", meaning: "∂V/∂σ — volatility sensitivity" },
+  { symbol: "\\rho", meaning: "∂V/∂r — rate sensitivity" },
   { symbol: "N(\\cdot)", meaning: "Standard normal cumulative distribution" },
   { symbol: "d_1", meaning: "First Black–Scholes auxiliary variable" },
   { symbol: "d_2", meaning: "Second auxiliary variable (d_2 = d_1 - σ√T)" },
@@ -76,7 +76,8 @@ export const INTRO_BS_EQUATIONS = [
     ],
   },
   {
-    latex: "d_1 = \\dfrac{\\ln(S/K) + \\left(r + \\tfrac{1}{2}\\sigma^2\\right) T}{\\sigma\\sqrt{T}}, \\quad d_2 = d_1 - \\sigma\\sqrt{T}",
+    latex:
+      "\\begin{aligned} d_1 &= \\dfrac{\\ln\\!\\left(\\dfrac{S}{K}\\right)+\\left(r+\\dfrac{1}{2}\\sigma^{2}\\right)T}{\\sigma\\sqrt{T}} \\\\[1em] d_2 &= d_1-\\sigma\\sqrt{T} \\end{aligned}",
     context: "Auxiliary variables d_1 and d_2 map spot S, strike K, time T, rate r, and volatility σ into the normal-CDF inputs N(d_1) and N(d_2).",
     notation: [
       { symbol: "d_1", meaning: "Primary auxiliary index into N(·) for calls and puts" },

@@ -26,9 +26,9 @@ export const COMMON_PARAMS = {
   H: { key: "H", label: "Net Option Premium H", min: 0, max: 30, step: 0.5 },
   NL: { key: "NL", label: "Long leg qty N_L", min: 1, max: 5, step: 1 },
   NS: { key: "NS", label: "Short leg qty N_S", min: 1, max: 5, step: 1 },
-  sigma: { key: "sigma", label: "Implied Vol σ", min: 0.05, max: 0.8, step: 0.01 },
-  T: { key: "T", label: "Long Expiry T", min: 0.02, max: 2, step: 0.01 },
-  T_short: { key: "T_short", label: "Near Expiry T'", min: 0.02, max: 1.5, step: 0.01 },
+  sigma: { key: "sigma", label: "Implied Vol σ", min: 0.05, max: 0.8, step: 0.001 },
+  T: { key: "T", label: "Long Expiry T", min: 0.02, max: 2, step: 0.001 },
+  T_short: { key: "T_short", label: "Near Expiry T'", min: 0.02, max: 1.5, step: 0.001 },
 };
 
 export const DEFAULTS = {
@@ -449,15 +449,15 @@ export function buildStrategyParagraphs(raw, greeksProfile, category, directiona
   const payoffNote = isMultiExpiry
     ? "This structure uses two expiries; the live chart plots P/L at the near expiry T'—long leg valued with Black–Scholes at T − T' minus short-leg intrinsic minus premium—rather than a single long-dated terminal payoff."
     : raw.id === "long-box"
-      ? "At expiration the solid cyan line is flat at K_1 - K_2 - 2D; dashed curves show the bull call spread and bear put spread (each paying premium D) that compose the box."
+      ? "At expiration the solid gold line is flat at K_1 - K_2 - 2D; dashed curves show the bull call spread and bear put spread (each paying premium D) that compose the box."
       : "At expiration, profit or loss is fixed by intrinsic value of every leg minus net premium paid or plus net premium received; the breakeven is wherever the solid net curve crosses zero, and the green shaded region on the chart marks spots where you finish above that line.";
 
   const legCount = (raw.legs || []).length;
   const legWord = legCount === 1 ? "1 leg" : `${legCount} legs`;
   const structureNote =
     raw.id === "long-box"
-      ? `How the position fits together: you combine ${legWord}—${legNames || "see the structure panel"}. On the payoff chart, dashed curves are the bull call spread and bear put spread (premium D each); the solid cyan line is the locked long box condor payoff at K_1 - K_2 - 2D. Click any leg card to highlight its contribution on both payoff and Greek charts.`
-      : `How the position fits together: you combine ${legWord}—${legNames || "see the structure panel"}. Long legs pay premium or cash to acquire rights; short legs collect premium and accept obligations if the market moves against you. Each leg appears as a dashed coloured curve on the payoff chart, while the solid cyan line sums them after entry premium. Click any leg card to highlight its contribution on both payoff and Greek charts.`;
+      ? `How the position fits together: you combine ${legWord}—${legNames || "see the structure panel"}. On the payoff chart, dashed curves are the bull call spread and bear put spread (premium D each); the solid gold line is the locked long box condor payoff at K_1 - K_2 - 2D. Click any leg card to highlight its contribution on both payoff and Greek charts.`
+      : `How the position fits together: you combine ${legWord}—${legNames || "see the structure panel"}. Long legs pay premium or cash to acquire rights; short legs collect premium and accept obligations if the market moves against you. Each leg appears as a dashed coloured curve on the payoff chart, while the solid gold line sums them after entry premium. Click any leg card to highlight its contribution on both payoff and Greek charts.`;
 
   return capParagraphs([
     cleanProse(
@@ -481,7 +481,6 @@ export function buildStrategyParagraphs(raw, greeksProfile, category, directiona
 export { buildPayoffEquationBlock, buildAdditionalEquations, capParagraphs };
 
 export const categories = [
-  { id: "basics", name: "Single Leg", icon: "Circle" },
   { id: "income-hedge", name: "Income & Hedging", icon: "Shield" },
   { id: "spreads", name: "Vertical Spreads", icon: "TrendingUp" },
   { id: "synthetic", name: "Synthetic & Combo", icon: "GitBranch" },

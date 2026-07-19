@@ -5,6 +5,12 @@
 
 const GAP = 1;
 
+function strikeGap(values) {
+  const s0 = Number(values.S0);
+  if (Number.isFinite(s0) && s0 > 1000) return 50;
+  return GAP;
+}
+
 /** @type {Record<string, Array<[string, '<' | '>', string]>>} */
 const ORDER_RULES = {
   "bull-call-spread": [["K1", "<", "K2"]],
@@ -126,11 +132,11 @@ function applyRule(values, left, op, right) {
   const a = values[left];
   const b = values[right];
   if (a == null || b == null) return;
-
+  const gap = strikeGap(values);
   if (op === "<") {
-    if (a >= b) values[right] = a + GAP;
+    if (a >= b) values[right] = a + gap;
   } else if (a <= b) {
-    values[right] = a - GAP;
+    values[right] = a - gap;
   }
 }
 

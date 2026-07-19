@@ -81,6 +81,13 @@ export interface StrategyDetail extends StrategySummary {
   };
   defaultParams?: Record<string, number>;
   paramSchema?: ParamField[];
+  market?: {
+    symbol: string;
+    spot: number;
+    atm: number;
+    asOf?: string;
+    source?: string;
+  };
 }
 
 export interface PayoffResponse {

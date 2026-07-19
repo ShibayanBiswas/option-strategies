@@ -87,22 +87,22 @@ export const PAPER_IDENTITIES = {
 
   // 2.18 – 2.21 calendar / diagonal (near-expiry: V = long-leg value at S_T = K)
   "calendar-call-spread": {
-    breakevenLatex: null,
+    breakevenLatex: "S^{*}:\\; f_{T'}(S^{*}) = 0 \\text{ (read from net curve at } T'\\text{)}",
     maxProfitLatex: "P_{\\max} = V - D",
     maxLossLatex: "L_{\\max} = D",
   },
   "calendar-put-spread": {
-    breakevenLatex: null,
+    breakevenLatex: "S^{*}:\\; f_{T'}(S^{*}) = 0 \\text{ (read from net curve at } T'\\text{)}",
     maxProfitLatex: "P_{\\max} = V - D",
     maxLossLatex: "L_{\\max} = D",
   },
   "diagonal-call-spread": {
-    breakevenLatex: null,
+    breakevenLatex: "S^{*}:\\; f_{T'}(S^{*}) = 0 \\text{ (read from net curve at } T'\\text{)}",
     maxProfitLatex: "P_{\\max} = V - D",
     maxLossLatex: "L_{\\max} = D",
   },
   "diagonal-put-spread": {
-    breakevenLatex: null,
+    breakevenLatex: "S^{*}:\\; f_{T'}(S^{*}) = 0 \\text{ (read from net curve at } T'\\text{)}",
     maxProfitLatex: "P_{\\max} = V - D",
     maxLossLatex: "L_{\\max} = D",
   },
@@ -168,7 +168,7 @@ export const PAPER_IDENTITIES = {
     maxLossLatex: "L_{\\max} = S_0 + K - C",
   },
   "covered-short-strangle": {
-    breakevenLatex: null,
+    breakevenLatex: "S^*_{\\text{up}} = K_1 + C;\\quad S^*_{\\text{down}} = K_2 - C",
     maxProfitLatex: "P_{\\max} = K_1 - S_0 + C",
     maxLossLatex: "L_{\\max} = S_0 + K_2 - C",
   },
@@ -293,7 +293,7 @@ export const PAPER_IDENTITIES = {
 
   // 2.52 long box
   "long-box": {
-    breakevenLatex: null,
+    breakevenLatex: "\\text{none -- } f_T = K_1 - K_2 - 2D \\text{ is constant in } S_T",
     maxProfitLatex: "P_{\\max} = (K_1 - K_2) - 2D",
     maxLossLatex: "L_{\\max} = 2D",
   },

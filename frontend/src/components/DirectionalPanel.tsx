@@ -176,7 +176,7 @@ export function DirectionalPanel({ staticLatex, staticParagraphs, live }: Direct
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
                   whileHover={{ y: -3, scale: 1.01 }}
-                  className="directional-leg-card"
+                  className="directional-leg-card card-shine"
                 >
                   <p className="directional-leg-name">
                     <ProseMath text={formatLegLabel(lc.leg)} stripParens={false} />

@@ -186,7 +186,8 @@ export const greeksIntro = {
         "Butterflies and condors can show modest net delta yet meaningful gamma near the body strike—the position looks quiet until spot drifts into the pin zone. Comparing Γ_net on the live chart with the payoff tent shows where convexity concentrates before you hold through a volatile week.",
         "Use the profile chart below to plot gamma versus spot for the whole book and each leg. Dashed leg lines show who contributes convexity; the solid aggregate line shows whether you are net long or short acceleration at S_0.",
       ]),
-      callProfile: "\\Gamma = \\frac{N'(d_1)}{S \\sigma \\sqrt{T}}",
+      callProfile: "\\Gamma_{\\text{call}} = \\dfrac{N'(d_1)}{S\\,\\sigma\\sqrt{T}}",
+      putProfile: "\\Gamma_{\\text{put}} = \\dfrac{N'(d_1)}{S\\,\\sigma\\sqrt{T}}",
     },
     {
       symbol: "\\Theta",
@@ -201,6 +202,10 @@ export const greeksIntro = {
         "Theta trades off with vega on many structures: selling premium wins on calm, range-bound weeks but loses quickly if implied volatility spikes or the underlying trends hard. Reading Θ_net alongside ν_net tells you whether you are paid to wait or paying for lottery tickets.",
         "On income trades, compare Θ_net with max loss on the payoff chart—that is the daily carry you earn for accepting tail risk. On long-vol trades, negative theta is the cost of keeping convexity and vega alive until the move arrives.",
       ]),
+      callProfile:
+        "\\Theta_{\\text{call}} = -\\dfrac{S\\,N'(d_1)\\,\\sigma}{2\\sqrt{T}} - r K e^{-rT} N(d_2)",
+      putProfile:
+        "\\Theta_{\\text{put}} = -\\dfrac{S\\,N'(d_1)\\,\\sigma}{2\\sqrt{T}} + r K e^{-rT} N(-d_2)",
     },
     {
       symbol: "\\nu",
@@ -215,7 +220,8 @@ export const greeksIntro = {
         "Even when your expiry payoff looks fixed, pre-expiry profit and loss can swing on vol alone—that is vega at work. Compare realized movement with implied vol when diagnosing why a directionally correct trade still lost money on a quiet week.",
         "Use ν_net on the live tiles and profile chart to see whether you are net long or short vol at S_0. Pair that reading with gamma when sizing trades into known event dates.",
       ]),
-      callProfile: "\\nu = S\\,N'(d_1)\\sqrt{T}",
+      callProfile: "\\nu_{\\text{call}} = S\\,N'(d_1)\\sqrt{T}",
+      putProfile: "\\nu_{\\text{put}} = S\\,N'(d_1)\\sqrt{T}",
     },
     {
       symbol: "\\rho",
@@ -230,6 +236,8 @@ export const greeksIntro = {
         "When comparing calls and puts at the same strike, rho helps explain small price differences that delta alone does not capture—especially for longer maturities where discounting matters more.",
         "Read ρ_net last after delta, theta, vega, and gamma: it completes the five-factor picture without overstating its role on short-dated single-stock structures.",
       ]),
+      callProfile: "\\rho_{\\text{call}} = K T e^{-rT} N(d_2)",
+      putProfile: "\\rho_{\\text{put}} = -K T e^{-rT} N(-d_2)",
     },
   ],
 };

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { fetchCategories, fetchIntro, fetchStrategies, type StrategySummary } from "../api/client";
 import { GlassCard, Stat } from "../components/GlassCard";
 import { NotationGrid } from "../components/NotationGrid";
+import { cardHover, staggerDelay } from "../motion/cardMotion";
 
 export function HomePage() {
   const [strategies, setStrategies] = useState<StrategySummary[]>([]);
@@ -13,7 +14,9 @@ export function HomePage() {
 
   useEffect(() => {
     fetchStrategies("chapter").then((r) => setStrategies(r.data));
-    fetchCategories().then((r) => setCategories(r.data));
+    fetchCategories().then((r) =>
+      setCategories(r.data.filter((c: { id: string; name: string }) => c.id !== "basics" && !/single\s*leg/i.test(c.name)))
+    );
     fetchIntro().then((r) => {
       const intro = r.data as { optionsIntro?: { math?: { notation?: { symbol: string; meaning: string }[] } } };
       setNotation(intro.optionsIntro?.math?.notation ?? []);
@@ -23,53 +26,66 @@ export function HomePage() {
   const interactive = strategies.filter((s) => s.hasPayoff).length;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-10">
+    <div className="w-full space-y-10">
       <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border border-ar-border bg-ar-surface p-8 lg:p-12 shadow-ar"
+        initial={{ opacity: 0, y: 24, scale: 0.985 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 26 }}
+        whileHover={{ y: -2 }}
+        className="relative overflow-hidden rounded-2xl border border-ar-gold/35 bg-ar-surface p-8 lg:p-12 shadow-ar card-shine hero-desk"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-ar-gold/10 via-transparent to-ar-maroon/10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ar-gold/20 via-transparent to-ar-maroon/15 pointer-events-none" />
+        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ar-gold/20 blur-3xl pointer-events-none animate-pulse-glow" />
+        <div className="absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-ar-gold/15 blur-3xl pointer-events-none animate-float" />
         <div className="relative z-10">
-          <div className="flex items-center gap-2 text-ar-gold text-sm mb-4 font-medium">
-            <Sparkles className="w-4 h-4" />
+          <motion.div
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.15 }}
+            className="flex items-center gap-2 text-ar-gold text-sm mb-4 font-semibold"
+          >
+            <Sparkles className="w-4 h-4 text-ar-gold" />
             <span>Anand Rathi Wealth · Options Desk</span>
-          </div>
-          <h1 className="text-4xl lg:text-5xl font-semibold tracking-tight mb-4 font-display">
+          </motion.div>
+          <h1 className="text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight mb-4 font-display">
             <span className="gradient-text">Option Strategies</span>
             <br />
             <span className="text-ar-ink">Analytics Platform</span>
           </h1>
-          <p className="text-ar-muted max-w-2xl text-lg leading-relaxed mb-8">
+          <p className="text-ar-muted max-w-3xl text-lg leading-relaxed mb-8">
             Live payoff engines, component leg overlays, Black–Scholes Greeks, and typeset identities for every
             structure—from single options to complex spreads.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link
-              to="/strategies"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-ar-maroon text-ar-ink font-semibold hover:opacity-90 transition-opacity shadow-ar"
-            >
-              Explore Strategies <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              to="/intro"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-ar-border text-ar-ink hover:bg-ar-panel transition-colors"
-            >
-              Foundations &amp; Greeks
-            </Link>
+            <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                to="/strategies"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-ar-gold text-ar-ink font-semibold hover:bg-ar-gold-dark hover:text-white transition-colors shadow-ar"
+              >
+                Explore Strategies <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                to="/intro"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-ar-gold/50 bg-ar-gold/10 text-ar-ink hover:bg-ar-gold/20 transition-colors font-medium"
+              >
+                Foundations &amp; Greeks
+              </Link>
+            </motion.div>
           </div>
         </div>
       </motion.section>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Stat label="Strategies" value={strategies.length} tone="cyan" />
-        <Stat label="Live Payoff Charts" value={interactive} tone="emerald" />
-        <Stat label="Categories" value={categories.length} tone="violet" />
-        <Stat label="Greek Sensitivities" value={5} tone="amber" />
+        <Stat label="Strategies" value={strategies.length} tone="cyan" delay={0.05} />
+        <Stat label="Live Payoff Charts" value={interactive} tone="emerald" delay={0.1} />
+        <Stat label="Categories" value={categories.length} tone="violet" delay={0.15} />
+        <Stat label="Greek Sensitivities" value={5} tone="amber" delay={0.2} />
       </div>
 
       {notation.length > 0 && (
-        <GlassCard delay={0.05}>
+        <GlassCard delay={0.05} inView>
           <h2 className="text-lg font-semibold text-ar-ink mb-1 font-serif">Symbol Reference</h2>
           <p className="text-ar-subtle text-sm mb-4">
             Standard notation used across payoff charts, strategy cards, and Greek panels.
@@ -99,13 +115,18 @@ export function HomePage() {
             to: "/strategies?cat=spreads",
           },
         ].map((card, i) => (
-          <GlassCard key={card.title} delay={i * 0.1}>
-            <card.icon className="w-8 h-8 text-ar-gold mb-4" />
-            <h3 className="text-lg font-semibold text-ar-ink mb-2">{card.title}</h3>
-            <p className="text-ar-muted text-sm mb-4">{card.desc}</p>
-            <Link to={card.to} className="text-ar-maroon text-sm hover:underline inline-flex items-center gap-1 font-medium">
-              View <ArrowRight className="w-3 h-3" />
-            </Link>
+          <GlassCard key={card.title} delay={staggerDelay(i, 0.08)} inView>
+            <motion.div whileHover={cardHover}>
+              <card.icon className="w-8 h-8 text-ar-gold mb-4" />
+              <h3 className="text-lg font-semibold text-ar-ink mb-2">{card.title}</h3>
+              <p className="text-ar-muted text-sm mb-4">{card.desc}</p>
+              <Link
+                to={card.to}
+                className="text-ar-gold text-sm hover:text-ar-gold-dark inline-flex items-center gap-1 font-semibold transition-colors"
+              >
+                View <ArrowRight className="w-3 h-3" />
+              </Link>
+            </motion.div>
           </GlassCard>
         ))}
       </div>

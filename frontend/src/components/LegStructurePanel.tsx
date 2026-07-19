@@ -48,19 +48,19 @@ export function LegStructurePanel({ legs, activeIndex, onSelect, chartLabels }: 
               onSelect(isActive ? null : i);
               setExpanded(isOpen && isActive ? null : i);
             }}
-            whileHover={{ scale: 1.01 }}
+            whileHover={{ scale: 1.015, y: -3 }}
             whileTap={{ scale: 0.99 }}
-            className={`w-full text-left rounded-xl border p-4 transition-all ${
+            className={`w-full text-left rounded-xl border p-4 transition-all card-shine ${
               isActive
-                ? "border-ar-gold/50 bg-ar-gold/10 shadow-lg shadow-ar"
-                : "border-surface-border bg-surface/60 hover:border-ar-border"
+                ? "border-ar-gold/55 bg-ar-gold/12 shadow-lg shadow-ar"
+                : "border-ar-border bg-ar-surface hover:border-ar-gold/40"
             }`}
           >
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2 flex-wrap">
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold ${
-                    isLong ? "bg-emerald-500/20 text-emerald-300" : "bg-rose-500/20 text-rose-300"
+                    isLong ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300" : "bg-rose-500/15 text-rose-800 dark:text-rose-300"
                   }`}
                 >
                   {isLong ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
@@ -70,7 +70,7 @@ export function LegStructurePanel({ legs, activeIndex, onSelect, chartLabels }: 
               </div>
             </div>
             {leg.subtitle && (
-              <p className="text-sm text-accent-cyan/80 mt-2">
+              <p className="text-sm text-ar-gold/90 mt-2 font-semibold italic">
                 <ProseMath text={leg.subtitle} stripParens={false} />
               </p>
             )}

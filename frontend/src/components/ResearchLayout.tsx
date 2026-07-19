@@ -89,7 +89,7 @@ export function MoneynessCards({ items }: { items: MoneynessCardProps[] }) {
       {items.map((item) => (
         <motion.article
           key={item.abbr}
-          className={`moneyness-card moneyness-${item.tone}`}
+          className={`moneyness-card card-shine moneyness-${item.tone}`}
           variants={{
             hidden: { opacity: 0, y: 24, scale: 0.96 },
             show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 260, damping: 22 } },

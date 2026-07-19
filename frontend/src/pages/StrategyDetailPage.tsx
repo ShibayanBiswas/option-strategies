@@ -145,7 +145,7 @@ export function StrategyDetailPage() {
 
   return (
 
-    <article className="research-doc max-w-7xl mx-auto space-y-8 no-scrollbar overflow-x-hidden pb-12">
+    <article className="research-doc w-full space-y-8 no-scrollbar overflow-x-clip pb-12">
 
       <Link to="/strategies" className="inline-flex items-center gap-2 text-ar-muted hover:text-ar-ink text-sm font-serif">
 
@@ -159,7 +159,7 @@ export function StrategyDetailPage() {
 
         <p className="research-doc-type">
 
-          {titleCase(strategy.category.replace(/-/g, " "))} · {strategy.section ? `§${strategy.section.replace("2.", "")}` : "Strategy Monograph"}
+          {titleCase(strategy.category.replace(/-/g, " "))} · Strategy Monograph
 
         </p>
 
@@ -177,6 +177,12 @@ export function StrategyDetailPage() {
 
             <Badge variant="warn">Catalog only</Badge>
 
+          )}
+
+          {strategy.market?.atm != null && (
+            <Badge variant="default">
+              Nifty ATM {Math.round(strategy.market.atm).toLocaleString("en-IN")}
+            </Badge>
           )}
 
         </div>
@@ -305,7 +311,7 @@ export function StrategyDetailPage() {
           <ResearchSection number="§2" title="Live Payoff At Expiration">
             <div className="research-prose !mb-4">
               <p>
-                <ProseMath text="The chart below is live: dashed curves show each leg's component payoff at expiry, and the solid cyan line is net profit or loss after premium. Green shading marks spots where f_T > 0; red shading marks f_T < 0. Hover any point for dollar values, and use the structure panel to highlight individual legs." />
+                <ProseMath text="The chart below is live: dashed curves show each leg's component payoff at expiry, and the solid gold line is net profit or loss after premium. Green shading marks spots where f_T > 0; red shading marks f_T < 0. Hover any point for dollar values, and use the structure panel to highlight individual legs." />
               </p>
             </div>
 

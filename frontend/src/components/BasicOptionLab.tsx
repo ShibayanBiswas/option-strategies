@@ -92,7 +92,7 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
             onClick={() => setActive(i)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border font-serif ${
               active === i
-                ? "bg-gradient-to-r from-ar-gold/20 to-ar-maroon/10 border-ar-gold/40 text-ar-ink"
+                ? "bg-gradient-to-r from-ar-gold/25 to-ar-gold/10 border-ar-gold/45 text-ar-ink font-semibold"
                 : "border-surface-border text-ar-muted hover:text-ar-ink hover:border-ar-border"
             }`}
           >
