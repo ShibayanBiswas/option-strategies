@@ -93,7 +93,6 @@ export function IntroPage() {
           <MathBlock
             title={intro.math.title}
             context={intro.math.context}
-            notation={intro.math.notation}
             equations={intro.math.equations}
             maxEquations={2}
             compact
@@ -135,7 +134,6 @@ export function IntroPage() {
           <MathBlock
             title="Definition 4.1 — European Pricing"
             context="Primary call and put values with auxiliary variables d_1 and d_2. Notation for each equation appears directly beneath its context line."
-            notation={greeksIntro.notation}
             equations={greeksIntro.bsEquations || []}
             maxEquations={2}
             compact

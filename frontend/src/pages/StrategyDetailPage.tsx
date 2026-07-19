@@ -236,7 +236,7 @@ export function StrategyDetailPage() {
             </div>
           )}
 
-          {strategy.notation && strategy.notation.length > 0 && (
+          {strategy.notation && strategy.notation.length > 0 && !strategy.payoffEquationBlock && (
             <div className="mt-6 pt-6 border-t border-surface-border">
               <p className="text-xs uppercase tracking-wider text-ar-subtle mb-3 font-serif">Symbol Reference</p>
               <NotationGrid items={strategy.notation} />

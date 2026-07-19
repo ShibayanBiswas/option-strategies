@@ -24,7 +24,12 @@ function resolveFormula(key: string, value: FormulaValue): EquationSpec {
       notation: meta?.notation,
     };
   }
-  return value;
+  // Object payload already carries context/notation from the API — do not re-attach meta copies.
+  return {
+    latex: value.latex,
+    context: value.context,
+    notation: value.notation,
+  };
 }
 
 export function FormulaDeck({

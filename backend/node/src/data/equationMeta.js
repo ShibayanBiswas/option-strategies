@@ -194,13 +194,12 @@ export function buildPayoffEquationBlock(raw) {
 
   return {
     title: "Primary Terminal Payoff",
-    context: "Identity for the solid net curve on the live payoff chart at expiration.",
+    context:
+      "Identity for the solid net curve on the live payoff chart at expiration. Evaluate at each spot on the horizontal axis; green shading marks f_T > 0.",
     notation,
     equations: [
       {
         latex: raw.payoffLatex,
-        context: "Evaluate at each spot on the horizontal axis; green shading marks f_T > 0.",
-        notation,
       },
     ],
   };

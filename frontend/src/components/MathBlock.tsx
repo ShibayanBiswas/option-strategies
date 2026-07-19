@@ -24,6 +24,14 @@ interface MathBlockProps {
   maxEquations?: number;
 }
 
+/** Stable fingerprint so identical notation grids render once. */
+export function notationFingerprint(items: NotationItem[] | undefined): string {
+  if (!items?.length) return "";
+  return items
+    .map((n) => `${String(n.symbol).trim()}::${String(n.meaning).trim()}`)
+    .join("|");
+}
+
 function normalizeEquations(
   equations: string | string[] | EquationSpec[],
   maxEquations: number
@@ -39,7 +47,33 @@ function normalizeEquations(
   return specs.slice(0, maxEquations);
 }
 
-/** Full-width display math with notation and context per equation */
+/**
+ * One glossary per unique notation set:
+ * - Block-level notation (if any) renders once above the equations
+ * - Per-equation notation renders only when it differs from anything already shown
+ */
+function resolveUniqueNotation(
+  blockNotation: NotationItem[] | undefined,
+  eqs: EquationSpec[]
+): { panel: NotationItem[] | null; perEq: (NotationItem[] | null)[] } {
+  const panel = blockNotation && blockNotation.length > 0 ? blockNotation : null;
+  const seen = new Set<string>();
+  const panelKey = notationFingerprint(panel ?? undefined);
+  if (panelKey) seen.add(panelKey);
+
+  const perEq = eqs.map((eq) => {
+    const items = eq.notation;
+    if (!items?.length) return null;
+    const key = notationFingerprint(items);
+    if (!key || seen.has(key)) return null;
+    seen.add(key);
+    return items;
+  });
+
+  return { panel, perEq };
+}
+
+/** Full-width display math with a single notation grid (no duplicate glossaries). */
 export function MathBlock({
   title,
   context,
@@ -50,6 +84,13 @@ export function MathBlock({
   maxEquations = 2,
 }: MathBlockProps) {
   const eqs = normalizeEquations(equations, maxEquations);
+  const { panel, perEq } = resolveUniqueNotation(notation, eqs);
+
+  // Prefer one context line: block context, else first equation context.
+  // Skip equation contexts that repeat the block (or an earlier) context.
+  const seenContexts = new Set<string>();
+  const panelContext = (context || "").trim();
+  if (panelContext) seenContexts.add(panelContext.toLowerCase());
 
   return (
     <motion.div
@@ -61,30 +102,38 @@ export function MathBlock({
       className={`math-panel card-shine w-full ${compact ? "math-panel-compact" : ""} ${className}`}
     >
       {title && <h3 className="math-panel-title">{title}</h3>}
-      {context && (
+      {panelContext && (
         <p className="math-panel-context">
-          <ProseMath text={context} stripParens={false} />
+          <ProseMath text={panelContext} stripParens={false} />
         </p>
       )}
-      {notation && notation.length > 0 && <NotationGrid items={notation} />}
+      {panel && panel.length > 0 && <NotationGrid items={panel} />}
 
       <div className="math-equations-stack">
-        {eqs.map((eq, idx) => (
-          <motion.div
-            key={`${eq.latex}-${idx}`}
-            className="math-equation-block"
-            whileHover={{ y: -2 }}
-            transition={{ type: "spring", stiffness: 380, damping: 26 }}
-          >
-            {eq.context && (
-              <p className="math-equation-context">
-                <ProseMath text={eq.context} stripParens={false} />
-              </p>
-            )}
-            {eq.notation && eq.notation.length > 0 && <NotationGrid items={eq.notation} />}
-            <Latex math={eq.latex} block fullWidth />
-          </motion.div>
-        ))}
+        {eqs.map((eq, idx) => {
+          const eqContext = (eq.context || "").trim();
+          const contextKey = eqContext.toLowerCase();
+          const showContext = Boolean(eqContext) && !seenContexts.has(contextKey);
+          if (showContext) seenContexts.add(contextKey);
+          const eqNotation = perEq[idx];
+
+          return (
+            <motion.div
+              key={`${eq.latex}-${idx}`}
+              className="math-equation-block"
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 380, damping: 26 }}
+            >
+              {showContext && (
+                <p className="math-equation-context">
+                  <ProseMath text={eqContext} stripParens={false} />
+                </p>
+              )}
+              {eqNotation && eqNotation.length > 0 && <NotationGrid items={eqNotation} />}
+              <Latex math={eq.latex} block fullWidth />
+            </motion.div>
+          );
+        })}
       </div>
     </motion.div>
   );
