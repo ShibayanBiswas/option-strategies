@@ -341,12 +341,14 @@ body {
   width: 100%;
 }
 
-/* Nested panel already provides chrome — avoid double boxes */
+/* Nested panel already provides chrome — avoid double boxes + fat padding under identities */
 .greek-formula-panel > .math-equation-full,
 .greek-identity-panel > .math-equation-full {
   background: transparent;
   border-color: transparent;
   box-shadow: none;
+  padding: 0.15rem 0.25rem !important;
+  margin: 0 !important;
 }
 
 .formula-reveal {
@@ -540,12 +542,14 @@ body {
   width: 100%;
 }
 
-/* Nested panel already provides chrome — avoid double boxes */
+/* Nested panel already provides chrome — avoid double boxes + fat padding under identities */
 .greek-formula-panel > .math-equation-full,
 .greek-identity-panel > .math-equation-full {
   background: transparent;
   border-color: transparent;
   box-shadow: none;
+  padding: 0.15rem 0.25rem !important;
+  margin: 0 !important;
 }
 
 .formula-reveal {
@@ -1748,7 +1752,7 @@ html.dark .formula-chip-active {
 @media (min-width: 900px) {
   .greek-explorer {
     flex-direction: row;
-    align-items: stretch;
+    align-items: flex-start;
   }
 }
 
@@ -1839,7 +1843,7 @@ html.dark .greek-tab-active {
   border-radius: 1rem;
   border: 1px solid var(--ar-border);
   background: var(--ar-surface);
-  padding: 1.25rem;
+  padding: 1.1rem 1.25rem 1rem;
   position: relative;
   overflow: hidden;
 }
@@ -1993,6 +1997,10 @@ html.dark .greek-explorer-symbol-text {
   gap: 0.75rem;
 }
 
+.greek-prose-stack > p {
+  margin: 0 !important;
+}
+
 .greek-prose-line {
   font-family: var(--prose-font);
   font-size: 0.95rem;
@@ -2028,8 +2036,8 @@ html.dark .greek-explorer-symbol-text {
 }
 
 .greek-identity-block {
-  margin-top: 1.35rem;
-  padding-top: 1.1rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
   border-top: 1px solid var(--ar-border);
 }
 
@@ -2089,7 +2097,7 @@ html.dark .greek-identity-tab-active {
   border-radius: 0.65rem;
   border: 1px solid var(--ar-border);
   background: var(--math-eq-bg);
-  padding: 0.65rem 0.75rem;
+  padding: 0.45rem 0.65rem;
   overflow-x: auto;
   overflow-y: visible;
   display: flex;
@@ -2097,6 +2105,16 @@ html.dark .greek-identity-tab-active {
   align-items: center;
   text-align: center;
   width: 100%;
+}
+
+/* Nested panel already provides chrome — avoid double boxes + fat padding under identities */
+.greek-formula-panel > .math-equation-full,
+.greek-identity-panel > .math-equation-full {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  padding: 0.15rem 0.25rem !important;
+  margin: 0 !important;
 }
 
 /* Directional panel */
