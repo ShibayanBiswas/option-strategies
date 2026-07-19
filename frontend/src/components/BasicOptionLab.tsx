@@ -2,15 +2,17 @@ import { useCallback, useEffect, useState } from "react";
 import { fetchPayoff, type PayoffResponse } from "../api/client";
 import { ProseMath } from "./ProseMath";
 import { Sigma } from "lucide-react";
+import { FormulaDeck } from "./FormulaDeck";
 import { GreeksChart } from "./GreeksChart";
 import { GreekSectionShell } from "./GreekSectionShell";
 import { GreeksPanel } from "./GreeksPanel";
-import { MathBlock } from "./MathBlock";
 import { ParamControls } from "./ParamControls";
 import { PayoffChart } from "./PayoffChart";
 import { Stat } from "./GlassCard";
 import { formatINR, formatINRLevel } from "../utils/money";
 import { syncSpotWindow } from "../utils/syncSpotWindow";
+import { equationsToFormulaRecord } from "../utils/equationsToFormulaRecord";
+import type { EquationSpec } from "./MathBlock";
 import type { GreekKey } from "./greekTheme";
 
 interface BasicOption {
@@ -74,24 +76,28 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
   const metrics = payoff?.metrics;
   const spot = Number.isFinite(params.S0) ? Number(params.S0) : 100;
 
-  const payoffEquations = [
+  const payoffEquations: EquationSpec[] = [
     {
       latex: current.payoffLatex,
+      label: "Net terminal payoff",
       context: "Terminal profit or loss f_T at expiration for this single option leg.",
       notation: [
         { symbol: "f_T", meaning: "Terminal P/L" },
         { symbol: "S_T", meaning: "Spot at expiration" },
         { symbol: "K", meaning: "Strike price" },
-        ...(current.id.includes("short") ? [{ symbol: "C", meaning: "Premium received" }] : [{ symbol: "D", meaning: "Premium paid" }]),
+        ...(current.id.includes("short")
+          ? [{ symbol: "C", meaning: "Premium received" }]
+          : [{ symbol: "D", meaning: "Premium paid" }]),
       ],
     },
     ...(current.breakevenLatex
       ? [
           {
             latex: current.breakevenLatex,
+            label: "Breakeven",
             context: "Spot where the net payoff crosses zero.",
             notation: [{ symbol: "S^*", meaning: "Breakeven spot" }],
-          },
+          } satisfies EquationSpec,
         ]
       : []),
   ];
@@ -122,11 +128,11 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
             <p><ProseMath text={current.description} /></p>
           </div>
 
-          <MathBlock
+          <FormulaDeck
             title={`${current.name} — Terminal Payoff`}
-            context="Each equation includes symbol definitions used on strategy monograph pages."
-            equations={payoffEquations}
-            maxEquations={2}
+            deckContext="Each equation includes symbol definitions used on strategy monograph pages."
+            formulas={equationsToFormulaRecord(payoffEquations)}
+            defaultExpanded="netPayoff"
             compact
           />
 

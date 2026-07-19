@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FORMULA_META } from "./greekTheme";
 import { Latex } from "./Latex";
 import type { EquationSpec, NotationItem } from "./MathBlock";
@@ -13,6 +13,10 @@ interface FormulaDeckProps {
   title?: string;
   defaultExpanded?: string | null;
   compact?: boolean;
+  /** Shared glossary shown once above the chip picker. */
+  sharedNotation?: NotationItem[];
+  /** Deck-level intro shown when expanded. */
+  deckContext?: string;
 }
 
 function resolveFormula(key: string, value: FormulaValue): EquationSpec {
@@ -22,14 +26,24 @@ function resolveFormula(key: string, value: FormulaValue): EquationSpec {
       latex: value,
       context: meta?.context,
       notation: meta?.notation,
+      label: meta?.title,
     };
   }
-  // Object payload already carries context/notation from the API — do not re-attach meta copies.
+  const meta = FORMULA_META[key];
   return {
     latex: value.latex,
-    context: value.context,
-    notation: value.notation,
+    context: value.context ?? meta?.context,
+    notation: value.notation ?? meta?.notation,
+    label: value.label ?? meta?.title,
   };
+}
+
+function chipTitle(key: string, value: FormulaValue): string {
+  if (typeof value !== "string" && value.label) return value.label;
+  return (
+    FORMULA_META[key]?.title ??
+    key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase())
+  );
 }
 
 /**
@@ -40,6 +54,8 @@ export function FormulaDeck({
   formulas,
   title = "Formal Notation",
   defaultExpanded = null,
+  sharedNotation,
+  deckContext,
 }: FormulaDeckProps) {
   const entries = Object.entries(formulas);
   const initialKey =
@@ -49,9 +65,12 @@ export function FormulaDeck({
   const [active, setActive] = useState<string | null>(initialKey);
   const [expanded, setExpanded] = useState(true);
 
-  if (entries.length === 0) return null;
+  const activeSpec = useMemo(
+    () => (active ? resolveFormula(active, formulas[active]) : null),
+    [active, formulas],
+  );
 
-  const activeSpec = active ? resolveFormula(active, formulas[active]) : null;
+  if (entries.length === 0) return null;
 
   return (
     <div className="formula-deck">
@@ -68,14 +87,21 @@ export function FormulaDeck({
 
       {expanded && (
         <div>
+          {deckContext && (
+            <p className="formula-deck-intro">
+              <ProseMath text={deckContext} stripParens={false} />
+            </p>
+          )}
+          {sharedNotation && sharedNotation.length > 0 && (
+            <div className="formula-deck-shared-notation">
+              <NotationGrid items={sharedNotation} />
+            </div>
+          )}
+
           <div className="formula-chip-row">
-            {entries.map(([key]) => {
-              const meta = FORMULA_META[key] ?? {
-                title: key.replace(/([A-Z])/g, " $1"),
-                subtitle: "Identity",
-                icon: ChevronDown,
-              };
-              const Icon = meta.icon;
+            {entries.map(([key, value]) => {
+              const meta = FORMULA_META[key];
+              const Icon = meta?.icon ?? ChevronDown;
               const isActive = active === key;
               return (
                 <button
@@ -85,7 +111,7 @@ export function FormulaDeck({
                   className={`formula-chip ${isActive ? "formula-chip-active" : ""}`}
                 >
                   <Icon className="formula-chip-icon" strokeWidth={1.75} />
-                  <span className="formula-chip-title">{meta.title}</span>
+                  <span className="formula-chip-title">{chipTitle(key, value)}</span>
                 </button>
               );
             })}
@@ -104,9 +130,11 @@ export function FormulaDeck({
                   </p>
                 )
               )}
-              {activeSpec.notation && activeSpec.notation.length > 0 && (
-                <NotationGrid items={activeSpec.notation as NotationItem[]} />
-              )}
+              {!sharedNotation?.length &&
+                activeSpec.notation &&
+                activeSpec.notation.length > 0 && (
+                  <NotationGrid items={activeSpec.notation as NotationItem[]} />
+                )}
               <Latex math={activeSpec.latex} block fullWidth className="math-compact-inline" />
             </div>
           )}

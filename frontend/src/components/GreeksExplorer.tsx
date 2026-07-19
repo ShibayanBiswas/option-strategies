@@ -34,14 +34,16 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
   const hasCall = Boolean(card.callProfile);
   const hasPut = Boolean(card.putProfile);
   const hasIdentities = hasCall || hasPut;
+  const paragraphs = capParagraphs(card.paragraphs);
+  const lead = paragraphs[0];
+  const more = paragraphs.slice(1);
 
   useEffect(() => {
     if (hasCall) setIdentity("call");
     else if (hasPut) setIdentity("put");
   }, [card.name, hasCall, hasPut]);
 
-  const activeLatex =
-    identity === "call" ? card.callProfile : card.putProfile;
+  const activeLatex = identity === "call" ? card.callProfile : card.putProfile;
 
   const prev = () => setIndex((i) => (i === 0 ? greeks.length - 1 : i - 1));
   const next = () => setIndex((i) => (i === greeks.length - 1 ? 0 : i + 1));
@@ -93,10 +95,22 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
             </div>
           </div>
 
+          {lead && (
+            <div className="research-prose greek-prose-stack greek-prose-lead">
+              <p>
+                <ProseMath text={lead} />
+              </p>
+            </div>
+          )}
+
           <details className="greek-formula-fold" open>
             <summary className="greek-formula-fold-summary">View formal definition</summary>
             <div className="greek-formula-panel">
-              {card.formulaContext && <p className="math-equation-context">{card.formulaContext}</p>}
+              {card.formulaContext && (
+                <p className="math-equation-context">
+                  <ProseMath text={card.formulaContext} stripParens={false} />
+                </p>
+              )}
               {card.formulaNotation && card.formulaNotation.length > 0 && (
                 <NotationGrid items={card.formulaNotation} />
               )}
@@ -104,47 +118,54 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
             </div>
           </details>
 
-          <div className="research-prose greek-prose-stack">
-            {capParagraphs(card.paragraphs).map((p, j) => (
-              <p key={j}>
-                <ProseMath text={p} />
-              </p>
-            ))}
-          </div>
+          {more.length > 0 && (
+            <details className="greek-formula-fold" open>
+              <summary className="greek-formula-fold-summary">Read more</summary>
+              <div className="research-prose greek-prose-stack">
+                {more.map((p, j) => (
+                  <p key={j}>
+                    <ProseMath text={p} />
+                  </p>
+                ))}
+              </div>
+            </details>
+          )}
 
           {hasIdentities && (
-            <div className="greek-identity-block">
-              <p className="greek-identity-heading">Call &amp; Put Identities</p>
-              <div className="greek-identity-tabs" role="tablist" aria-label={`${card.name} identities`}>
-                {hasCall && (
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={identity === "call"}
-                    className={`greek-identity-tab ${identity === "call" ? "greek-identity-tab-active" : ""}`}
-                    onClick={() => setIdentity("call")}
-                  >
-                    Call
-                  </button>
-                )}
-                {hasPut && (
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={identity === "put"}
-                    className={`greek-identity-tab ${identity === "put" ? "greek-identity-tab-active" : ""}`}
-                    onClick={() => setIdentity("put")}
-                  >
-                    Put
-                  </button>
+            <details className="greek-formula-fold greek-identity-fold" open>
+              <summary className="greek-formula-fold-summary">Call &amp; put identities</summary>
+              <div className="greek-identity-block greek-identity-block-nested">
+                <div className="greek-identity-tabs" role="tablist" aria-label={`${card.name} identities`}>
+                  {hasCall && (
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={identity === "call"}
+                      className={`greek-identity-tab ${identity === "call" ? "greek-identity-tab-active" : ""}`}
+                      onClick={() => setIdentity("call")}
+                    >
+                      Call
+                    </button>
+                  )}
+                  {hasPut && (
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={identity === "put"}
+                      className={`greek-identity-tab ${identity === "put" ? "greek-identity-tab-active" : ""}`}
+                      onClick={() => setIdentity("put")}
+                    >
+                      Put
+                    </button>
+                  )}
+                </div>
+                {activeLatex && (
+                  <div className="greek-identity-panel" role="tabpanel">
+                    <Latex math={activeLatex} block fullWidth />
+                  </div>
                 )}
               </div>
-              {activeLatex && (
-                <div className="greek-identity-panel" role="tabpanel">
-                  <Latex math={activeLatex} block fullWidth />
-                </div>
-              )}
-            </div>
+            </details>
           )}
         </div>
       </div>

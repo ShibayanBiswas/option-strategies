@@ -15,11 +15,11 @@ import { ProseMath } from "../components/ProseMath";
 import { titleCase } from "../utils/formatText";
 import { formatINR, formatINRLevel } from "../utils/money";
 import { DirectionalPanel } from "../components/DirectionalPanel";
+import { FormulaDeck } from "../components/FormulaDeck";
 import { GreeksChart } from "../components/GreeksChart";
 import { GreekSectionShell } from "../components/GreekSectionShell";
 import { GreeksPanel } from "../components/GreeksPanel";
 import { LaymanGreekCards, type LaymanGreekBlock } from "../components/LaymanGreekCards";
-import { MathBlock } from "../components/MathBlock";
 import { DisplayLeg, LegStructurePanel } from "../components/LegStructurePanel";
 import { ParamControls } from "../components/ParamControls";
 import { PayoffChart } from "../components/PayoffChart";
@@ -28,6 +28,8 @@ import { capParagraphs } from "../utils/capParagraphs";
 import { constrainParams, hasStrikeRules } from "../utils/paramConstraints";
 import { payoffChartHighlightIndex, structurePayoffLabels } from "../utils/payoffChartLegs";
 import { paramsFingerprint, syncSpotWindow } from "../utils/syncSpotWindow";
+import { equationsToFormulaRecord } from "../utils/equationsToFormulaRecord";
+import type { EquationSpec } from "../components/MathBlock";
 import type { GreekKey } from "../components/greekTheme";
 
 export function StrategyDetailPage() {
@@ -503,12 +505,14 @@ export function StrategyDetailPage() {
       {strategy.payoffEquationBlock && (
         <GlassCard delay={0.15} className="research-paper-body">
           <ResearchSection number="§5" title="Payoff Formalism">
-            <MathBlock
-              title={strategy.payoffEquationBlock.title}
-              context={strategy.payoffEquationBlock.context}
-              notation={strategy.payoffEquationBlock.notation}
-              equations={strategy.payoffEquationBlock.equations}
-              maxEquations={6}
+            <FormulaDeck
+              title={strategy.payoffEquationBlock.title || "Terminal Payoff Identities"}
+              deckContext={strategy.payoffEquationBlock.context}
+              sharedNotation={strategy.payoffEquationBlock.notation}
+              formulas={equationsToFormulaRecord(
+                (strategy.payoffEquationBlock.equations || []) as EquationSpec[],
+              )}
+              defaultExpanded="netPayoff"
               compact
             />
           </ResearchSection>

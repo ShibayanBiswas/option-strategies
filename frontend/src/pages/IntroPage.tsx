@@ -2,11 +2,12 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { fetchIntro } from "../api/client";
 import { capParagraphs } from "../utils/capParagraphs";
+import { equationsToFormulaRecord } from "../utils/equationsToFormulaRecord";
 import { BasicOptionLab } from "../components/BasicOptionLab";
 import { GlassCard } from "../components/GlassCard";
 import { FormulaDeck } from "../components/FormulaDeck";
 import { GreeksExplorer } from "../components/GreeksExplorer";
-import { MathBlock } from "../components/MathBlock";
+import type { EquationSpec } from "../components/MathBlock";
 import { MoneynessCards, MoneynessTable, ResearchSection } from "../components/ResearchLayout";
 import { ProseMath } from "../components/ProseMath";
 
@@ -15,7 +16,7 @@ type MoneynessData = {
   paragraphs: string[];
   table: { instrument: string; itm: string; atm: string; otm: string }[];
   cards: { label: string; abbr: string; callDef: string; putDef: string; tone: "itm" | "atm" | "otm" }[];
-  equations: string[];
+  equations: Array<string | EquationSpec>;
 };
 
 type IntroData = {
@@ -28,18 +29,18 @@ type IntroData = {
       title: string;
       context: string;
       notation: { symbol: string; meaning: string }[];
-      equations: string[];
+      equations: Array<string | EquationSpec>;
     };
     moneyness: MoneynessData;
     labNote: string;
   };
-    greeksIntro: {
+  greeksIntro: {
     title: string;
     subtitle: string;
     paragraphs?: string[];
     notation?: { symbol: string; meaning: string }[];
     directionalLatex?: Record<string, string>;
-    bsEquations?: Array<{ latex: string; context?: string; notation?: { symbol: string; meaning: string }[] }>;
+    bsEquations?: EquationSpec[];
     greeks: Array<{
       symbol: string;
       name: string;
@@ -54,6 +55,16 @@ type IntroData = {
   basicOptions: Parameters<typeof BasicOptionLab>[0]["options"];
 };
 
+function asEquationSpecs(
+  equations: Array<string | EquationSpec>,
+  labels: string[] = [],
+): EquationSpec[] {
+  return equations.map((eq, i) => {
+    if (typeof eq === "string") return { latex: eq, label: labels[i] };
+    return { ...eq, label: eq.label ?? labels[i] };
+  });
+}
+
 export function IntroPage() {
   const [data, setData] = useState<IntroData | null>(null);
 
@@ -66,6 +77,15 @@ export function IntroPage() {
   }
 
   const { optionsIntro: intro, greeksIntro } = data;
+  const foundationSpecs = asEquationSpecs(intro.math.equations || [], [
+    "Single-leg payoffs",
+    "Multi-leg book",
+  ]);
+  const moneynessSpecs = asEquationSpecs(intro.moneyness.equations || [], ["Moneyness"]);
+  const bsSpecs = asEquationSpecs(greeksIntro.bsEquations || [], [
+    "Call & put prices",
+    "d₁ and d₂",
+  ]);
 
   return (
     <article className="research-doc w-full space-y-10 no-scrollbar overflow-x-clip pb-6">
@@ -79,7 +99,9 @@ export function IntroPage() {
         <p className="research-doc-author">Anand Rathi Wealth · Options Desk</p>
         <div className="research-abstract">
           <span className="research-abstract-label">Abstract</span>
-          <p><ProseMath text={intro.abstract} /></p>
+          <p>
+            <ProseMath text={intro.abstract} />
+          </p>
         </div>
       </motion.header>
 
@@ -87,14 +109,16 @@ export function IntroPage() {
         <ResearchSection number="§1" title="Foundations And Terminal Payoffs">
           <div className="research-prose">
             {capParagraphs(intro.paragraphs).map((p, i) => (
-              <p key={i}><ProseMath text={p} /></p>
+              <p key={i}>
+                <ProseMath text={p} />
+              </p>
             ))}
           </div>
-          <MathBlock
+          <FormulaDeck
             title={intro.math.title}
-            context={intro.math.context}
-            equations={intro.math.equations}
-            maxEquations={2}
+            deckContext={intro.math.context}
+            sharedNotation={intro.math.notation}
+            formulas={equationsToFormulaRecord(foundationSpecs, "foundation")}
             compact
           />
         </ResearchSection>
@@ -102,16 +126,17 @@ export function IntroPage() {
         <ResearchSection number="§2" title="Moneyness: In-The-Money, At-The-Money, Out-Of-The-Money">
           <div className="research-prose">
             {capParagraphs(intro.moneyness.paragraphs).map((p, i) => (
-              <p key={i}><ProseMath text={p} /></p>
+              <p key={i}>
+                <ProseMath text={p} />
+              </p>
             ))}
           </div>
           <MoneynessCards items={intro.moneyness.cards} />
           <MoneynessTable rows={intro.moneyness.table} />
-          <MathBlock
+          <FormulaDeck
             title={intro.moneyness.title}
-            context="Compact moneyness reference—conditions and value split. Each symbol is defined below the equation."
-            equations={intro.moneyness.equations}
-            maxEquations={1}
+            deckContext="Compact moneyness reference—conditions and value split."
+            formulas={equationsToFormulaRecord(moneynessSpecs, "moneyness")}
             compact
           />
         </ResearchSection>
@@ -128,22 +153,19 @@ export function IntroPage() {
           <p className="research-doc-type mb-4">{greeksIntro.subtitle}</p>
           <div className="research-prose">
             {capParagraphs(greeksIntro.paragraphs || []).map((p, i) => (
-              <p key={i}><ProseMath text={p} /></p>
+              <p key={i}>
+                <ProseMath text={p} />
+              </p>
             ))}
           </div>
-          <MathBlock
+          <FormulaDeck
             title="Definition 4.1 — European Pricing"
-            context="Primary call and put values with auxiliary variables d_1 and d_2. Notation for each equation appears directly beneath its context line."
-            equations={greeksIntro.bsEquations || []}
-            maxEquations={2}
+            deckContext="Primary call and put values with auxiliary variables d₁ and d₂."
+            formulas={equationsToFormulaRecord(bsSpecs, "bs")}
             compact
           />
           {greeksIntro.directionalLatex && (
-            <FormulaDeck
-              formulas={greeksIntro.directionalLatex}
-              title="Net Sensitivities"
-              compact
-            />
+            <FormulaDeck formulas={greeksIntro.directionalLatex} title="Net Sensitivities" compact />
           )}
           <div className="mt-6">
             <GreeksExplorer greeks={data.greeksIntro.greeks} />

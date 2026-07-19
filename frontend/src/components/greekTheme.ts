@@ -160,6 +160,13 @@ export const FORMULA_META: Record<string, FormulaMeta> = {
     notation: [{ symbol: "\\sigma_i", meaning: "Sign multiplier for leg i" }],
     icon: Compass,
   },
+  netPayoff: {
+    title: "Net Payoff",
+    subtitle: "Terminal f_T",
+    context: "Solid gold curve on the live chart. Green marks f_T > 0; red marks f_T < 0.",
+    notation: [{ symbol: "f_T", meaning: "Terminal profit or loss at expiry" }],
+    icon: Layers,
+  },
   breakeven: {
     title: "Breakeven",
     subtitle: "Zero-crossing spot",
