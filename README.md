@@ -13,11 +13,11 @@ Styled to match the [Anand Rathi Primary SP Dashboard](https://sp-dashboard-eta.
 | **Introduction & Greeks** | Foundations, moneyness, single-leg lab, BS identities, interactive Greek explorer |
 | **Strategies catalog** | Filterable monograph list with live Nifty-scaled defaults |
 | **Strategy page** | Structure panel, parameter sliders, live payoff + Greeks charts, directional compass, payoff formalism |
-| **Market** | Nifty 50 ATM scaling (Yahoo `^NSEI` with cached fallback); badge refreshes periodically |
+| **Market** | Nifty 50 ATM scaling (Yahoo `^NSEI`); IST trading-day cache; badge + defaults refresh on focus / periodically |
 
 ### Desk behaviour (current)
 
-- **Live params** — sliders debounce into `POST /api/payoff`; charts, max P/L, breakevens, and Greeks stay in sync. Moving `S0` recenters the spot window; **Reset** re-fetches fresh Nifty-scaled defaults.
+- **Live params** — sliders debounce into `POST /api/payoff`; charts, max P/L, breakevens, and Greeks stay in sync. Moving `S0` recenters the spot window; **Reset** forces a fresh Nifty quote. When ATM moves (or the IST day rolls) and you have not customized sliders, defaults rescale automatically.
 - **Payoff math** — textbook / notebook default identities are unchanged. Premiums (`C` / `D` / `H`) and strikes move the curve as expected.
 - **KaTeX** — gold-highlighted math atoms (including trailing premiums like `C` in `K_2 - K_1 - C`); stacked `\ln(S/K)` fractions; clean subscripts / superscripts.
 - **Payoff Formalism** — united identities (net payoff, breakeven, max profit, max loss) in one FormulaDeck with shared notation.

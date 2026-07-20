@@ -5,6 +5,7 @@ import {
   fetchNiftyMarket,
   fetchPayoff,
   fetchStrategy,
+  invalidateStrategyCache,
   type PayoffResponse,
   type StrategyDetail,
 } from "../api/client";
@@ -27,6 +28,7 @@ import { ResearchSection } from "../components/ResearchLayout";
 import { capParagraphs } from "../utils/capParagraphs";
 import { constrainParams, hasStrikeRules } from "../utils/paramConstraints";
 import { payoffChartHighlightIndex, structurePayoffLabels } from "../utils/payoffChartLegs";
+import { niftyAtmMoved } from "../utils/istMarketDay";
 import { paramsFingerprint, syncSpotWindow } from "../utils/syncSpotWindow";
 import { equationsToFormulaRecord } from "../utils/equationsToFormulaRecord";
 import type { EquationSpec } from "../components/MathBlock";
@@ -44,6 +46,10 @@ export function StrategyDetailPage() {
   const [activeGreek, setActiveGreek] = useState<GreekKey>("delta");
   /** Fingerprint of seeded default params — skip only the matching duplicate POST. */
   const seededParamsKeyRef = useRef<string | null>(null);
+  const paramsRef = useRef(params);
+  const strategyRef = useRef(strategy);
+  paramsRef.current = params;
+  strategyRef.current = strategy;
 
   useEffect(() => {
     if (!id) return;
@@ -86,22 +92,84 @@ export function StrategyDetailPage() {
     };
   }, [id]);
 
-  // Keep Nifty ATM badge fresh without resetting the user's slider work
+  // Keep Nifty badge + desk defaults synced to the trading day / ATM moves.
+  // Only auto-rescales sliders when the user is still on seeded defaults.
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
-    const refreshMarket = () => {
-      fetchNiftyMarket()
-        .then((r) => {
-          if (cancelled) return;
-          setStrategy((s) => (s ? { ...s, market: r.data } : s));
-        })
-        .catch(() => undefined);
+    let syncing = false;
+
+    const applyFreshDefaults = async () => {
+      invalidateStrategyCache(id);
+      const { data } = await fetchStrategy(id, { payoff: true, fresh: true });
+      if (cancelled) return;
+      setStrategy(data);
+      if (data.defaultParams) {
+        setParams({ ...data.defaultParams });
+        if (data.initialPayoff) {
+          setPayoff(data.initialPayoff);
+          seededParamsKeyRef.current = paramsFingerprint(data.defaultParams);
+        } else {
+          seededParamsKeyRef.current = null;
+        }
+      }
     };
-    const t = setInterval(refreshMarket, 60_000);
+
+    const tick = async (forceFresh = false) => {
+      if (cancelled || syncing) return;
+      try {
+        const { data: mkt } = await fetchNiftyMarket({ fresh: forceFresh });
+        if (cancelled) return;
+        const s = strategyRef.current;
+        if (!s) return;
+
+        const prevAtm = s.market?.atm ?? s.market?.spot;
+        const nextAtm = mkt.atm ?? mkt.spot;
+        const dayChanged = Boolean(mkt.dayKey && s.market?.dayKey && mkt.dayKey !== s.market.dayKey);
+        const atmMoved = niftyAtmMoved(prevAtm, nextAtm);
+
+        setStrategy((cur) => (cur ? { ...cur, market: mkt } : cur));
+
+        if (!(dayChanged || atmMoved)) return;
+
+        const defaults = s.defaultParams;
+        const p = paramsRef.current;
+        if (!defaults || !Object.keys(p).length) return;
+        // Preserve custom slider work — only auto-sync when still on desk defaults
+        if (paramsFingerprint(p) !== paramsFingerprint(defaults)) return;
+
+        syncing = true;
+        await applyFreshDefaults();
+      } catch {
+        // Badge / sync blips should not surface as page errors
+      } finally {
+        syncing = false;
+      }
+    };
+
+    const onFocus = () => {
+      void tick(true);
+    };
+    const onVis = () => {
+      if (document.visibilityState === "visible") void tick(true);
+    };
+
+    const interval = setInterval(() => {
+      void tick(false);
+    }, 60_000);
+    const boot = setTimeout(() => {
+      void tick(false);
+    }, 12_000);
+
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVis);
+
     return () => {
       cancelled = true;
-      clearInterval(t);
+      clearInterval(interval);
+      clearTimeout(boot);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, [id]);
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchPayoff, type PayoffResponse } from "../api/client";
 import { ProseMath } from "./ProseMath";
 import { Sigma } from "lucide-react";
@@ -10,7 +10,7 @@ import { ParamControls } from "./ParamControls";
 import { PayoffChart } from "./PayoffChart";
 import { Stat } from "./GlassCard";
 import { formatINR, formatINRLevel } from "../utils/money";
-import { syncSpotWindow } from "../utils/syncSpotWindow";
+import { paramsFingerprint, syncSpotWindow } from "../utils/syncSpotWindow";
 import { equationsToFormulaRecord } from "../utils/equationsToFormulaRecord";
 import type { EquationSpec } from "./MathBlock";
 import type { GreekKey } from "./greekTheme";
@@ -37,12 +37,33 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
   const [payoff, setPayoff] = useState<PayoffResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeGreek, setActiveGreek] = useState<GreekKey>("delta");
+  const activeRef = useRef(active);
+  const seededFpRef = useRef(paramsFingerprint(options[0]?.defaultParams || {}));
 
   const current = options[active];
 
+  // Tab changes always take that leg's defaults. Nifty day/ATM refreshes only
+  // rescale when the desk is still on the previous seeded defaults.
   useEffect(() => {
-    if (options[active]) setParams({ ...options[active].defaultParams });
-    setActiveGreek("delta");
+    const opt = options[active];
+    if (!opt) return;
+    const nextDefaults = opt.defaultParams;
+    const nextFp = paramsFingerprint(nextDefaults);
+    const tabChanged = activeRef.current !== active;
+    activeRef.current = active;
+
+    setParams((prev) => {
+      if (tabChanged || !Object.keys(prev).length) {
+        seededFpRef.current = nextFp;
+        return { ...nextDefaults };
+      }
+      if (paramsFingerprint(prev) === seededFpRef.current) {
+        seededFpRef.current = nextFp;
+        return { ...nextDefaults };
+      }
+      return prev;
+    });
+    if (tabChanged) setActiveGreek("delta");
   }, [active, options]);
 
   const load = useCallback(async () => {
@@ -143,7 +164,11 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
               schema={current.paramSchema}
               values={params}
               onChange={handleParamChange}
-              onReset={() => setParams({ ...current.defaultParams })}
+              onReset={() => {
+                const next = { ...current.defaultParams };
+                seededFpRef.current = paramsFingerprint(next);
+                setParams(next);
+              }}
               horizontal
             />
           </div>

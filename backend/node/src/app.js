@@ -8,6 +8,7 @@ import {
   getNiftyQuote,
   marketMeta,
   peekNiftyQuote,
+  refreshNiftyQuote,
   scaleParamsToSpot,
 } from "./market/nifty.js";
 
@@ -37,12 +38,23 @@ function applyNiftyToBasicOption(opt, quote) {
   };
 }
 
-async function safeNiftyQuote() {
+async function safeNiftyQuote(forceFresh = false) {
   try {
+    if (forceFresh) {
+      try {
+        return await refreshNiftyQuote();
+      } catch {
+        return await getNiftyQuote();
+      }
+    }
     return await getNiftyQuote();
   } catch {
     return peekNiftyQuote();
   }
+}
+
+function wantFresh(query) {
+  return query?.fresh === "1" || query?.fresh === "true";
 }
 
 /** Build API routes once; mount under /api and / for Vercel path variants. */
@@ -71,18 +83,18 @@ function buildApiRouter() {
     }
   });
 
-  router.get("/market/nifty", async (_req, res) => {
+  router.get("/market/nifty", async (req, res) => {
     try {
-      const quote = await safeNiftyQuote();
+      const quote = await safeNiftyQuote(wantFresh(req.query));
       res.json(marketMeta(quote));
     } catch (err) {
       res.status(502).json({ error: err.message ?? "Nifty quote failed" });
     }
   });
 
-  router.get("/intro", async (_req, res) => {
+  router.get("/intro", async (req, res) => {
     try {
-      const quote = await safeNiftyQuote();
+      const quote = await safeNiftyQuote(wantFresh(req.query));
       res.json({
         optionsIntro,
         greeksIntro,
@@ -119,7 +131,7 @@ function buildApiRouter() {
       const strategy = strategies.find((s) => s.id === req.params.id);
       if (!strategy) return res.status(404).json({ error: "Strategy not found" });
 
-      const quote = await safeNiftyQuote();
+      const quote = await safeNiftyQuote(wantFresh(req.query));
       const detail = applyNiftyToStrategy(strategy, quote);
 
       const wantPayoff =

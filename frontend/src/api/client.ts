@@ -1,4 +1,5 @@
 import axios from "axios";
+import { istMarketDay } from "../utils/istMarketDay";
 
 const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 
@@ -115,6 +116,8 @@ export interface StrategyDetail extends StrategySummary {
     atm: number;
     asOf?: string;
     source?: string;
+    /** Asia/Kolkata YYYY-MM-DD — invalidates client cache across trading days */
+    dayKey?: string;
   };
   /** Present when fetched with ?payoff=1 — first-paint charts without a second round-trip */
   initialPayoff?: PayoffResponse;
@@ -130,7 +133,8 @@ function assertJsonPayload(data: unknown, url: string): void {
 }
 
 export const fetchHealth = () => api.get("/health");
-export const fetchIntro = () => api.get("/intro");
+export const fetchIntro = (config?: { params?: { fresh?: number } }) =>
+  api.get("/intro", config);
 export const fetchCategories = () => api.get("/categories");
 export const fetchStrategies = (scope?: "chapter" | "all") =>
   api.get<StrategySummary[]>("/strategies", { params: scope ? { scope } : {} });
@@ -148,9 +152,12 @@ export function invalidateStrategyCache(id?: string) {
   }
 }
 
-async function getStrategyOnce(id: string, withPayoff: boolean) {
+async function getStrategyOnce(id: string, withPayoff: boolean, fresh?: boolean) {
   const res = await api.get<StrategyDetail>(`/strategies/${id}`, {
-    params: withPayoff ? { payoff: 1 } : undefined,
+    params: {
+      ...(withPayoff ? { payoff: 1 } : {}),
+      ...(fresh ? { fresh: 1 } : {}),
+    },
     timeout: withPayoff ? 25000 : 15000,
   });
   assertJsonPayload(res.data, `/strategies/${id}`);
@@ -158,6 +165,11 @@ async function getStrategyOnce(id: string, withPayoff: boolean) {
     throw new Error("Strategy payload missing id");
   }
   return res;
+}
+
+function strategyCacheKey(id: string, withPayoff: boolean) {
+  // Bind cache to IST trading day so overnight tabs cannot serve yesterday's ATM
+  return `${id}:${withPayoff ? "p1" : "p0"}:${istMarketDay()}`;
 }
 
 /** Strategy monograph; prefers bundled payoff, falls back to monograph-only if seed fails. */
@@ -168,22 +180,22 @@ export const fetchStrategy = async (
   const withPayoff = opts?.payoff !== false;
   if (opts?.fresh) invalidateStrategyCache(id);
 
-  const cacheKey = `${id}:${withPayoff ? "p1" : "p0"}`;
+  const cacheKey = strategyCacheKey(id, withPayoff);
   const hit = strategyDetailCache.get(cacheKey);
   if (!opts?.fresh && hit && Date.now() - hit.at < STRATEGY_CACHE_MS) {
     return { data: hit.data };
   }
 
   try {
-    const res = await getStrategyOnce(id, withPayoff);
+    const res = await getStrategyOnce(id, withPayoff, opts?.fresh);
     strategyDetailCache.set(cacheKey, { at: Date.now(), data: res.data });
-    strategyDetailCache.set(`${id}:p0`, { at: Date.now(), data: res.data });
+    strategyDetailCache.set(strategyCacheKey(id, false), { at: Date.now(), data: res.data });
     return res;
   } catch (err) {
     if (!withPayoff) throw err;
     // Retry without payoff seed — still show the monograph
-    const res = await getStrategyOnce(id, false);
-    strategyDetailCache.set(`${id}:p0`, { at: Date.now(), data: res.data });
+    const res = await getStrategyOnce(id, false, opts?.fresh);
+    strategyDetailCache.set(strategyCacheKey(id, false), { at: Date.now(), data: res.data });
     return res;
   }
 };
@@ -191,14 +203,17 @@ export const fetchStrategy = async (
 export const fetchPayoff = (strategyId: string, params: Record<string, number>) =>
   api.post<PayoffResponse>("/payoff", { strategyId, params }, { timeout: 20000 });
 
-export const fetchNiftyMarket = () =>
+export const fetchNiftyMarket = (opts?: { fresh?: boolean }) =>
   api.get<{
     symbol: string;
     spot: number;
     atm: number;
     asOf?: string;
     source?: string;
-  }>("/market/nifty");
+    dayKey?: string;
+  }>("/market/nifty", {
+    params: opts?.fresh ? { fresh: 1 } : undefined,
+  });
 
 /** Warm the strategy monograph cache on hover / focus. */
 export function prefetchStrategy(id: string) {

@@ -10,6 +10,7 @@ import { GreeksExplorer } from "../components/GreeksExplorer";
 import type { EquationSpec } from "../components/MathBlock";
 import { MoneynessCards, MoneynessTable, ResearchSection } from "../components/ResearchLayout";
 import { ProseMath } from "../components/ProseMath";
+import { niftyAtmMoved } from "../utils/istMarketDay";
 
 type MoneynessData = {
   title: string;
@@ -17,6 +18,15 @@ type MoneynessData = {
   table: { instrument: string; itm: string; atm: string; otm: string }[];
   cards: { label: string; abbr: string; callDef: string; putDef: string; tone: "itm" | "atm" | "otm" }[];
   equations: Array<string | EquationSpec>;
+};
+
+type IntroMarket = {
+  symbol: string;
+  spot: number;
+  atm: number;
+  asOf?: string;
+  source?: string;
+  dayKey?: string;
 };
 
 type IntroData = {
@@ -53,6 +63,7 @@ type IntroData = {
     }>;
   };
   basicOptions: Parameters<typeof BasicOptionLab>[0]["options"];
+  market?: IntroMarket;
 };
 
 function asEquationSpecs(
@@ -69,7 +80,52 @@ export function IntroPage() {
   const [data, setData] = useState<IntroData | null>(null);
 
   useEffect(() => {
-    fetchIntro().then((r) => setData(r.data as IntroData));
+    let cancelled = false;
+    let lastMarket: IntroMarket | undefined;
+
+    const applyIntro = (next: IntroData, forceLab = false) => {
+      setData((prev) => {
+        if (!prev) return next;
+        const dayChanged =
+          Boolean(next.market?.dayKey && lastMarket?.dayKey && next.market.dayKey !== lastMarket.dayKey);
+        const atmMoved = niftyAtmMoved(lastMarket?.atm ?? lastMarket?.spot, next.market?.atm ?? next.market?.spot);
+        if (!forceLab && !dayChanged && !atmMoved) {
+          return { ...prev, market: next.market };
+        }
+        return {
+          ...prev,
+          basicOptions: next.basicOptions,
+          market: next.market,
+        };
+      });
+      lastMarket = next.market;
+    };
+
+    const load = (fresh = false) => {
+      fetchIntro({ params: fresh ? { fresh: 1 } : undefined })
+        .then((r) => {
+          if (cancelled) return;
+          applyIntro(r.data as IntroData, !lastMarket);
+        })
+        .catch(() => undefined);
+    };
+
+    load(false);
+
+    const onFocus = () => load(true);
+    const onVis = () => {
+      if (document.visibilityState === "visible") load(true);
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVis);
+    const interval = setInterval(() => load(false), 5 * 60_000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, []);
 
   if (!data) {

@@ -2,14 +2,16 @@
  * Live Nifty spot + scale helpers for defaults/sliders.
  * Does NOT change payoff formulas — only parameter levels and ranges.
  *
- * Designed for Vercel cold starts: never block the request on Yahoo.
- * Uses stale-while-revalidate + a short fetch timeout + static fallback.
+ * Designed for Vercel cold starts: never block forever on Yahoo.
+ * Uses stale-while-revalidate + short fetch timeout + static fallback.
+ * Cache is invalid across IST calendar days so sliders track the trading day.
  */
 
 const FALLBACK_NIFTY = 24350;
 const CACHE_MS = 5 * 60 * 1000;
-/** Max wait for Yahoo on a cold path — after this, serve fallback/stale. */
-const FETCH_TIMEOUT_MS = 700;
+/** Max wait for Yahoo on a cold / new-day path. */
+const FETCH_TIMEOUT_MS = 1800;
+const IST = "Asia/Kolkata";
 
 const PRICE_KEYS = new Set(["S0", "K", "K1", "K2", "K3", "K4", "C", "D", "H", "spotMin", "spotMax"]);
 
@@ -23,12 +25,25 @@ export function roundNiftyAtm(spot) {
   return roundTo(spot, 50);
 }
 
+/** YYYY-MM-DD in Asia/Kolkata — trading-day key for cache invalidation. */
+export function istMarketDay(input = new Date()) {
+  const d = input instanceof Date ? input : new Date(input);
+  if (!Number.isFinite(d.getTime())) return "";
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: IST,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
+
 let cache = {
   spot: FALLBACK_NIFTY,
   atm: roundNiftyAtm(FALLBACK_NIFTY),
   asOf: null,
   source: "fallback",
   expires: 0,
+  dayKey: "",
 };
 
 /** In-flight Yahoo refresh — shared so concurrent requests don't stampede. */
@@ -40,8 +55,16 @@ function snapshot(extra = {}) {
     atm: cache.atm ?? roundNiftyAtm(cache.spot),
     asOf: cache.asOf,
     source: cache.source,
+    dayKey: cache.dayKey || istMarketDay(cache.asOf || new Date()),
     ...extra,
   };
+}
+
+function cacheFreshForTradingDay(now = Date.now()) {
+  if (!(cache.expires > now) || !cache.spot) return false;
+  const today = istMarketDay(new Date(now));
+  const quoteDay = cache.dayKey || (cache.asOf ? istMarketDay(cache.asOf) : "");
+  return Boolean(today && quoteDay && today === quoteDay);
 }
 
 async function fetchYahooNifty(signal) {
@@ -75,6 +98,7 @@ function applyQuote(q, now = Date.now()) {
     asOf: q.asOf,
     source: q.source,
     expires: now + CACHE_MS,
+    dayKey: istMarketDay(q.asOf || new Date(now)),
   };
   return snapshot({ cached: false });
 }
@@ -87,7 +111,6 @@ function refreshInBackground() {
   refreshPromise = fetchYahooNifty(ac.signal)
     .then((q) => applyQuote(q))
     .catch(() => {
-      // Soft-fail: keep last good / fallback, retry after a short cool-down
       cache = {
         ...cache,
         spot: cache.spot || FALLBACK_NIFTY,
@@ -95,6 +118,7 @@ function refreshInBackground() {
         asOf: cache.asOf || new Date().toISOString(),
         source: cache.source === "yahoo:^NSEI" || cache.source === "cache" ? "cache" : "fallback",
         expires: Date.now() + 60_000,
+        dayKey: cache.dayKey || istMarketDay(cache.asOf || new Date()),
       };
       return snapshot({ cached: true });
     })
@@ -107,23 +131,27 @@ function refreshInBackground() {
 
 /**
  * Fast Nifty quote for API handlers.
- * - Fresh cache hit → instant
- * - Stale/warm cache → return immediately, refresh in background
- * - Cold start → wait at most FETCH_TIMEOUT_MS, else FALLBACK (refresh continues)
+ * - Same IST trading day + fresh TTL → instant
+ * - Same day but TTL expired → stale-while-revalidate
+ * - New IST day / cold → wait briefly for Yahoo, else fallback
  */
 export async function getNiftyQuote() {
   const now = Date.now();
-  if (cache.expires > now && cache.spot) {
+  if (cacheFreshForTradingDay(now)) {
     return snapshot({ cached: true });
   }
 
-  // Have any prior live/cache value → stale-while-revalidate (instant response)
-  if (cache.source !== "fallback" && cache.spot) {
+  const today = istMarketDay(new Date(now));
+  const quoteDay = cache.dayKey || (cache.asOf ? istMarketDay(cache.asOf) : "");
+  const sameDay = Boolean(today && quoteDay && today === quoteDay);
+
+  // Same trading day, TTL expired → return last good instantly, refresh behind
+  if (sameDay && cache.source !== "fallback" && cache.spot) {
     void refreshInBackground();
     return snapshot({ cached: true, stale: true });
   }
 
-  // Cold: race a short Yahoo attempt vs timeout, then serve something immediately
+  // New day or cold: race Yahoo vs timeout so sliders get today's ATM
   const ac = new AbortController();
   const timer = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
   try {
@@ -133,14 +161,39 @@ export async function getNiftyQuote() {
   } catch {
     clearTimeout(timer);
     void refreshInBackground();
+    // Prefer yesterday's live level over a hard-coded fallback when we have one
+    if (cache.spot && cache.source !== "fallback") {
+      cache = {
+        ...cache,
+        expires: now + 60_000,
+        source: "cache",
+      };
+      return snapshot({ cached: true, stale: true, dayRollover: true });
+    }
     cache = {
       spot: FALLBACK_NIFTY,
       atm: roundNiftyAtm(FALLBACK_NIFTY),
       asOf: new Date().toISOString(),
       source: "fallback",
       expires: now + 30_000,
+      dayKey: today,
     };
     return snapshot({ cached: true, cold: true });
+  }
+}
+
+/** Force a network refresh (used by explicit client “fresh” requests). */
+export async function refreshNiftyQuote() {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS * 2);
+  try {
+    const q = await fetchYahooNifty(ac.signal);
+    clearTimeout(timer);
+    return applyQuote(q);
+  } catch (err) {
+    clearTimeout(timer);
+    void refreshInBackground();
+    throw err;
   }
 }
 
@@ -217,5 +270,6 @@ export function marketMeta(quote) {
     atm: quote.atm ?? roundNiftyAtm(quote.spot),
     asOf: quote.asOf,
     source: quote.source,
+    dayKey: quote.dayKey || istMarketDay(quote.asOf || new Date()),
   };
 }
