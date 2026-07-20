@@ -21,8 +21,8 @@ Styled to match the [Anand Rathi Primary SP Dashboard](https://sp-dashboard-eta.
 - **Payoff math** — textbook / notebook default identities are unchanged. Premiums (`C` / `D` / `H`) and strikes move the curve as expected.
 - **KaTeX** — gold-highlighted math atoms (including trailing premiums like `C` in `K_2 - K_1 - C`); stacked `\ln(S/K)` fractions; clean subscripts / superscripts.
 - **Payoff Formalism** — united identities (net payoff, breakeven, max profit, max loss) in one FormulaDeck with shared notation.
-- **Dropdowns** — most formula / Greek folds start **collapsed**; important decks (**Payoff Formalism**, basic-lab terminal payoff) start **open**. Greek fold toggles are gold buttons with chevrons.
-- **Greek guides** — short lead paragraph on screen; **Read more** holds three detailed paragraphs per Greek (Δ, Γ, Θ, ν, ρ), with symmetric call/put wording.
+- **Dropdowns** — formula decks and Greek folds start **collapsed**; only **Read more** under each Greek guide starts **open**. Gold button toggles with chevrons everywhere else.
+- **Greek guides** — short lead paragraph on screen; **Read more** (open by default) holds three detailed paragraphs per Greek (Δ, Γ, Θ, ν, ρ), with symmetric call/put wording.
 
 ---
 

@@ -128,7 +128,7 @@ export function GreeksExplorer({ greeks }: { greeks: GreekCardData[] }) {
           </details>
 
           {more.length > 0 && (
-            <details className="greek-formula-fold">
+            <details className="greek-formula-fold" open>
               <FoldSummary label="Read more" />
               <div className="research-prose greek-prose-stack">
                 {more.map((p, j) => (

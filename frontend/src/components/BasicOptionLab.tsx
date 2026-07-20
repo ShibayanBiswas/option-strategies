@@ -154,7 +154,6 @@ export function BasicOptionLab({ options }: BasicOptionLabProps) {
             deckContext="Each equation includes symbol definitions used on strategy monograph pages."
             formulas={equationsToFormulaRecord(payoffEquations)}
             defaultExpanded="netPayoff"
-            defaultOpen
             compact
           />
 
